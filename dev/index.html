@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>WeatherData.jl</title>
+<title>GeoDataAccess.jl</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -118,7 +118,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <img src="https://github.com/user-attachments/assets/f7216152-0d6e-4459-8e65-b9ed59421638" alt="" class="navbar-logo dark-content">
     </a>
     <a class="navbar-brand" href="https://rallypoint1.com">
-    <span class="navbar-title">WeatherData.jl</span>
+    <span class="navbar-title">GeoDataAccess.jl</span>
     </a>
   </div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -127,12 +127,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="https://github.com/RallypointOne/WeatherData.jl/stargazers"> <i class="bi bi-star" role="img">
+    <a class="nav-link" href="https://github.com/RallypointOne/GeoDataAccess.jl/stargazers"> <i class="bi bi-star" role="img">
 </i> 
 <span class="menu-text">Star</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/RallypointOne/WeatherData.jl"> <i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/RallypointOne/GeoDataAccess.jl"> <i class="bi bi-github" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -147,7 +147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Docs</a></li><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-title">WeatherData.jl</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Docs</a></li><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-title">GeoDataAccess.jl</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -178,26 +178,101 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">WeatherData.jl</span></a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">GeoDataAccess.jl</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./getting-started.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Getting Started</span></a>
+  <a href="./getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Getting Started</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./caching.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Caching</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">API</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Data Sources</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/open_meteo_archive.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Open-Meteo Archive</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/open_meteo_forecast.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Open-Meteo Forecast</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/noaa_ncei.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA NCEI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/nasa_power.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NASA POWER</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/tomorrow_io.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tomorrow.io</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/visual_crossing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Visual Crossing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/usgs_earthquake.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">USGS Earthquake</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/usgs_waterservices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">USGS Water Services</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/openaq.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">OpenAQ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/nasa_firms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NASA FIRMS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/epa_aqs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">EPA AQS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">API</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./api.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">API</span></a>
@@ -207,13 +282,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
  <span class="menu-text">Resources</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./resources/changelog.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Changelog</span></a>
@@ -236,7 +311,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link active" data-scroll-target="#data-sources">Data Sources</a></li>
   <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation">Installation</a></li>
   <li><a href="#quickstart" id="toc-quickstart" class="nav-link" data-scroll-target="#quickstart">Quickstart</a></li>
   </ul>
@@ -245,9 +320,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Docs</a></li><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-title">WeatherData.jl</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Docs</a></li><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-title">GeoDataAccess.jl</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">WeatherData.jl</h1>
+<h1 class="title">GeoDataAccess.jl</h1>
 </div>
 
 
@@ -264,22 +339,179 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Welcome to the documentation for <strong>WeatherData.jl</strong>.</p>
-<section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>WeatherData.jl is a Julia package that …</p>
+<p><strong>GeoDataAccess.jl</strong> is a Julia package for collecting geospatial data from multiple public APIs. It provides a unified interface across weather, hydrology, seismology, air quality, and more — with built-in caching and <a href="https://github.com/JuliaGeo/GeoInterface.jl">GeoInterface.jl</a> integration for flexible spatial queries.</p>
+<section id="data-sources" class="level2">
+<h2 class="anchored" data-anchor-id="data-sources">Data Sources</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Source</th>
+<th>Type</th>
+<th>Coverage</th>
+<th>Resolution</th>
+<th>API Key</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="@ref"><code>OpenMeteoArchive</code></a></td>
+<td>Raster (ERA5)</td>
+<td>Global, 1940–present</td>
+<td>Hourly/Daily, 25 km</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><a href="@ref"><code>OpenMeteoForecast</code></a></td>
+<td>Raster</td>
+<td>Global, 16-day forecast</td>
+<td>Hourly/Daily, 9 km</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td><a href="@ref"><code>NOAANCEI</code></a></td>
+<td>Station-based</td>
+<td>Global stations, 1763–present</td>
+<td>Daily</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><a href="@ref"><code>NASAPower</code></a></td>
+<td>Raster</td>
+<td>Global, 1981–present</td>
+<td>Daily, 55 km</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td><a href="@ref"><code>TomorrowIO</code></a></td>
+<td>Raster</td>
+<td>Global, 2000–present</td>
+<td>Hourly/Daily, 4 km</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><a href="@ref"><code>VisualCrossing</code></a></td>
+<td>Raster</td>
+<td>Global, ~50 years</td>
+<td>Daily/Hourly, 1 km</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><a href="@ref"><code>USGSEarthquake</code></a></td>
+<td>Event-based</td>
+<td>Global catalog</td>
+<td>Event-based</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><a href="@ref"><code>USGSWaterServices</code></a></td>
+<td>Station-based</td>
+<td>US, 1.5M+ sites</td>
+<td>Daily/15-min</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td><a href="@ref"><code>OpenAQ</code></a></td>
+<td>Station-based</td>
+<td>Global, 11K+ stations</td>
+<td>Hourly/Daily</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><a href="@ref"><code>NASAFIRMS</code></a></td>
+<td>Event-based</td>
+<td>Global, near real-time</td>
+<td>375 m / 1 km</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><a href="@ref"><code>EPAAQS</code></a></td>
+<td>Station-based</td>
+<td>US stations</td>
+<td>Hourly/Daily</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>LandfireSource</code></td>
+<td>Raster</td>
+<td>CONUS, AK, HI</td>
+<td>30 m</td>
+<td>No (email)</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="installation" class="level2">
 <h2 class="anchored" data-anchor-id="installation">Installation</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Pkg</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(<span class="st">"WeatherData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(<span class="st">"GeoDataAccess"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="quickstart" class="level2">
 <h2 class="anchored" data-anchor-id="quickstart">Quickstart</h2>
-<div id="2" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"Hello, World!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Hello, World!</code></pre>
+<p>The core workflow is: create a <code>DataAccessPlan</code>, inspect it, then <code>fetch!</code> to download the data as JSON files.</p>
+<div id="4" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: DataAccessPlan, fetch!, OpenMeteoArchive</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Dates</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a plan: hourly temperature and precipitation for NYC</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">OpenMeteoArchive</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">3</span>);</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>temperature_2m, <span class="op">:</span>precipitation],</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    frequency <span class="op">=</span> <span class="op">:</span>hourly)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>DataAccessPlan for openmeteoarchive
+  Extent:    Point(40.7, -74.0)
+  Time:      2024-07-01 to 2024-07-03 (3 days)
+  Variables: temperature_2m, precipitation
+  frequency: hourly
+  timezone: GMT
+  API calls: 1
+  Est. size: 1.125 KiB
+
+  Request 1: GET 1 point(s), hourly 3 days → openmeteoarchive/3669ebf219e4f089.json</code></pre>
+</div>
+</div>
+<div id="6" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Execute the plan — returns file paths to cached JSON</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div class="ansi-escaped-output">
+<pre>1-element Vector{String}:
+ "/home/runner/.julia/scratchspac"<span class="ansi-bright-yellow-fg ansi-bold"> ⋯ 68 bytes ⋯ </span>"oarchive/3669ebf219e4f089.json"</pre>
+</div>
+</div>
+</div>
+<div id="8" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the JSON data</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">JSON</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> JSON.<span class="fu">parsefile</span>(files[<span class="fl">1</span>])</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">keys</span>(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>KeySet for a JSON.Object{String, Any} with 9 entries. Keys:
+  "latitude"
+  "longitude"
+  "generationtime_ms"
+  "utc_offset_seconds"
+  "timezone"
+  "timezone_abbreviation"
+  "elevation"
+  "hourly_units"
+  "hourly"</code></pre>
+</div>
+</div>
+<p>Or use the convenience function <code>fetch_data</code> which combines both steps:</p>
+<div id="10" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: fetch_data, OpenMeteoArchive</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch_data</span>(<span class="fu">OpenMeteoArchive</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">3</span>);</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>temperature_2m, <span class="op">:</span>precipitation],</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    frequency <span class="op">=</span> <span class="op">:</span>hourly)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div class="ansi-escaped-output">
+<pre>1-element Vector{String}:
+ "/home/runner/.julia/scratchspac"<span class="ansi-bright-yellow-fg ansi-bold"> ⋯ 68 bytes ⋯ </span>"oarchive/3669ebf219e4f089.json"</pre>
+</div>
 </div>
 </div>
 
@@ -692,7 +924,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   <div class="nav-page nav-page-next">
       <a href="./getting-started.html" class="pagination-link" aria-label="Getting Started">
-        <span class="nav-page-text">Getting Started</span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Getting Started</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -703,119 +935,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Built on 2026-03-03</p>
+<p>Built on 2026-03-04</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
   </div>
 </footer>
-<script>
-(function() {
-    // Detect repo name and current version from URL path
-    // Deployed: /{repoName}/{version}/...
-    // Local preview: /page.html (no repo/version segments)
-    var pathParts = window.location.pathname.split('/').filter(Boolean);
-    var isLocal = pathParts.length < 2 || !pathParts[0].includes('.');
-    var currentVersion, basePath;
-
-    if (pathParts.length >= 2 && pathParts[1].match(/^(dev|stable|v\d)/)) {
-        currentVersion = pathParts[1];
-        basePath = '/' + pathParts[0] + '/';
-    } else {
-        currentVersion = 'dev';
-        basePath = '/';
-    }
-
-    // Build dropdown HTML
-    function buildDropdown(versions) {
-        var navbar = document.querySelector('.navbar-nav.navbar-nav-scroll.ms-auto');
-        if (!navbar) return;
-
-        var li = document.createElement('li');
-        li.className = 'nav-item dropdown';
-        li.innerHTML =
-            '<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">' +
-                currentVersion +
-            '</a>' +
-            '<ul class="dropdown-menu dropdown-menu-end"></ul>';
-
-        var menu = li.querySelector('.dropdown-menu');
-
-        // Always add dev and stable
-        var fixed = ['stable', 'dev'];
-        fixed.forEach(function(v) {
-            var a = document.createElement('a');
-            a.className = 'dropdown-item' + (v === currentVersion ? ' active' : '');
-            a.href = basePath + v + '/';
-            a.textContent = v;
-            var item = document.createElement('li');
-            item.appendChild(a);
-            menu.appendChild(item);
-        });
-
-        // Add release versions from versions.json
-        if (versions && versions.length > 0) {
-            var divider = document.createElement('li');
-            divider.innerHTML = '<hr class="dropdown-divider">';
-            menu.appendChild(divider);
-
-            versions.forEach(function(v) {
-                var a = document.createElement('a');
-                a.className = 'dropdown-item' + (v === currentVersion ? ' active' : '');
-                a.href = basePath + v + '/';
-                a.textContent = v;
-                var item = document.createElement('li');
-                item.appendChild(a);
-                menu.appendChild(item);
-            });
-        }
-
-        navbar.prepend(li);
-
-        // Show outdated version banner
-        if (versions && versions.length > 0 && currentVersion !== 'stable' && currentVersion !== 'dev') {
-            var latest = versions[0]; // versions.json is sorted descending
-            if (currentVersion !== latest) {
-                var banner = document.createElement('div');
-                banner.className = 'alert alert-warning text-center mb-0 rounded-0';
-                banner.setAttribute('role', 'alert');
-                banner.innerHTML = 'You are viewing docs for <strong>' + currentVersion + '</strong>. ' +
-                    'The latest stable release is <a href="' + basePath + 'stable/" class="alert-link">' + latest + '</a>.';
-                document.body.prepend(banner);
-            }
-        }
-    }
-
-    // Fetch versions.json, then build dropdown
-    fetch(basePath + 'versions.json')
-        .then(function(res) { return res.ok ? res.json() : []; })
-        .catch(function() { return []; })
-        .then(buildDropdown);
-
-    // Fix navbar-brand title link to point to docs home (logo stays external)
-    var titleLink = document.querySelector('a.navbar-brand:not(.navbar-brand-logo)');
-    if (titleLink) {
-        titleLink.href = basePath + currentVersion + '/';
-    }
-
-    // Fetch star count from GitHub API
-    var starLink = document.querySelector('a.nav-link[href*="/stargazers"]');
-    if (starLink) {
-        var match = starLink.href.match(/github\.com\/([^/]+\/[^/]+)\/stargazers/);
-        if (match) {
-            fetch('https://api.github.com/repos/' + match[1])
-                .then(function(res) { return res.ok ? res.json() : null; })
-                .then(function(data) {
-                    if (!data) return;
-                    var text = starLink.querySelector('.menu-text');
-                    if (text) text.textContent = data.stargazers_count;
-                })
-                .catch(function() {});
-        }
-    }
-})();
-</script>
 
 
 

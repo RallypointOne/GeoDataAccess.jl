@@ -2,34 +2,45 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "WeatherData.jl",
+    "title": "GeoDataAccess.jl",
     "section": "",
-    "text": "Overview\nWelcome to the documentation for WeatherData.jl.\nWeatherData.jl is a Julia package that …",
+    "text": "Data Sources\nGeoDataAccess.jl is a Julia package for collecting geospatial data from multiple public APIs. It provides a unified interface across weather, hydrology, seismology, air quality, and more — with built-in caching and GeoInterface.jl integration for flexible spatial queries.",
     "crumbs": [
       "Docs",
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>WeatherData.jl</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>GeoDataAccess.jl</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#data-sources",
+    "href": "index.html#data-sources",
+    "title": "GeoDataAccess.jl",
+    "section": "",
+    "text": "Source\nType\nCoverage\nResolution\nAPI Key\n\n\n\n\nOpenMeteoArchive\nRaster (ERA5)\nGlobal, 1940–present\nHourly/Daily, 25 km\nNo\n\n\nOpenMeteoForecast\nRaster\nGlobal, 16-day forecast\nHourly/Daily, 9 km\nNo\n\n\nNOAANCEI\nStation-based\nGlobal stations, 1763–present\nDaily\nNo\n\n\nNASAPower\nRaster\nGlobal, 1981–present\nDaily, 55 km\nNo\n\n\nTomorrowIO\nRaster\nGlobal, 2000–present\nHourly/Daily, 4 km\nYes\n\n\nVisualCrossing\nRaster\nGlobal, ~50 years\nDaily/Hourly, 1 km\nYes\n\n\nUSGSEarthquake\nEvent-based\nGlobal catalog\nEvent-based\nNo\n\n\nUSGSWaterServices\nStation-based\nUS, 1.5M+ sites\nDaily/15-min\nNo\n\n\nOpenAQ\nStation-based\nGlobal, 11K+ stations\nHourly/Daily\nYes\n\n\nNASAFIRMS\nEvent-based\nGlobal, near real-time\n375 m / 1 km\nYes\n\n\nEPAAQS\nStation-based\nUS stations\nHourly/Daily\nYes\n\n\nLandfireSource\nRaster\nCONUS, AK, HI\n30 m\nNo (email)",
+    "crumbs": [
+      "Docs",
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>GeoDataAccess.jl</span>"
     ]
   },
   {
     "objectID": "index.html#installation",
     "href": "index.html#installation",
-    "title": "WeatherData.jl",
+    "title": "GeoDataAccess.jl",
     "section": "Installation",
-    "text": "Installation\nusing Pkg\nPkg.add(\"WeatherData\")",
+    "text": "Installation\nusing Pkg\nPkg.add(\"GeoDataAccess\")",
     "crumbs": [
       "Docs",
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>WeatherData.jl</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>GeoDataAccess.jl</span>"
     ]
   },
   {
     "objectID": "index.html#quickstart",
     "href": "index.html#quickstart",
-    "title": "WeatherData.jl",
+    "title": "GeoDataAccess.jl",
     "section": "Quickstart",
-    "text": "Quickstart\n\nprintln(\"Hello, World!\")\n\nHello, World!",
+    "text": "Quickstart\nThe core workflow is: create a DataAccessPlan, inspect it, then fetch! to download the data as JSON files.\n\nusing GeoDataAccess\nusing GeoDataAccess: DataAccessPlan, fetch!, OpenMeteoArchive\nusing Dates\n\n# Create a plan: hourly temperature and precipitation for NYC\nplan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 3);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\nDataAccessPlan for openmeteoarchive\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-07-01 to 2024-07-03 (3 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 1.125 KiB\n\n  Request 1: GET 1 point(s), hourly 3 days → openmeteoarchive/3669ebf219e4f089.json\n\n\n\n# Execute the plan — returns file paths to cached JSON\nfiles = fetch!(plan)\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 68 bytes ⋯ \"oarchive/3669ebf219e4f089.json\"\n\n\n\n\n# Read the JSON data\nusing JSON\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 9 entries. Keys:\n  \"latitude\"\n  \"longitude\"\n  \"generationtime_ms\"\n  \"utc_offset_seconds\"\n  \"timezone\"\n  \"timezone_abbreviation\"\n  \"elevation\"\n  \"hourly_units\"\n  \"hourly\"\n\n\nOr use the convenience function fetch_data which combines both steps:\n\nusing GeoDataAccess: fetch_data, OpenMeteoArchive\n\nfiles = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 3);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 68 bytes ⋯ \"oarchive/3669ebf219e4f089.json\"",
     "crumbs": [
       "Docs",
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>WeatherData.jl</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>GeoDataAccess.jl</span>"
     ]
   },
   {
@@ -37,76 +48,648 @@
     "href": "getting-started.html",
     "title": "Getting Started",
     "section": "",
-    "text": "Basic Usage",
+    "text": "Imports\nGeoDataAccess.jl does not export symbols by default. Import what you need explicitly:",
     "crumbs": [
       "Docs",
-      "Getting Started"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
     ]
   },
   {
-    "objectID": "getting-started.html#basic-usage",
-    "href": "getting-started.html#basic-usage",
+    "objectID": "getting-started.html#imports",
+    "href": "getting-started.html#imports",
     "title": "Getting Started",
     "section": "",
-    "text": "using WeatherData",
+    "text": "using GeoDataAccess\nusing GeoDataAccess: DataAccessPlan, fetch!, fetch_data, MetaData\nusing Dates",
     "crumbs": [
       "Docs",
-      "Getting Started"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
     ]
   },
   {
-    "objectID": "getting-started.html#examples",
-    "href": "getting-started.html#examples",
+    "objectID": "getting-started.html#discovering-sources",
+    "href": "getting-started.html#discovering-sources",
     "title": "Getting Started",
-    "section": "Examples",
-    "text": "Examples\nTODO: Add examples here.",
+    "section": "Discovering Sources",
+    "text": "Discovering Sources\nGeoDataAccess ships with several data sources. Use all_sources and available_sources to see what’s registered:\n\nall_sources()\n\n11-element Vector{GeoDataAccess.AbstractDataSource}:\n OpenMeteoArchive()\n OpenMeteoForecast()\n NOAANCEI(\"daily-summaries\")\n NASAPower()\n TomorrowIO()\n VisualCrossing()\n GeoDataAccess.USGSEarthquake()\n USGSWaterServices(\"dv\")\n GeoDataAccess.OpenAQ()\n GeoDataAccess.NASAFIRMS()\n GeoDataAccess.EPAAQS()\n\n\n\n# Only sources you can use right now (API key set or not required)\navailable_sources()\n\n6-element Vector{GeoDataAccess.AbstractDataSource}:\n OpenMeteoArchive()\n OpenMeteoForecast()\n NOAANCEI(\"daily-summaries\")\n NASAPower()\n GeoDataAccess.USGSEarthquake()\n USGSWaterServices(\"dv\")\n\n\nEvery source carries a MetaData record describing its coverage, resolution, variables, and access requirements:\n\nMetaData(NASAPower())\n\nMetaData(\"\", \"No published rate limit\", :weather, Dict(:WD2M =&gt; \"Wind direction at 2m (°)\", :PRECTOTCORR =&gt; \"Precipitation corrected (mm/day)\", :CLOUD_AMT =&gt; \"Cloud amount (%)\", :CLRSKY_SFC_SW_DWN =&gt; \"Clear-sky surface shortwave downward irradiance (MJ/m²/day)\", :ALLSKY_SFC_SW_DWN =&gt; \"All-sky surface shortwave downward irradiance (MJ/m²/day)\", :RH2M =&gt; \"Relative humidity at 2m (%)\", :WS10M =&gt; \"Wind speed at 10m (m/s)\", :ALLSKY_SFC_LW_DWN =&gt; \"All-sky surface longwave downward irradiance (W/m²)\", :WD10M =&gt; \"Wind direction at 10m (°)\", :WS2M =&gt; \"Wind speed at 2m (m/s)\"…), :raster, \"55 km\", \"Global\", :timeseries, Day(1), \"1981-present\", \"Open Data (NASA)\", \"https://power.larc.nasa.gov/docs/services/api/\")\n\n\n\nMetaData(OpenMeteoArchive())\n\nMetaData(\"\", \"10,000 calls/day (non-commercial)\", :weather, Dict(:temperature_2m_mean =&gt; \"Daily mean temperature at 2m (°C)\", :wind_direction_10m_dominant =&gt; \"Daily dominant wind direction (°)\", :apparent_temperature_max =&gt; \"Daily maximum apparent temperature (°C)\", :surface_pressure =&gt; \"Surface pressure (hPa)\", :precipitation_sum =&gt; \"Daily total precipitation (mm)\", :wind_gusts_10m_max =&gt; \"Daily maximum wind gusts at 10m (km/h)\", :precipitation_hours =&gt; \"Daily hours with precipitation\", :temperature_2m =&gt; \"Air temperature at 2m (°C)\", :rain_sum =&gt; \"Daily total rain (mm)\", :wind_direction_10m =&gt; \"Wind direction at 10m (°)\"…), :raster, \"25 km\", \"Global\", :timeseries, Hour(1), \"1940-present\", \"CC BY 4.0\", \"https://open-meteo.com/en/docs/historical-weather-api\")",
     "crumbs": [
       "Docs",
-      "Getting Started"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
     ]
   },
   {
-    "objectID": "api.html",
-    "href": "api.html",
-    "title": "API",
+    "objectID": "getting-started.html#plan-fetch-workflow",
+    "href": "getting-started.html#plan-fetch-workflow",
+    "title": "Getting Started",
+    "section": "Plan / Fetch Workflow",
+    "text": "Plan / Fetch Workflow\nEvery data request follows two steps:\n\nPlan — DataAccessPlan(source, extent, start_date, stop_date; kw...) builds a plan describing the API calls that will be made, without executing them.\nFetch — fetch!(plan) executes the plan, downloads data, and returns file paths to cached JSON files.\n\nThe interface is the same regardless of which source you choose.\n\nStep 1: Create a Plan\nPass a data source, a location (longitude, latitude), a date range, and the variables you want. Each source has its own variable names — check its MetaData or documentation page for the list.\n\n# NASA POWER — daily temperature and precipitation\nplan = DataAccessPlan(NASAPower(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:T2M, :PRECTOTCORR])\n\nDataAccessPlan for nasapower\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-07-01 to 2024-07-14 (14 days)\n  Variables: T2M, PRECTOTCORR\n  community: AG\n  query_type: point\n  API calls: 1\n  Est. size: 224 bytes\n\n  Request 1: GET Point(40.7, -74.0), 14 days → nasapower/f4aeeed25010a44.json\n\n\nThe plan shows you exactly what will be fetched — number of API calls, estimated size, time range, and variables — before any network requests are made.\n\n\nStep 2: Fetch the Data\n\nfiles = fetch!(plan)\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 60 bytes ⋯ \"nasapower/f4aeeed25010a44.json\"\n\n\n\nfetch! returns a vector of file paths to cached JSON files. Read them with JSON.jl:\n\nusing JSON\n\ndata = JSON.parsefile(files[1])\ncollect(keys(data))\n\n7-element Vector{String}:\n \"type\"\n \"geometry\"\n \"properties\"\n \"header\"\n \"messages\"\n \"parameters\"\n \"times\"\n\n\n\n\nShortcut: fetch_data\nThe convenience function fetch_data combines both steps:\n\nfiles = fetch_data(NASAPower(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:T2M, :PRECTOTCORR])\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 60 bytes ⋯ \"nasapower/f4aeeed25010a44.json\"\n\n\n\n\n\nSame Workflow, Any Source\nThe plan/fetch pattern works identically across all sources. Only the source constructor and variable names change:\n\n# Open-Meteo Archive — hourly data with different variable names\nplan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\nDataAccessPlan for openmeteoarchive\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-07-01 to 2024-07-14 (14 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 5.250 KiB\n\n  Request 1: GET 1 point(s), hourly 14 days → openmeteoarchive/d24c1282ace1ab86.json\n\n\n\n# NOAA NCEI — station-based, requires station IDs\nplan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    stations = [\"USW00094728\"],\n    variables = [:TMAX, :TMIN, :PRCP])\n\nDataAccessPlan for noaancei\n  Extent:    1 station(s): USW00094728\n  Time:      2024-07-01 to 2024-07-14 (14 days)\n  Variables: TMAX, TMIN, PRCP\n  stations: [\"USW00094728\"]\n  API calls: 1\n  Est. size: 336 bytes\n\n  Request 1: GET 1 station(s), 14 days → noaancei/a0665c46cb739385.json\n\n\nSee the Data Sources section in the sidebar for source-specific details, examples, and variable listings.",
+    "crumbs": [
+      "Docs",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#example-comparing-sources",
+    "href": "getting-started.html#example-comparing-sources",
+    "title": "Getting Started",
+    "section": "Example: Comparing Sources",
+    "text": "Example: Comparing Sources\nFetch daily temperature from two independent sources for the same location and overlay them:\n\nusing CairoMakie\n\n# NASA POWER\nfiles_power = fetch_data(NASAPower(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:T2M])\npower = JSON.parsefile(files_power[1])\npower_temps = collect(values(power[\"properties\"][\"parameter\"][\"T2M\"]))\npower_dates = Date.(collect(keys(power[\"properties\"][\"parameter\"][\"T2M\"])), \"yyyymmdd\")\n\n# Open-Meteo Archive\nfiles_meteo = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:temperature_2m_mean], frequency = :daily)\nmeteo = JSON.parsefile(files_meteo[1])\nmeteo_temps = meteo[\"daily\"][\"temperature_2m_mean\"]\nmeteo_dates = Date.(meteo[\"daily\"][\"time\"])\n\nfig = Figure(size=(700, 350))\nax = Axis(fig[1, 1];\n    xlabel=\"Date\", ylabel=\"Temperature (°C)\",\n    title=\"Daily Mean Temperature — NYC, July 2024\",\n    xticklabelrotation=pi/4)\nlines!(ax, power_dates, power_temps; label=\"NASA POWER\", linewidth=2)\nlines!(ax, meteo_dates, meteo_temps; label=\"Open-Meteo (ERA5)\", linewidth=2)\naxislegend(ax; position=:lb, framevisible=false)\nfig",
+    "crumbs": [
+      "Docs",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#geointerface-integration",
+    "href": "getting-started.html#geointerface-integration",
+    "title": "Getting Started",
+    "section": "GeoInterface Integration",
+    "text": "GeoInterface Integration\nDataAccessPlan accepts any GeoInterface.jl-compatible geometry as the spatial extent. The geometry type determines how coordinates are sent to the API:\n\n\n\nGeometry\nBehavior\n\n\n\n\nPoint / Tuple\nSingle coordinate query\n\n\nMultiPoint\nOne query per point\n\n\nLineString\nOne query per vertex\n\n\nPolygon\nBounding box / corner point queries\n\n\nExtent\nBounding box / corner point queries\n\n\n\n\nMulti-Point Query\n\nimport GeoInterface as GI\n\nmp = GI.MultiPoint([(-74.0, 40.7), (-87.6, 41.9)])\n\nplan = DataAccessPlan(NASAPower(), mp,\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:T2M])\nplan\n\nDataAccessPlan for nasapower\n  Extent:    2 points\n  Time:      2024-01-01 to 2024-01-07 (7 days)\n  Variables: T2M\n  community: AG\n  query_type: multi_point\n  API calls: 2\n  Est. size: 112 bytes\n\n  Request 1: GET Point(40.7, -74.0), 7 days → nasapower/c378f65586265649.json\n  Request 2: GET Point(41.9, -87.6), 7 days → nasapower/ce8f13f38b3cb8e.json\n\n\n\n\nExtent Query\n\nusing GeoInterface.Extents: Extent\n\next = Extent(X=(-76.0, -72.0), Y=(39.0, 42.0))\n\nplan = DataAccessPlan(NASAPower(), ext,\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:T2M])\nplan\n\nDataAccessPlan for nasapower\n  Extent:    Extent(X=(-76.0, -72.0), Y=(39.0, 42.0))\n  Time:      2024-01-01 to 2024-01-07 (7 days)\n  Variables: T2M\n  community: AG\n  query_type: regional\n  API calls: 1\n  Est. size: 56 bytes\n\n  Request 1: GET Regional bbox, 7 days → nasapower/4ec2c52b8c5be1bf.json",
+    "crumbs": [
+      "Docs",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
+    ]
+  },
+  {
+    "objectID": "caching.html",
+    "href": "caching.html",
+    "title": "Caching",
     "section": "",
-    "text": "Types",
+    "text": "Status\nGeoDataAccess.jl caches API responses to disk via Scratch.jl. Caching is enabled by default — repeated requests for the same data are served from disk without hitting the network.\nCache.ENABLED[]\n\ntrue",
     "crumbs": [
-      "API",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>API</span>"
+      "Docs",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Caching</span>"
     ]
   },
   {
-    "objectID": "api.html#types",
-    "href": "api.html#types",
-    "title": "API",
+    "objectID": "caching.html#enable-disable",
+    "href": "caching.html#enable-disable",
+    "title": "Caching",
+    "section": "Enable / Disable",
+    "text": "Enable / Disable\n# Disable caching (all requests go to the network)\nCache.enable!(false)\n\n# Re-enable caching\nCache.enable!(true)",
+    "crumbs": [
+      "Docs",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Caching</span>"
+    ]
+  },
+  {
+    "objectID": "caching.html#inspecting-the-cache",
+    "href": "caching.html#inspecting-the-cache",
+    "title": "Caching",
+    "section": "Inspecting the Cache",
+    "text": "Inspecting the Cache\n# List all cached files\nCache.list()",
+    "crumbs": [
+      "Docs",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Caching</span>"
+    ]
+  },
+  {
+    "objectID": "caching.html#clearing-the-cache",
+    "href": "caching.html#clearing-the-cache",
+    "title": "Caching",
+    "section": "Clearing the Cache",
+    "text": "Clearing the Cache\n# Clear everything\nCache.clear!()\nCache files are stored in a Scratch.jl-managed directory and are automatically cleaned up when the package is removed or Julia’s scratchspace is garbage-collected.",
+    "crumbs": [
+      "Docs",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Caching</span>"
+    ]
+  },
+  {
+    "objectID": "sources/open_meteo_archive.html",
+    "href": "sources/open_meteo_archive.html",
+    "title": "Open-Meteo Archive",
     "section": "",
-    "text": "Config\n\n\nConfig\nConfiguration for the package.\n\nFields\n\nname::String: The name to use in greetings.\nverbose::Bool: Whether to print extra information.",
+    "text": "Hourly Data\nOpen-Meteo Archive provides global historical weather data from the ERA5 reanalysis dataset (1940–present) at ~25 km resolution. No API key is required.\nplan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 3);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\nDataAccessPlan for openmeteoarchive\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-01-01 to 2024-01-03 (3 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 1.125 KiB\n\n  Request 1: GET 1 point(s), hourly 3 days → openmeteoarchive/8ffb4df0acfa8b3.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 9 entries. Keys:\n  \"latitude\"\n  \"longitude\"\n  \"generationtime_ms\"\n  \"utc_offset_seconds\"\n  \"timezone\"\n  \"timezone_abbreviation\"\n  \"elevation\"\n  \"hourly_units\"\n  \"hourly\"",
     "crumbs": [
-      "API",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>API</span>"
+      "Data Sources",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Open-Meteo Archive</span>"
     ]
   },
   {
-    "objectID": "api.html#functions",
-    "href": "api.html#functions",
-    "title": "API",
-    "section": "Functions",
-    "text": "Functions\n\n\ngreet\n\n\ngreet()\ngreet(name::String)\nReturn a greeting string. If name is provided, greet that person.\n\nExamples\njulia&gt; greet()\n\"Hello from WeatherData!\"\n\njulia&gt; greet(\"Julia\")\n\"Hello, Julia!\"\n\n\n\n\n\ntransform\n\n\ntransform(x::AbstractVector; scale=1.0)\nApply a transformation to x, scaling each element by scale.\n\nExamples\njulia&gt; transform([1, 2, 3]; scale=2.0)\n3-element Vector{Float64}:\n 2.0\n 4.0\n 6.0",
+    "objectID": "sources/open_meteo_archive.html#daily-data",
+    "href": "sources/open_meteo_archive.html#daily-data",
+    "title": "Open-Meteo Archive",
+    "section": "Daily Data",
+    "text": "Daily Data\nDaily aggregates use different variable names (e.g. temperature_2m_max instead of temperature_2m):\n\nfiles = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:temperature_2m_max, :temperature_2m_min, :precipitation_sum],\n    frequency = :daily)\n\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 9 entries. Keys:\n  \"latitude\"\n  \"longitude\"\n  \"generationtime_ms\"\n  \"utc_offset_seconds\"\n  \"timezone\"\n  \"timezone_abbreviation\"\n  \"elevation\"\n  \"daily_units\"\n  \"daily\"",
     "crumbs": [
-      "API",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>API</span>"
+      "Data Sources",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Open-Meteo Archive</span>"
     ]
   },
   {
-    "objectID": "api.html#constants",
-    "href": "api.html#constants",
-    "title": "API",
-    "section": "Constants",
-    "text": "Constants\n\n\nDEFAULT_GREETING\n\n\nString(s::AbstractString)\nCreate a new String from an existing AbstractString.\nString(v::AbstractVector{UInt8})\nCreate a new String object using the data buffer from byte vector v. If v is a Vector{UInt8} it will be truncated to zero length and future modification of v cannot affect the contents of the resulting string. To avoid truncation of Vector{UInt8} data, use String(copy(v)); for other AbstractVector types, String(v) already makes a copy.\nWhen possible, the memory of v will be used without copying when the String object is created. This is guaranteed to be the case for byte vectors returned by take! on a writable IOBuffer and by calls to read(io, nb). This allows zero-copy conversion of I/O data to strings. In other cases, Vector{UInt8} data may be copied, but v is truncated anyway to guarantee consistent behavior.\nString &lt;: AbstractString\nThe default string type in Julia, used by e.g. string literals.\nStrings are immutable sequences of Chars. A String is stored internally as a contiguous byte array, and while they are interpreted as being UTF-8 encoded, they can be composed of any byte sequence. Use isvalid to validate that the underlying byte sequence is valid as UTF-8.",
+    "objectID": "sources/open_meteo_archive.html#variables",
+    "href": "sources/open_meteo_archive.html#variables",
+    "title": "Open-Meteo Archive",
+    "section": "Variables",
+    "text": "Variables\n\nHourly\n\n\n\nVariable\nDescription\n\n\n\n\ntemperature_2m\nAir temperature at 2m (°C)\n\n\nrelative_humidity_2m\nRelative humidity at 2m (%)\n\n\ndew_point_2m\nDew point at 2m (°C)\n\n\napparent_temperature\nApparent (feels-like) temperature (°C)\n\n\nprecipitation\nTotal precipitation (mm)\n\n\nrain\nRain (mm)\n\n\nsnowfall\nSnowfall (cm)\n\n\nsnow_depth\nSnow depth (m)\n\n\npressure_msl\nMean sea level pressure (hPa)\n\n\nsurface_pressure\nSurface pressure (hPa)\n\n\ncloud_cover\nTotal cloud cover (%)\n\n\nwind_speed_10m\nWind speed at 10m (km/h)\n\n\nwind_direction_10m\nWind direction at 10m (°)\n\n\nwind_gusts_10m\nWind gusts at 10m (km/h)\n\n\nshortwave_radiation\nShortwave radiation (W/m²)\n\n\nweather_code\nWMO weather code\n\n\net0_fao_evapotranspiration\nReference evapotranspiration (mm)\n\n\nsoil_temperature_0_to_7cm\nSoil temperature 0-7cm (°C)\n\n\nsoil_moisture_0_to_7cm\nSoil moisture 0-7cm (m³/m³)\n\n\n\n\n\nDaily\n\n\n\nVariable\nDescription\n\n\n\n\ntemperature_2m_max\nDaily maximum temperature at 2m (°C)\n\n\ntemperature_2m_min\nDaily minimum temperature at 2m (°C)\n\n\ntemperature_2m_mean\nDaily mean temperature at 2m (°C)\n\n\napparent_temperature_max\nDaily maximum apparent temperature (°C)\n\n\napparent_temperature_min\nDaily minimum apparent temperature (°C)\n\n\nprecipitation_sum\nDaily total precipitation (mm)\n\n\nrain_sum\nDaily total rain (mm)\n\n\nsnowfall_sum\nDaily total snowfall (cm)\n\n\nwind_speed_10m_max\nDaily maximum wind speed at 10m (km/h)\n\n\nwind_gusts_10m_max\nDaily maximum wind gusts at 10m (km/h)\n\n\nwind_direction_10m_dominant\nDaily dominant wind direction (°)\n\n\nprecipitation_hours\nDaily hours with precipitation\n\n\nsunrise\nSunrise time (ISO8601)\n\n\nsunset\nSunset time (ISO8601)\n\n\nsunshine_duration\nSunshine duration (s)\n\n\nshortwave_radiation_sum\nDaily total shortwave radiation (MJ/m²)",
     "crumbs": [
-      "API",
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>API</span>"
+      "Data Sources",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Open-Meteo Archive</span>"
+    ]
+  },
+  {
+    "objectID": "sources/open_meteo_forecast.html",
+    "href": "sources/open_meteo_forecast.html",
+    "title": "Open-Meteo Forecast",
+    "section": "",
+    "text": "Example\nOpen-Meteo Forecast provides up to 16-day weather forecasts at ~9 km resolution. No API key is required. Shares the same variable set as Open-Meteo Archive.\nplan = DataAccessPlan(OpenMeteoForecast(), (-74.0, 40.7),\n    today(), today() + Day(2);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\nplan\n\nDataAccessPlan for openmeteoforecast\n  Extent:    Point(40.7, -74.0)\n  Time:      2026-03-04 to 2026-03-06 (3 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 1.125 KiB\n\n  Request 1: GET 1 point(s), hourly 3 days → openmeteoforecast/99d1e23305ae0998.json",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Open-Meteo Forecast</span>"
+    ]
+  },
+  {
+    "objectID": "sources/open_meteo_forecast.html#variables",
+    "href": "sources/open_meteo_forecast.html#variables",
+    "title": "Open-Meteo Forecast",
+    "section": "Variables",
+    "text": "Variables\nSee Open-Meteo Archive for the full variable list — both sources share the same set.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Open-Meteo Forecast</span>"
+    ]
+  },
+  {
+    "objectID": "sources/noaa_ncei.html",
+    "href": "sources/noaa_ncei.html",
+    "title": "NOAA NCEI",
+    "section": "",
+    "text": "Example\nNOAA NCEI provides historical station-based weather observations from a global network of stations dating back to 1763. No API key is required.\nData is fetched by station ID rather than spatial coordinates. Station IDs can be found at NOAA’s Station Search.\nplan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    stations = [\"USW00094728\"],  # Central Park, NYC\n    variables = [:TMAX, :TMIN, :PRCP])\nplan\n\nDataAccessPlan for noaancei\n  Extent:    1 station(s): USW00094728\n  Time:      2024-01-01 to 2024-01-07 (7 days)\n  Variables: TMAX, TMIN, PRCP\n  stations: [\"USW00094728\"]\n  API calls: 1\n  Est. size: 168 bytes\n\n  Request 1: GET 1 station(s), 7 days → noaancei/4d9fdd1fc40cc0d5.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nlength(data)  # number of records\n\n7",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>NOAA NCEI</span>"
+    ]
+  },
+  {
+    "objectID": "sources/noaa_ncei.html#example",
+    "href": "sources/noaa_ncei.html#example",
+    "title": "NOAA NCEI",
+    "section": "",
+    "text": "Note\n\n\n\nThe extent argument is currently unused for NOAA NCEI — data is fetched by station ID.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>NOAA NCEI</span>"
+    ]
+  },
+  {
+    "objectID": "sources/noaa_ncei.html#variables",
+    "href": "sources/noaa_ncei.html#variables",
+    "title": "NOAA NCEI",
+    "section": "Variables",
+    "text": "Variables\n\n\n\nVariable\nDescription\n\n\n\n\nTMAX\nMaximum temperature (tenths of °C)\n\n\nTMIN\nMinimum temperature (tenths of °C)\n\n\nTAVG\nAverage temperature (tenths of °C)\n\n\nPRCP\nPrecipitation (tenths of mm)\n\n\nSNOW\nSnowfall (mm)\n\n\nSNWD\nSnow depth (mm)\n\n\nAWND\nAverage wind speed (tenths of m/s)\n\n\nWSF2\nFastest 2-minute wind speed (tenths of m/s)\n\n\nWDF2\nDirection of fastest 2-minute wind (°)\n\n\nWSF5\nFastest 5-second wind speed (tenths of m/s)\n\n\nWDF5\nDirection of fastest 5-second wind (°)\n\n\nTSUN\nTotal sunshine (minutes)\n\n\nPSUN\nPercent of possible sunshine (%)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>NOAA NCEI</span>"
+    ]
+  },
+  {
+    "objectID": "sources/nasa_power.html",
+    "href": "sources/nasa_power.html",
+    "title": "NASA POWER",
+    "section": "",
+    "text": "Point Query\nNASA POWER provides global daily meteorological and solar energy data (1981–present) at ~55 km resolution. No API key is required.\nplan = DataAccessPlan(NASAPower(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:T2M, :PRECTOTCORR])\nplan\n\nDataAccessPlan for nasapower\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-01-01 to 2024-01-07 (7 days)\n  Variables: T2M, PRECTOTCORR\n  community: AG\n  query_type: point\n  API calls: 1\n  Est. size: 112 bytes\n\n  Request 1: GET Point(40.7, -74.0), 7 days → nasapower/8aa767d440b8371b.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 7 entries. Keys:\n  \"type\"\n  \"geometry\"\n  \"properties\"\n  \"header\"\n  \"messages\"\n  \"parameters\"\n  \"times\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>NASA POWER</span>"
+    ]
+  },
+  {
+    "objectID": "sources/nasa_power.html#regional-query",
+    "href": "sources/nasa_power.html#regional-query",
+    "title": "NASA POWER",
+    "section": "Regional Query",
+    "text": "Regional Query\nNASA POWER supports regional bounding box queries (requires at least 2° in each dimension):\n\next = Extent(X=(-76.0, -72.0), Y=(39.0, 42.0))\n\nplan = DataAccessPlan(NASAPower(), ext,\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:T2M])\nplan\n\nDataAccessPlan for nasapower\n  Extent:    Extent(X=(-76.0, -72.0), Y=(39.0, 42.0))\n  Time:      2024-01-01 to 2024-01-07 (7 days)\n  Variables: T2M\n  community: AG\n  query_type: regional\n  API calls: 1\n  Est. size: 56 bytes\n\n  Request 1: GET Regional bbox, 7 days → nasapower/4ec2c52b8c5be1bf.json",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>NASA POWER</span>"
+    ]
+  },
+  {
+    "objectID": "sources/nasa_power.html#variables",
+    "href": "sources/nasa_power.html#variables",
+    "title": "NASA POWER",
+    "section": "Variables",
+    "text": "Variables\n\n\n\n\n\n\n\nVariable\nDescription\n\n\n\n\nT2M\nTemperature at 2m (°C)\n\n\nT2M_MAX\nMaximum temperature at 2m (°C)\n\n\nT2M_MIN\nMinimum temperature at 2m (°C)\n\n\nT2M_RANGE\nTemperature range at 2m (°C)\n\n\nT2MDEW\nDew/frost point at 2m (°C)\n\n\nRH2M\nRelative humidity at 2m (%)\n\n\nPRECTOTCORR\nPrecipitation corrected (mm/day)\n\n\nWS2M\nWind speed at 2m (m/s)\n\n\nWS10M\nWind speed at 10m (m/s)\n\n\nWD2M\nWind direction at 2m (°)\n\n\nWD10M\nWind direction at 10m (°)\n\n\nPS\nSurface pressure (kPa)\n\n\nQV2M\nSpecific humidity at 2m (g/kg)\n\n\nCLOUD_AMT\nCloud amount (%)\n\n\nALLSKY_SFC_SW_DWN\nAll-sky surface shortwave downward irradiance (MJ/m²/day)\n\n\nCLRSKY_SFC_SW_DWN\nClear-sky surface shortwave downward irradiance (MJ/m²/day)\n\n\nALLSKY_SFC_LW_DWN\nAll-sky surface longwave downward irradiance (W/m²)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>NASA POWER</span>"
+    ]
+  },
+  {
+    "objectID": "sources/tomorrow_io.html",
+    "href": "sources/tomorrow_io.html",
+    "title": "Tomorrow.io",
+    "section": "",
+    "text": "Setup\nTomorrow.io provides high-resolution (4 km) global weather data with hourly or daily granularity. Requires a free API key.\nSign up at tomorrow.io and set your API key:",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Tomorrow.io</span>"
+    ]
+  },
+  {
+    "objectID": "sources/tomorrow_io.html#setup",
+    "href": "sources/tomorrow_io.html#setup",
+    "title": "Tomorrow.io",
+    "section": "",
+    "text": "ENV[\"TOMORROW_IO_API_KEY\"] = \"your-api-key\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Tomorrow.io</span>"
+    ]
+  },
+  {
+    "objectID": "sources/tomorrow_io.html#example",
+    "href": "sources/tomorrow_io.html#example",
+    "title": "Tomorrow.io",
+    "section": "Example",
+    "text": "Example\nusing GeoDataAccess: DataAccessPlan, fetch!, TomorrowIO\nusing Dates\n\nplan = DataAccessPlan(TomorrowIO(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:temperature, :humidity, :precipitationIntensity],\n    timestep = \"1d\")\nfiles = fetch!(plan)\nThe timestep parameter controls temporal resolution: \"1h\" for hourly or \"1d\" for daily.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Tomorrow.io</span>"
+    ]
+  },
+  {
+    "objectID": "sources/tomorrow_io.html#variables",
+    "href": "sources/tomorrow_io.html#variables",
+    "title": "Tomorrow.io",
+    "section": "Variables",
+    "text": "Variables\n\n\n\nVariable\nDescription\n\n\n\n\ntemperature\nTemperature (°C)\n\n\ntemperatureApparent\nApparent temperature (°C)\n\n\ntemperatureMax\nDaily max temperature (°C)\n\n\ntemperatureMin\nDaily min temperature (°C)\n\n\nhumidity\nHumidity (%)\n\n\ndewPoint\nDew point (°C)\n\n\nwindSpeed\nWind speed (m/s)\n\n\nwindDirection\nWind direction (°)\n\n\nwindGust\nWind gust (m/s)\n\n\nprecipitationIntensity\nPrecipitation intensity (mm/hr)\n\n\nprecipitationProbability\nPrecipitation probability (%)\n\n\nrainIntensity\nRain intensity (mm/hr)\n\n\nsnowIntensity\nSnow intensity (mm/hr)\n\n\npressureSurfaceLevel\nSurface-level pressure (hPa)\n\n\ncloudCover\nCloud cover (%)\n\n\nuvIndex\nUV index\n\n\nweatherCode\nWeather condition code\n\n\nvisibility\nVisibility (km)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Tomorrow.io</span>"
+    ]
+  },
+  {
+    "objectID": "sources/visual_crossing.html",
+    "href": "sources/visual_crossing.html",
+    "title": "Visual Crossing",
+    "section": "",
+    "text": "Setup\nVisual Crossing provides ~50 years of historical weather data at ~1 km resolution. Requires a free API key.\nSign up at visualcrossing.com and set your API key:",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Visual Crossing</span>"
+    ]
+  },
+  {
+    "objectID": "sources/visual_crossing.html#setup",
+    "href": "sources/visual_crossing.html#setup",
+    "title": "Visual Crossing",
+    "section": "",
+    "text": "ENV[\"VISUAL_CROSSING_API_KEY\"] = \"your-api-key\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Visual Crossing</span>"
+    ]
+  },
+  {
+    "objectID": "sources/visual_crossing.html#example",
+    "href": "sources/visual_crossing.html#example",
+    "title": "Visual Crossing",
+    "section": "Example",
+    "text": "Example\nusing GeoDataAccess: DataAccessPlan, fetch!, VisualCrossing\nusing Dates\n\nplan = DataAccessPlan(VisualCrossing(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:tempmax, :tempmin, :precip, :humidity],\n    include = \"days\")\nfiles = fetch!(plan)\nThe include parameter controls temporal resolution: \"days\" for daily or \"hours\" for hourly.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Visual Crossing</span>"
+    ]
+  },
+  {
+    "objectID": "sources/visual_crossing.html#variables",
+    "href": "sources/visual_crossing.html#variables",
+    "title": "Visual Crossing",
+    "section": "Variables",
+    "text": "Variables\n\n\n\nVariable\nDescription\n\n\n\n\ntemp\nTemperature (°C)\n\n\ntempmax\nMaximum temperature (°C)\n\n\ntempmin\nMinimum temperature (°C)\n\n\nfeelslike\nFeels-like temperature (°C)\n\n\nhumidity\nHumidity (%)\n\n\ndew\nDew point (°C)\n\n\nprecip\nPrecipitation (mm)\n\n\nsnow\nSnowfall (cm)\n\n\nsnowdepth\nSnow depth (cm)\n\n\nwindspeed\nWind speed (km/h)\n\n\nwinddir\nWind direction (°)\n\n\nwindgust\nWind gust (km/h)\n\n\npressure\nSea-level pressure (hPa)\n\n\ncloudcover\nCloud cover (%)\n\n\nuvindex\nUV index\n\n\nvisibility\nVisibility (km)\n\n\nconditions\nWeather conditions text\n\n\nsunrise\nSunrise time\n\n\nsunset\nSunset time\n\n\nmoonphase\nMoon phase (0-1)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Visual Crossing</span>"
+    ]
+  },
+  {
+    "objectID": "sources/usgs_earthquake.html",
+    "href": "sources/usgs_earthquake.html",
+    "title": "USGS Earthquake",
+    "section": "",
+    "text": "Bounding Box Query\nThe USGS Earthquake Hazards Program provides a comprehensive global catalog of earthquake events. No API key is required.\nQuery earthquakes within a geographic bounding box. Results are returned as GeoJSON FeatureCollections.\n# M4+ earthquakes in California, January 2024\nplan = DataAccessPlan(USGSEarthquake(),\n    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),\n    Date(2024, 1, 1), Date(2024, 1, 31);\n    minmagnitude = 4.0)\nplan\n\nDataAccessPlan for usgsearthquake\n  Extent:    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0))\n  Time:      2024-01-01 to 2024-01-31 (31 days)\n  Variables: cdi, felt, place, sig, tsunami, time, magType, type, mmi, alert, mag, depth\n  orderby: time\n  limit: 20000\n  minmagnitude: 4.0\n  API calls: 1\n  Est. size: 29.062 KiB\n\n  Request 1: GET Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)), 31 days → usgsearthquake/124a44893d7f0600.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nn = length(data[\"features\"])\nprintln(\"$n earthquakes found\")\n\n6 earthquakes found",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>USGS Earthquake</span>"
+    ]
+  },
+  {
+    "objectID": "sources/usgs_earthquake.html#point-radius-query",
+    "href": "sources/usgs_earthquake.html#point-radius-query",
+    "title": "USGS Earthquake",
+    "section": "Point + Radius Query",
+    "text": "Point + Radius Query\nQuery earthquakes within a radius (default 100 km) of a point:\n\nplan = DataAccessPlan(USGSEarthquake(), (-122.4, 37.8),\n    Date(2024, 1, 1), Date(2024, 12, 31);\n    minmagnitude = 2.0)\nplan\n\nDataAccessPlan for usgsearthquake\n  Extent:    Point(37.8, -122.4), radius 100 km\n  Time:      2024-01-01 to 2024-12-31 (366 days)\n  Variables: cdi, felt, place, sig, tsunami, time, magType, type, mmi, alert, mag, depth\n  orderby: time\n  limit: 20000\n  minmagnitude: 2.0\n  API calls: 1\n  Est. size: 343.125 KiB\n\n  Request 1: GET Point(37.8, -122.4), radius 100 km, 366 days → usgsearthquake/30e25efe084f1966.json",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>USGS Earthquake</span>"
+    ]
+  },
+  {
+    "objectID": "sources/usgs_earthquake.html#filtering-options",
+    "href": "sources/usgs_earthquake.html#filtering-options",
+    "title": "USGS Earthquake",
+    "section": "Filtering Options",
+    "text": "Filtering Options\n\n\n\nKeyword\nType\nDescription\n\n\n\n\nminmagnitude\nFloat64\nMinimum magnitude\n\n\nmaxmagnitude\nFloat64\nMaximum magnitude\n\n\nmindepth\nFloat64\nMinimum depth (km)\n\n\nmaxdepth\nFloat64\nMaximum depth (km)\n\n\nlimit\nInt\nMax events returned (default 20,000)\n\n\norderby\nString\nSort order: \"time\" or \"magnitude\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>USGS Earthquake</span>"
+    ]
+  },
+  {
+    "objectID": "sources/usgs_earthquake.html#variables",
+    "href": "sources/usgs_earthquake.html#variables",
+    "title": "USGS Earthquake",
+    "section": "Variables",
+    "text": "Variables\nEach earthquake feature includes:\n\n\n\nVariable\nDescription\n\n\n\n\nmag\nMagnitude\n\n\nplace\nDescription of location\n\n\ntime\nEvent time (ms since epoch)\n\n\ndepth\nDepth (km)\n\n\nfelt\nNumber of felt reports\n\n\ncdi\nCommunity Decimal Intensity\n\n\nmmi\nModified Mercalli Intensity\n\n\nalert\nPAGER alert level\n\n\nsig\nSignificance (0–1000)\n\n\ntsunami\nTsunami association flag\n\n\nmagType\nMagnitude type (ml, mb, mw, etc.)\n\n\ntype\nEvent type (earthquake, quarry blast, etc.)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>USGS Earthquake</span>"
+    ]
+  },
+  {
+    "objectID": "sources/usgs_waterservices.html",
+    "href": "sources/usgs_waterservices.html",
+    "title": "USGS Water Services",
+    "section": "",
+    "text": "Daily Values\nThe USGS National Water Information System provides streamflow, water quality, and related hydrological data from 1.5 million+ sites across the US. No API key is required.\nRetrieve daily mean discharge for the Potomac River near Washington, DC (site 01646500):\nplan = DataAccessPlan(USGSWaterServices(), (-77.1, 38.9),\n    Date(2024, 1, 1), Date(2024, 1, 31);\n    sites = [\"01646500\"],\n    variables = [Symbol(\"00060\")])\nplan\n\nDataAccessPlan for usgswaterservices\n  Extent:    1 site(s): 01646500\n  Time:      2024-01-01 to 2024-01-31 (31 days)\n  Variables: 00060\n  service: dv\n  statCd: 00003\n  sites: [\"01646500\"]\n  API calls: 1\n  Est. size: 248 bytes\n\n  Request 1: GET 1 site(s), 31 days → usgswaterservices/3681f53199e103d6.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nts = data[\"value\"][\"timeSeries\"][1]\nprintln(\"Site: \", ts[\"sourceInfo\"][\"siteName\"])\nprintln(\"Variable: \", ts[\"variable\"][\"variableDescription\"])\nprintln(\"Values: \", length(ts[\"values\"][1][\"value\"]), \" records\")\n\nSite: POTOMAC RIVER NEAR WASH, DC LITTLE FALLS PUMP STA\nVariable: Discharge, cubic feet per second\nValues: 31 records",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>USGS Water Services</span>"
+    ]
+  },
+  {
+    "objectID": "sources/usgs_waterservices.html#instantaneous-values",
+    "href": "sources/usgs_waterservices.html#instantaneous-values",
+    "title": "USGS Water Services",
+    "section": "Instantaneous Values",
+    "text": "Instantaneous Values\nFor higher-resolution (~15-minute) data, use service=\"iv\":\nplan = DataAccessPlan(USGSWaterServices(service=\"iv\"), (-77.1, 38.9),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    sites = [\"01646500\"],\n    variables = [Symbol(\"00060\")])",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>USGS Water Services</span>"
+    ]
+  },
+  {
+    "objectID": "sources/usgs_waterservices.html#finding-sites",
+    "href": "sources/usgs_waterservices.html#finding-sites",
+    "title": "USGS Water Services",
+    "section": "Finding Sites",
+    "text": "Finding Sites\nSite numbers can be found at USGS Water Data.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>USGS Water Services</span>"
+    ]
+  },
+  {
+    "objectID": "sources/usgs_waterservices.html#variables",
+    "href": "sources/usgs_waterservices.html#variables",
+    "title": "USGS Water Services",
+    "section": "Variables",
+    "text": "Variables\nVariables are specified by USGS parameter codes:\n\n\n\nCode\nDescription\n\n\n\n\n00060\nStreamflow / Discharge (ft³/s)\n\n\n00065\nGage height (ft)\n\n\n00010\nWater temperature (°C)\n\n\n00011\nAir temperature (°C)\n\n\n00045\nPrecipitation (in)\n\n\n00095\nSpecific conductance (µS/cm at 25°C)\n\n\n00300\nDissolved oxygen (mg/L)\n\n\n00400\npH (standard units)\n\n\n63680\nTurbidity (FNU)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>USGS Water Services</span>"
+    ]
+  },
+  {
+    "objectID": "sources/openaq.html",
+    "href": "sources/openaq.html",
+    "title": "OpenAQ",
+    "section": "",
+    "text": "Setup\nOpenAQ aggregates global air quality data from government agencies, research organizations, and low-cost sensor networks (11,000+ stations). An API key is required — set the OPENAQ_API_KEY environment variable.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>OpenAQ</span>"
+    ]
+  },
+  {
+    "objectID": "sources/openaq.html#setup",
+    "href": "sources/openaq.html#setup",
+    "title": "OpenAQ",
+    "section": "",
+    "text": "Register at openaq.org to get an API key\nSet the environment variable:\n\nENV[\"OPENAQ_API_KEY\"] = \"your-api-key\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>OpenAQ</span>"
+    ]
+  },
+  {
+    "objectID": "sources/openaq.html#usage",
+    "href": "sources/openaq.html#usage",
+    "title": "OpenAQ",
+    "section": "Usage",
+    "text": "Usage\nOpenAQ requires sensor IDs via the sensors keyword. Find sensor IDs at explore.openaq.org.\n# Daily PM2.5 aggregations for a sensor\nplan = DataAccessPlan(OpenAQ(), (-87.6, 41.9),\n    Date(2024, 1, 1), Date(2024, 1, 31);\n    sensors = [1234],\n    frequency = :daily)\nfiles = fetch!(plan)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>OpenAQ</span>"
+    ]
+  },
+  {
+    "objectID": "sources/openaq.html#options",
+    "href": "sources/openaq.html#options",
+    "title": "OpenAQ",
+    "section": "Options",
+    "text": "Options\n\n\n\n\n\n\n\n\n\nKeyword\nType\nDefault\nDescription\n\n\n\n\nsensors\nVector{Int}\n(required)\nSensor IDs from OpenAQ Explorer\n\n\nfrequency\nSymbol\n:daily\n:daily or :hourly",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>OpenAQ</span>"
+    ]
+  },
+  {
+    "objectID": "sources/openaq.html#variables",
+    "href": "sources/openaq.html#variables",
+    "title": "OpenAQ",
+    "section": "Variables",
+    "text": "Variables\n\n\n\nVariable\nDescription\n\n\n\n\npm25\nPM2.5 (µg/m³)\n\n\npm10\nPM10 (µg/m³)\n\n\no3\nOzone (µg/m³)\n\n\nno2\nNitrogen dioxide (µg/m³)\n\n\nso2\nSulfur dioxide (µg/m³)\n\n\nco\nCarbon monoxide (ppm)\n\n\nbc\nBlack carbon (µg/m³)\n\n\npm1\nPM1 (µg/m³)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>OpenAQ</span>"
+    ]
+  },
+  {
+    "objectID": "sources/nasa_firms.html",
+    "href": "sources/nasa_firms.html",
+    "title": "NASA FIRMS",
+    "section": "",
+    "text": "Setup\nNASA FIRMS (Fire Information for Resource Management System) provides global active fire hotspot data from MODIS and VIIRS satellite instruments. An API key is required — register for free at firms.modaps.eosdis.nasa.gov/api/map_key/.\nThe response format is CSV (not JSON).\nSet the environment variable:",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>NASA FIRMS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/nasa_firms.html#setup",
+    "href": "sources/nasa_firms.html#setup",
+    "title": "NASA FIRMS",
+    "section": "",
+    "text": "ENV[\"FIRMS_MAP_KEY\"] = \"your-map-key\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>NASA FIRMS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/nasa_firms.html#bounding-box-query",
+    "href": "sources/nasa_firms.html#bounding-box-query",
+    "title": "NASA FIRMS",
+    "section": "Bounding Box Query",
+    "text": "Bounding Box Query\nusing GeoInterface.Extents: Extent\n\nplan = DataAccessPlan(NASAFIRMS(),\n    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),\n    Date(2024, 7, 1), Date(2024, 7, 5))\nfiles = fetch!(plan)\nRequests longer than 10 days are automatically split into 10-day chunks.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>NASA FIRMS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/nasa_firms.html#country-query",
+    "href": "sources/nasa_firms.html#country-query",
+    "title": "NASA FIRMS",
+    "section": "Country Query",
+    "text": "Country Query\nQuery by ISO 3-letter country code (the extent argument is ignored):\nplan = DataAccessPlan(NASAFIRMS(), (0.0, 0.0),\n    Date(2024, 7, 1), Date(2024, 7, 3);\n    country = \"AUS\")",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>NASA FIRMS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/nasa_firms.html#options",
+    "href": "sources/nasa_firms.html#options",
+    "title": "NASA FIRMS",
+    "section": "Options",
+    "text": "Options\n\n\n\n\n\n\n\n\n\nKeyword\nType\nDefault\nDescription\n\n\n\n\nsatellite\nString\n\"VIIRS_SNPP_NRT\"\nSatellite source (see below)\n\n\ncountry\nString\n\"\"\nISO 3-letter country code (overrides spatial extent)\n\n\n\n\nSatellite Sources\n\n\n\nSource ID\nDescription\n\n\n\n\nVIIRS_SNPP_NRT\nVIIRS Suomi-NPP Near Real-Time\n\n\nVIIRS_SNPP_SP\nVIIRS Suomi-NPP Standard Processing\n\n\nVIIRS_NOAA20_NRT\nVIIRS NOAA-20 Near Real-Time\n\n\nVIIRS_NOAA21_NRT\nVIIRS NOAA-21 Near Real-Time\n\n\nMODIS_NRT\nMODIS Near Real-Time\n\n\nMODIS_SP\nMODIS Standard Processing\n\n\nLANDSAT_NRT\nLandsat 8/9 (US/Canada only)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>NASA FIRMS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/nasa_firms.html#variables",
+    "href": "sources/nasa_firms.html#variables",
+    "title": "NASA FIRMS",
+    "section": "Variables",
+    "text": "Variables\n\n\n\nVariable\nDescription\n\n\n\n\nlatitude\nCenter latitude of fire pixel (°)\n\n\nlongitude\nCenter longitude of fire pixel (°)\n\n\nbright_ti4\nVIIRS I-4 brightness temperature (K)\n\n\nbright_ti5\nVIIRS I-5 brightness temperature (K)\n\n\nfrp\nFire Radiative Power (MW)\n\n\nconfidence\nDetection confidence\n\n\nacq_date\nAcquisition date (YYYY-MM-DD)\n\n\nacq_time\nAcquisition time UTC (HHMM)\n\n\nsatellite\nSatellite platform\n\n\ndaynight\nDay (D) or Night (N) observation\n\n\nscan\nAlong-scan pixel size (km)\n\n\ntrack\nAlong-track pixel size (km)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>NASA FIRMS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/epa_aqs.html",
+    "href": "sources/epa_aqs.html",
+    "title": "EPA AQS",
+    "section": "",
+    "text": "Setup\nThe EPA Air Quality System provides measurements from air quality monitoring stations across the United States. Both an email and API key are required — register at https://aqs.epa.gov/data/api/signup?email=your@email.com.\nSet both environment variables:",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>EPA AQS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/epa_aqs.html#setup",
+    "href": "sources/epa_aqs.html#setup",
+    "title": "EPA AQS",
+    "section": "",
+    "text": "ENV[\"EPA_AQS_EMAIL\"] = \"your@email.com\"\nENV[\"EPA_AQS_KEY\"]   = \"your-api-key\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>EPA AQS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/epa_aqs.html#bounding-box-query",
+    "href": "sources/epa_aqs.html#bounding-box-query",
+    "title": "EPA AQS",
+    "section": "Bounding Box Query",
+    "text": "Bounding Box Query\nusing GeoInterface.Extents: Extent\n\nplan = DataAccessPlan(EPAAQS(),\n    Extent(X=(-87.0, -86.7), Y=(33.3, 33.6)),\n    Date(2023, 6, 1), Date(2023, 6, 30);\n    parameters = [Symbol(\"88101\")])  # PM2.5\nfiles = fetch!(plan)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>EPA AQS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/epa_aqs.html#by-state-county-site",
+    "href": "sources/epa_aqs.html#by-state-county-site",
+    "title": "EPA AQS",
+    "section": "By State / County / Site",
+    "text": "By State / County / Site\nQuery using FIPS codes (the extent argument is ignored):\n# All ozone monitors in Wake County, NC\nplan = DataAccessPlan(EPAAQS(), (0.0, 0.0),\n    Date(2023, 1, 1), Date(2023, 12, 31);\n    parameters = [Symbol(\"44201\")],\n    state = \"37\", county = \"183\")\n\n# Specific site\nplan = DataAccessPlan(EPAAQS(), (0.0, 0.0),\n    Date(2023, 1, 1), Date(2023, 12, 31);\n    parameters = [Symbol(\"88101\")],\n    state = \"37\", county = \"183\", site = \"0014\")\nDate ranges spanning multiple calendar years are automatically split into per-year requests (an EPA API constraint).",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>EPA AQS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/epa_aqs.html#options",
+    "href": "sources/epa_aqs.html#options",
+    "title": "EPA AQS",
+    "section": "Options",
+    "text": "Options\n\n\n\n\n\n\n\n\n\nKeyword\nType\nDefault\nDescription\n\n\n\n\nservice\nSymbol\n:dailyData\n:sampleData, :dailyData, or :annualData\n\n\nparameters\nVector{Symbol}\n[Symbol(\"88101\")]\nUp to 5 EPA parameter codes\n\n\nstate\nString\n\"\"\n2-digit state FIPS code\n\n\ncounty\nString\n\"\"\n3-digit county FIPS code\n\n\nsite\nString\n\"\"\n4-digit AQS site number",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>EPA AQS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/epa_aqs.html#variables-parameter-codes",
+    "href": "sources/epa_aqs.html#variables-parameter-codes",
+    "title": "EPA AQS",
+    "section": "Variables (Parameter Codes)",
+    "text": "Variables (Parameter Codes)\n\n\n\nCode\nPollutant\n\n\n\n\n88101\nPM2.5 - Local Conditions (µg/m³)\n\n\n88502\nPM2.5 - Non-FRM (µg/m³)\n\n\n81102\nPM10 (µg/m³)\n\n\n44201\nOzone (ppm)\n\n\n42101\nCarbon Monoxide (ppm)\n\n\n42401\nSulfur Dioxide (ppb)\n\n\n42602\nNitrogen Dioxide (ppb)\n\n\n14129\nLead TSP (µg/m³)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>EPA AQS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/landfire.html",
+    "href": "sources/landfire.html",
+    "title": "LANDFIRE",
+    "section": "",
+    "text": "Setup\nLANDFIRE (Landscape Fire and Resource Management Planning Tools) provides nationwide geospatial data on vegetation, fuels, and disturbance at 30 m resolution. This data source is available as a package extension — load both GeoDataAccess and Landfire.jl to activate it.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>LANDFIRE</span>"
+    ]
+  },
+  {
+    "objectID": "sources/landfire.html#setup",
+    "href": "sources/landfire.html#setup",
+    "title": "LANDFIRE",
+    "section": "",
+    "text": "Install Landfire.jl:\n\nusing Pkg\nPkg.add(\"Landfire\")\n\nSet the LANDFIRE_EMAIL environment variable (required by the LFPS API):\n\nENV[\"LANDFIRE_EMAIL\"] = \"your-email@example.com\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>LANDFIRE</span>"
+    ]
+  },
+  {
+    "objectID": "sources/landfire.html#usage",
+    "href": "sources/landfire.html#usage",
+    "title": "LANDFIRE",
+    "section": "Usage",
+    "text": "Usage\nusing GeoDataAccess, Landfire\nusing GeoDataAccess: DataAccessPlan, fetch!\nusing GeoInterface.Extents: Extent\n\n# Browse available products\nprods = Landfire.products(layer=\"FBFM40\")\n\n# Define area of interest\next = Extent(X=(-107.7, -106.0), Y=(46.5, 47.3))\n\n# Create plan and fetch\nplan = DataAccessPlan(LandfireSource(), ext; products=prods)\nfiles = fetch!(plan)  # submits job, polls, downloads, extracts -&gt; [tif_path]",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>LANDFIRE</span>"
+    ]
+  },
+  {
+    "objectID": "sources/landfire.html#options",
+    "href": "sources/landfire.html#options",
+    "title": "LANDFIRE",
+    "section": "Options",
+    "text": "Options\n\n\n\n\n\n\n\n\n\nKeyword\nType\nDefault\nDescription\n\n\n\n\nproducts\nVector{Landfire.Product}\n(required)\nProducts to download — use Landfire.products() to browse\n\n\nemail\nString\nENV[\"LANDFIRE_EMAIL\"]\nEmail for LFPS API\n\n\noutput_projection\nString or nothing\nnothing\nOutput CRS (e.g., \"EPSG:4326\")\n\n\nresample_resolution\nInt or nothing\nnothing\nResample resolution in meters",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>LANDFIRE</span>"
+    ]
+  },
+  {
+    "objectID": "sources/landfire.html#common-products",
+    "href": "sources/landfire.html#common-products",
+    "title": "LANDFIRE",
+    "section": "Common Products",
+    "text": "Common Products\n\n\n\nLayer\nDescription\n\n\n\n\nFBFM13\n13 Anderson Fire Behavior Fuel Models\n\n\nFBFM40\n40 Scott & Burgan Fire Behavior Fuel Models\n\n\nCC\nForest Canopy Cover (%)\n\n\nCH\nForest Canopy Height (m)\n\n\nCBD\nForest Canopy Bulk Density (kg/m³)\n\n\nCBH\nForest Canopy Base Height (m)\n\n\nEVT\nExisting Vegetation Type\n\n\nEVC\nExisting Vegetation Cover\n\n\nEVH\nExisting Vegetation Height\n\n\nBPS\nBiophysical Settings\n\n\nELEV\nElevation (m)\n\n\nSLP\nSlope (degrees)\n\n\nASP\nAspect (degrees)\n\n\nFDIST\nFuel Disturbance\n\n\n\nUse Landfire.products() to see all available products and filter by layer, category, or keyword.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>LANDFIRE</span>"
     ]
   },
   {
@@ -117,7 +700,7 @@
     "text": "Unreleased",
     "crumbs": [
       "Resources",
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Changelog</span>"
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>Changelog</span>"
     ]
   }
 ]

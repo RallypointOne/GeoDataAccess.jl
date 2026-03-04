@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>API – GeoDataAccess.jl</title>
+<title>NASA FIRMS – GeoDataAccess.jl</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,29 +20,64 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./resources/changelog.html" rel="next">
-<link href="./sources/landfire.html" rel="prev">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-c35b4686a6fabbef78126217f9bf200b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-e9512225fbbb2050a673b742e2d1457e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../sources/epa_aqs.html" rel="next">
+<link href="../sources/openaq.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-c35b4686a6fabbef78126217f9bf200b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-e9512225fbbb2050a673b742e2d1457e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -69,7 +104,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -113,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./api.html">API</a></li><li class="breadcrumb-item"><a href="./api.html"><span class="chapter-title">API</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../sources/open_meteo_archive.html">Data Sources</a></li><li class="breadcrumb-item"><a href="../sources/nasa_firms.html"><span class="chapter-title">NASA FIRMS</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -144,104 +179,104 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GeoDataAccess.jl</span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GeoDataAccess.jl</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Getting Started</span></a>
+  <a href="../getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Getting Started</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./caching.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Caching</span></a>
+  <a href="../caching.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Caching</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
  <span class="menu-text">Data Sources</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/open_meteo_archive.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Open-Meteo Archive</span></a>
+  <a href="../sources/open_meteo_archive.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Open-Meteo Archive</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/open_meteo_forecast.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Open-Meteo Forecast</span></a>
+  <a href="../sources/open_meteo_forecast.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Open-Meteo Forecast</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/noaa_ncei.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA NCEI</span></a>
+  <a href="../sources/noaa_ncei.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA NCEI</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/nasa_power.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NASA POWER</span></a>
+  <a href="../sources/nasa_power.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NASA POWER</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/tomorrow_io.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tomorrow.io</span></a>
+  <a href="../sources/tomorrow_io.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tomorrow.io</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/visual_crossing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Visual Crossing</span></a>
+  <a href="../sources/visual_crossing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Visual Crossing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/usgs_earthquake.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">USGS Earthquake</span></a>
+  <a href="../sources/usgs_earthquake.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">USGS Earthquake</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/usgs_waterservices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">USGS Water Services</span></a>
+  <a href="../sources/usgs_waterservices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">USGS Water Services</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/openaq.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">OpenAQ</span></a>
+  <a href="../sources/openaq.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">OpenAQ</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/nasa_firms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NASA FIRMS</span></a>
+  <a href="../sources/nasa_firms.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">NASA FIRMS</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/epa_aqs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">EPA AQS</span></a>
+  <a href="../sources/epa_aqs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">EPA AQS</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
+  <a href="../sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
   </div>
 </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
  <span class="menu-text">API</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./api.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">API</span></a>
+  <a href="../api.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">API</span></a>
   </div>
 </li>
       </ul>
@@ -257,12 +292,12 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./resources/changelog.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Changelog</span></a>
+  <a href="../resources/changelog.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Changelog</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./resources/coverage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Coverage</span></a>
+  <a href="../resources/coverage.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Coverage</span></a>
   </div>
 </li>
       </ul>
@@ -272,15 +307,28 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#bounding-box-query" id="toc-bounding-box-query" class="nav-link" data-scroll-target="#bounding-box-query">Bounding Box Query</a></li>
+  <li><a href="#country-query" id="toc-country-query" class="nav-link" data-scroll-target="#country-query">Country Query</a></li>
+  <li><a href="#options" id="toc-options" class="nav-link" data-scroll-target="#options">Options</a>
+  <ul class="collapse">
+  <li><a href="#satellite-sources" id="toc-satellite-sources" class="nav-link" data-scroll-target="#satellite-sources">Satellite Sources</a></li>
+  </ul></li>
+  <li><a href="#variables" id="toc-variables" class="nav-link" data-scroll-target="#variables">Variables</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./api.html">API</a></li><li class="breadcrumb-item"><a href="./api.html"><span class="chapter-title">API</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../sources/open_meteo_archive.html">Data Sources</a></li><li class="breadcrumb-item"><a href="../sources/nasa_firms.html"><span class="chapter-title">NASA FIRMS</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">API</span></h1>
+<h1 class="title"><span class="chapter-title">NASA FIRMS</span></h1>
 </div>
 
 
@@ -297,8 +345,173 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p><a href="https://firms.modaps.eosdis.nasa.gov/">NASA FIRMS</a> (Fire Information for Resource Management System) provides global active fire hotspot data from MODIS and VIIRS satellite instruments. An API key is <strong>required</strong> — register for free at <a href="https://firms.modaps.eosdis.nasa.gov/api/map_key/">firms.modaps.eosdis.nasa.gov/api/map_key/</a>.</p>
+<p>The response format is <strong>CSV</strong> (not JSON).</p>
+<div id="4" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">NASAFIRMS</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>MetaData("FIRMS_MAP_KEY", "5,000 req/10 min", :natural_hazards, Dict(:longitude =&gt; "Center longitude of fire pixel (°)", :acq_date =&gt; "Acquisition date (YYYY-MM-DD)", :bright_ti4 =&gt; "VIIRS I-4 brightness temperature (K)", :acq_time =&gt; "Acquisition time UTC (HHMM)", :daynight =&gt; "Day (D) or Night (N) observation", :confidence =&gt; "Detection confidence", :frp =&gt; "Fire Radiative Power (MW)", :scan =&gt; "Along-scan pixel size (km)", :bright_ti5 =&gt; "VIIRS I-5 brightness temperature (K)", :satellite =&gt; "Satellite platform"…), :point, "375 m (VIIRS) / 1 km (MODIS)", "Global", :timeseries, nothing, "Near real-time + archive", "NASA EOSDIS", "https://firms.modaps.eosdis.nasa.gov/api/")</code></pre>
+</div>
+</div>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>Set the environment variable:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cn">ENV</span>[<span class="st">"FIRMS_MAP_KEY"</span>] <span class="op">=</span> <span class="st">"your-map-key"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="bounding-box-query" class="level2">
+<h2 class="anchored" data-anchor-id="bounding-box-query">Bounding Box Query</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoInterface.Extents</span>: Extent</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">NASAFIRMS</span>(),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Extent</span>(X<span class="op">=</span>(<span class="op">-</span><span class="fl">125.0</span>, <span class="op">-</span><span class="fl">114.0</span>), Y<span class="op">=</span>(<span class="fl">32.0</span>, <span class="fl">42.0</span>)),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">5</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Requests longer than 10 days are automatically split into 10-day chunks.</p>
+</section>
+<section id="country-query" class="level2">
+<h2 class="anchored" data-anchor-id="country-query">Country Query</h2>
+<p>Query by ISO 3-letter country code (the <code>extent</code> argument is ignored):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">NASAFIRMS</span>(), (<span class="fl">0.0</span>, <span class="fl">0.0</span>),</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">3</span>);</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    country <span class="op">=</span> <span class="st">"AUS"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="options" class="level2">
+<h2 class="anchored" data-anchor-id="options">Options</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 16%">
+<col style="width: 24%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Keyword</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>satellite</code></td>
+<td><code>String</code></td>
+<td><code>"VIIRS_SNPP_NRT"</code></td>
+<td>Satellite source (see below)</td>
+</tr>
+<tr class="even">
+<td><code>country</code></td>
+<td><code>String</code></td>
+<td><code>""</code></td>
+<td>ISO 3-letter country code (overrides spatial extent)</td>
+</tr>
+</tbody>
+</table>
+<section id="satellite-sources" class="level3">
+<h3 class="anchored" data-anchor-id="satellite-sources">Satellite Sources</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Source ID</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>VIIRS_SNPP_NRT</code></td>
+<td>VIIRS Suomi-NPP Near Real-Time</td>
+</tr>
+<tr class="even">
+<td><code>VIIRS_SNPP_SP</code></td>
+<td>VIIRS Suomi-NPP Standard Processing</td>
+</tr>
+<tr class="odd">
+<td><code>VIIRS_NOAA20_NRT</code></td>
+<td>VIIRS NOAA-20 Near Real-Time</td>
+</tr>
+<tr class="even">
+<td><code>VIIRS_NOAA21_NRT</code></td>
+<td>VIIRS NOAA-21 Near Real-Time</td>
+</tr>
+<tr class="odd">
+<td><code>MODIS_NRT</code></td>
+<td>MODIS Near Real-Time</td>
+</tr>
+<tr class="even">
+<td><code>MODIS_SP</code></td>
+<td>MODIS Standard Processing</td>
+</tr>
+<tr class="odd">
+<td><code>LANDSAT_NRT</code></td>
+<td>Landsat 8/9 (US/Canada only)</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="variables" class="level2">
+<h2 class="anchored" data-anchor-id="variables">Variables</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>latitude</code></td>
+<td>Center latitude of fire pixel (°)</td>
+</tr>
+<tr class="even">
+<td><code>longitude</code></td>
+<td>Center longitude of fire pixel (°)</td>
+</tr>
+<tr class="odd">
+<td><code>bright_ti4</code></td>
+<td>VIIRS I-4 brightness temperature (K)</td>
+</tr>
+<tr class="even">
+<td><code>bright_ti5</code></td>
+<td>VIIRS I-5 brightness temperature (K)</td>
+</tr>
+<tr class="odd">
+<td><code>frp</code></td>
+<td>Fire Radiative Power (MW)</td>
+</tr>
+<tr class="even">
+<td><code>confidence</code></td>
+<td>Detection confidence</td>
+</tr>
+<tr class="odd">
+<td><code>acq_date</code></td>
+<td>Acquisition date (YYYY-MM-DD)</td>
+</tr>
+<tr class="even">
+<td><code>acq_time</code></td>
+<td>Acquisition time UTC (HHMM)</td>
+</tr>
+<tr class="odd">
+<td><code>satellite</code></td>
+<td>Satellite platform</td>
+</tr>
+<tr class="even">
+<td><code>daynight</code></td>
+<td>Day (D) or Night (N) observation</td>
+</tr>
+<tr class="odd">
+<td><code>scan</code></td>
+<td>Along-scan pixel size (km)</td>
+</tr>
+<tr class="even">
+<td><code>track</code></td>
+<td>Along-track pixel size (km)</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -703,13 +916,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./sources/landfire.html" class="pagination-link" aria-label="LANDFIRE">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">LANDFIRE</span></span>
+      <a href="../sources/openaq.html" class="pagination-link" aria-label="OpenAQ">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">OpenAQ</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./resources/changelog.html" class="pagination-link" aria-label="Changelog">
-        <span class="nav-page-text"><span class="chapter-title">Changelog</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../sources/epa_aqs.html" class="pagination-link" aria-label="EPA AQS">
+        <span class="nav-page-text"><span class="chapter-title">EPA AQS</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
