@@ -48,6 +48,7 @@ book:
         - sources/epa_aqs.qmd
         - sources/landfire.qmd
         - sources/noaa_gfs.qmd
+        - sources/era5.qmd
     - part: "API"
       chapters:
         - api.qmd
