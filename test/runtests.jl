@@ -1,5 +1,5 @@
 using GeoDataAccess
-using GeoDataAccess: Cache, MetaData, DataAccessPlan, RequestInfo, fetch_data, fetch, name,
+using GeoDataAccess: Cache, MetaData, DataAccessPlan, RequestInfo, fetch, name,
                    all_sources, available_sources, has_api_key, is_available
 using Dates
 using Test
@@ -171,7 +171,7 @@ const NYC = (-74.0, 40.7)
     #------------------------------------------------------------------------# fetch returns file paths (live)
     @testset "fetch returns file paths (live)" begin
         @testset "OpenMeteoArchive" begin
-            files = fetch_data(GeoDataAccess.OpenMeteoArchive(), NYC,
+            files = fetch(GeoDataAccess.OpenMeteoArchive(), NYC,
                 Date(2023, 1, 1), Date(2023, 1, 3);
                 variables = [:temperature_2m, :precipitation],
                 frequency = :hourly)
@@ -191,7 +191,7 @@ const NYC = (-74.0, 40.7)
         end
 
         @testset "OpenMeteoForecast" begin
-            files = fetch_data(GeoDataAccess.OpenMeteoForecast(), NYC,
+            files = fetch(GeoDataAccess.OpenMeteoForecast(), NYC,
                 today(), today() + Day(2);
                 variables = [:temperature_2m, :precipitation],
                 frequency = :hourly)
@@ -201,7 +201,7 @@ const NYC = (-74.0, 40.7)
         end
 
         @testset "NOAANCEI" begin
-            files = fetch_data(GeoDataAccess.NOAANCEI(), NYC,
+            files = fetch(GeoDataAccess.NOAANCEI(), NYC,
                 Date(2023, 1, 1), Date(2023, 1, 7);
                 stations = ["USW00094728"],
                 variables = [:TMAX, :TMIN, :PRCP])
@@ -211,7 +211,7 @@ const NYC = (-74.0, 40.7)
         end
 
         @testset "NASAPower point" begin
-            files = fetch_data(GeoDataAccess.NASAPower(), NYC,
+            files = fetch(GeoDataAccess.NASAPower(), NYC,
                 Date(2023, 1, 1), Date(2023, 1, 7);
                 variables = [:T2M, :PRECTOTCORR])
             @test files isa Vector{String}
@@ -221,7 +221,7 @@ const NYC = (-74.0, 40.7)
 
         @testset "NASAPower extent" begin
             ext = Extent(X=(-76.0, -73.0), Y=(39.0, 42.0))
-            files = fetch_data(GeoDataAccess.NASAPower(), ext,
+            files = fetch(GeoDataAccess.NASAPower(), ext,
                 Date(2023, 1, 1), Date(2023, 1, 3);
                 variables = [:T2M])
             @test files isa Vector{String}
@@ -231,7 +231,7 @@ const NYC = (-74.0, 40.7)
 
         @testset "NASAPower multipoint" begin
             mp = GI.MultiPoint([(-74.0, 40.7), (-73.5, 40.8)])
-            files = fetch_data(GeoDataAccess.NASAPower(), mp,
+            files = fetch(GeoDataAccess.NASAPower(), mp,
                 Date(2023, 1, 1), Date(2023, 1, 3);
                 variables = [:T2M])
             @test files isa Vector{String}
@@ -242,8 +242,8 @@ const NYC = (-74.0, 40.7)
 
     #------------------------------------------------------------------------# TomorrowIO (live, gated)
     if haskey(ENV, "TOMORROW_IO_API_KEY")
-        @testset "TomorrowIO fetch_data (live)" begin
-            files = fetch_data(GeoDataAccess.TomorrowIO(), NYC,
+        @testset "TomorrowIO fetch (live)" begin
+            files = fetch(GeoDataAccess.TomorrowIO(), NYC,
                 Date(2023, 1, 1), Date(2023, 1, 3);
                 variables = [:temperature, :humidity],
                 timestep = "1d")
@@ -255,8 +255,8 @@ const NYC = (-74.0, 40.7)
 
     #------------------------------------------------------------------------# VisualCrossing (live, gated)
     if haskey(ENV, "VISUAL_CROSSING_API_KEY")
-        @testset "VisualCrossing fetch_data (live)" begin
-            files = fetch_data(GeoDataAccess.VisualCrossing(), NYC,
+        @testset "VisualCrossing fetch (live)" begin
+            files = fetch(GeoDataAccess.VisualCrossing(), NYC,
                 Date(2023, 1, 1), Date(2023, 1, 7);
                 variables = [:tempmax, :tempmin, :precip])
             @test files isa Vector{String}
@@ -271,7 +271,7 @@ const NYC = (-74.0, 40.7)
         Cache.enable!(true)
         @test isempty(Cache.list())
 
-        fetch_data(GeoDataAccess.OpenMeteoArchive(), NYC,
+        fetch(GeoDataAccess.OpenMeteoArchive(), NYC,
             Date(2023, 6, 1), Date(2023, 6, 2);
             variables = [:temperature_2m])
         cached = Cache.list()
@@ -279,13 +279,13 @@ const NYC = (-74.0, 40.7)
         @test any(endswith(".json"), cached)
 
         n_before = length(Cache.list())
-        fetch_data(GeoDataAccess.OpenMeteoArchive(), NYC,
+        fetch(GeoDataAccess.OpenMeteoArchive(), NYC,
             Date(2023, 6, 1), Date(2023, 6, 2);
             variables = [:temperature_2m])
         @test length(Cache.list()) == n_before
 
         Cache.enable!(false)
-        fetch_data(GeoDataAccess.OpenMeteoArchive(), NYC,
+        fetch(GeoDataAccess.OpenMeteoArchive(), NYC,
             Date(2023, 7, 1), Date(2023, 7, 2);
             variables = [:temperature_2m])
         @test length(Cache.list()) == n_before

@@ -7,7 +7,7 @@ engine: julia
 #| echo: false
 #| output: false
 using GeoDataAccess
-using GeoDataAccess: DataAccessPlan, fetch, fetch_data, MetaData, OpenMeteoArchive
+using GeoDataAccess: DataAccessPlan, fetch, MetaData, OpenMeteoArchive
 using Dates, JSON
 import GeoInterface as GI
 ```
@@ -39,7 +39,7 @@ keys(data)
 Daily aggregates use different variable names (e.g. `temperature_2m_max` instead of `temperature_2m`):
 
 ```{julia}
-files = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),
+files = fetch(OpenMeteoArchive(), (-74.0, 40.7),
     Date(2024, 1, 1), Date(2024, 1, 7);
     variables = [:temperature_2m_max, :temperature_2m_min, :precipitation_sum],
     frequency = :daily)

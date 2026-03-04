@@ -7,7 +7,7 @@ engine: julia
 #| echo: false
 #| output: false
 using GeoDataAccess
-using GeoDataAccess: Cache, MetaData, DataAccessPlan, fetch, fetch_data, name,
+using GeoDataAccess: Cache, MetaData, DataAccessPlan, fetch, name,
     all_sources, available_sources,
     OpenMeteoArchive, OpenMeteoForecast, NOAANCEI, NASAPower, TomorrowIO, VisualCrossing
 using Dates
@@ -23,7 +23,7 @@ GeoDataAccess.jl does not export symbols by default.  Import what you need expli
 
 ```julia
 using GeoDataAccess
-using GeoDataAccess: DataAccessPlan, fetch, fetch_data, MetaData
+using GeoDataAccess: DataAccessPlan, fetch, MetaData
 using Dates
 ```
 
@@ -94,12 +94,12 @@ data = JSON.parsefile(files[1])
 collect(keys(data))
 ```
 
-### Shortcut: `fetch_data`
+### Shortcut: `fetch` Directly
 
-The convenience function `fetch_data` combines both steps:
+You can also skip the plan and call `fetch` directly on a source:
 
 ```{julia}
-files = fetch_data(NASAPower(), (-74.0, 40.7),
+files = fetch(NASAPower(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:T2M, :PRECTOTCORR])
 ```
@@ -136,7 +136,7 @@ Fetch daily temperature from two independent sources for the same location and o
 using CairoMakie
 
 # NASA POWER
-files_power = fetch_data(NASAPower(), (-74.0, 40.7),
+files_power = fetch(NASAPower(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:T2M])
 power = JSON.parsefile(files_power[1])
@@ -144,7 +144,7 @@ power_temps = collect(values(power["properties"]["parameter"]["T2M"]))
 power_dates = Date.(collect(keys(power["properties"]["parameter"]["T2M"])), "yyyymmdd")
 
 # Open-Meteo Archive
-files_meteo = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),
+files_meteo = fetch(OpenMeteoArchive(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:temperature_2m_mean], frequency = :daily)
 meteo = JSON.parsefile(files_meteo[1])

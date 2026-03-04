@@ -186,20 +186,12 @@ function load(plan::DataAccessPlan)
           "Then `using` the package(s) before calling `load`.")
 end
 
-"""
-    fetch_data(source, extent, [start_date, stop_date]; kw...) -> Vector{String}
-
-Convenience function that creates a `DataAccessPlan` and immediately executes it.
-Returns file paths to the downloaded data.
-"""
-function fetch_data(source::AbstractDataSource, extent, start_date::Date, stop_date::Date; kw...)
-    plan = DataAccessPlan(source, extent, start_date, stop_date; kw...)
-    fetch(plan)
+function fetch(source::AbstractDataSource, extent, start_date::Date, stop_date::Date; kw...)
+    fetch(DataAccessPlan(source, extent, start_date, stop_date; kw...))
 end
 
-function fetch_data(source::AbstractDataSource, extent; kw...)
-    plan = DataAccessPlan(source, extent; kw...)
-    fetch(plan)
+function fetch(source::AbstractDataSource, extent; kw...)
+    fetch(DataAccessPlan(source, extent; kw...))
 end
 
 #--------------------------------------------------------------------------------# Source Registry
