@@ -331,7 +331,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#step-1-create-a-plan" id="toc-step-1-create-a-plan" class="nav-link" data-scroll-target="#step-1-create-a-plan">Step 1: Create a Plan</a></li>
   <li><a href="#step-2-fetch-the-data" id="toc-step-2-fetch-the-data" class="nav-link" data-scroll-target="#step-2-fetch-the-data">Step 2: Fetch the Data</a></li>
-  <li><a href="#shortcut-fetch_data" id="toc-shortcut-fetch_data" class="nav-link" data-scroll-target="#shortcut-fetch_data">Shortcut: <code>fetch_data</code></a></li>
+  <li><a href="#shortcut-fetch-directly" id="toc-shortcut-fetch-directly" class="nav-link" data-scroll-target="#shortcut-fetch-directly">Shortcut: <code>fetch</code> Directly</a></li>
   <li><a href="#same-workflow-any-source" id="toc-same-workflow-any-source" class="nav-link" data-scroll-target="#same-workflow-any-source">Same Workflow, Any Source</a></li>
   </ul></li>
   <li><a href="#example-comparing-sources" id="toc-example-comparing-sources" class="nav-link" data-scroll-target="#example-comparing-sources">Example: Comparing Sources</a></li>
@@ -369,7 +369,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="imports">Imports</h2>
 <p>GeoDataAccess.jl does not export symbols by default. Import what you need explicitly:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: DataAccessPlan, fetch, fetch_data, MetaData</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: DataAccessPlan, fetch, MetaData</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Dates</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="discovering-sources" class="level2">
@@ -482,11 +482,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="shortcut-fetch_data" class="level3">
-<h3 class="anchored" data-anchor-id="shortcut-fetch_data">Shortcut: <code>fetch_data</code></h3>
-<p>The convenience function <code>fetch_data</code> combines both steps:</p>
+<section id="shortcut-fetch-directly" class="level3">
+<h3 class="anchored" data-anchor-id="shortcut-fetch-directly">Shortcut: <code>fetch</code> Directly</h3>
+<p>You can also skip the plan and call <code>fetch</code> directly on a source:</p>
 <div id="18" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch_data</span>(<span class="fu">NASAPower</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(<span class="fu">NASAPower</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">14</span>);</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>T2M, <span class="op">:</span>PRECTOTCORR])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -547,7 +547,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">CairoMakie</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># NASA POWER</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>files_power <span class="op">=</span> <span class="fu">fetch_data</span>(<span class="fu">NASAPower</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>files_power <span class="op">=</span> <span class="fu">fetch</span>(<span class="fu">NASAPower</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">14</span>);</span>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>T2M])</span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>power <span class="op">=</span> JSON.<span class="fu">parsefile</span>(files_power[<span class="fl">1</span>])</span>
@@ -555,7 +555,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>power_dates <span class="op">=</span> <span class="fu">Date</span>.(<span class="fu">collect</span>(<span class="fu">keys</span>(power[<span class="st">"properties"</span>][<span class="st">"parameter"</span>][<span class="st">"T2M"</span>])), <span class="st">"yyyymmdd"</span>)</span>
 <span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Open-Meteo Archive</span></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>files_meteo <span class="op">=</span> <span class="fu">fetch_data</span>(<span class="fu">OpenMeteoArchive</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>files_meteo <span class="op">=</span> <span class="fu">fetch</span>(<span class="fu">OpenMeteoArchive</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
 <span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">14</span>);</span>
 <span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>temperature_2m_mean], frequency <span class="op">=</span> <span class="op">:</span>daily)</span>
 <span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>meteo <span class="op">=</span> JSON.<span class="fu">parsefile</span>(files_meteo[<span class="fl">1</span>])</span>

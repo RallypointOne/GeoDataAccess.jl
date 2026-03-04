@@ -523,11 +523,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "hourly"</code></pre>
 </div>
 </div>
-<p>Or use the convenience function <code>fetch_data</code> which combines both steps:</p>
+<p>Or skip the plan and call <code>fetch</code> directly on a source:</p>
 <div id="10" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: fetch_data, OpenMeteoArchive</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: fetch, OpenMeteoArchive</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch_data</span>(<span class="fu">OpenMeteoArchive</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(<span class="fu">OpenMeteoArchive</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">3</span>);</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>temperature_2m, <span class="op">:</span>precipitation],</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    frequency <span class="op">=</span> <span class="op">:</span>hourly)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
