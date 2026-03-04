@@ -1,0 +1,82 @@
+---
+title: "USGS Earthquake"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, fetch!, MetaData, USGSEarthquake
+using Dates, JSON
+using GeoInterface.Extents: Extent
+```
+
+The [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/) provides a comprehensive global
+catalog of earthquake events.  No API key is required.
+
+```{julia}
+MetaData(USGSEarthquake())
+```
+
+## Bounding Box Query
+
+Query earthquakes within a geographic bounding box.  Results are returned as GeoJSON
+FeatureCollections.
+
+```{julia}
+# M4+ earthquakes in California, January 2024
+plan = DataAccessPlan(USGSEarthquake(),
+    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),
+    Date(2024, 1, 1), Date(2024, 1, 31);
+    minmagnitude = 4.0)
+plan
+```
+
+```{julia}
+files = fetch!(plan)
+data = JSON.parsefile(files[1])
+n = length(data["features"])
+println("$n earthquakes found")
+```
+
+## Point + Radius Query
+
+Query earthquakes within a radius (default 100 km) of a point:
+
+```{julia}
+plan = DataAccessPlan(USGSEarthquake(), (-122.4, 37.8),
+    Date(2024, 1, 1), Date(2024, 12, 31);
+    minmagnitude = 2.0)
+plan
+```
+
+## Filtering Options
+
+| Keyword | Type | Description |
+|---------|------|-------------|
+| `minmagnitude` | `Float64` | Minimum magnitude |
+| `maxmagnitude` | `Float64` | Maximum magnitude |
+| `mindepth` | `Float64` | Minimum depth (km) |
+| `maxdepth` | `Float64` | Maximum depth (km) |
+| `limit` | `Int` | Max events returned (default 20,000) |
+| `orderby` | `String` | Sort order: `"time"` or `"magnitude"` |
+
+## Variables
+
+Each earthquake feature includes:
+
+| Variable | Description |
+|----------|-------------|
+| `mag` | Magnitude |
+| `place` | Description of location |
+| `time` | Event time (ms since epoch) |
+| `depth` | Depth (km) |
+| `felt` | Number of felt reports |
+| `cdi` | Community Decimal Intensity |
+| `mmi` | Modified Mercalli Intensity |
+| `alert` | PAGER alert level |
+| `sig` | Significance (0–1000) |
+| `tsunami` | Tsunami association flag |
+| `magType` | Magnitude type (ml, mb, mw, etc.) |
+| `type` | Event type (earthquake, quarry blast, etc.) |

@@ -1,0 +1,66 @@
+---
+title: "Visual Crossing"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: MetaData, VisualCrossing
+```
+
+[Visual Crossing](https://www.visualcrossing.com/) provides ~50 years of historical weather
+data at ~1 km resolution.  Requires a free API key.
+
+```{julia}
+MetaData(VisualCrossing())
+```
+
+## Setup
+
+Sign up at [visualcrossing.com](https://www.visualcrossing.com/) and set your API key:
+
+```julia
+ENV["VISUAL_CROSSING_API_KEY"] = "your-api-key"
+```
+
+## Example
+
+```julia
+using GeoDataAccess: DataAccessPlan, fetch!, VisualCrossing
+using Dates
+
+plan = DataAccessPlan(VisualCrossing(), (-74.0, 40.7),
+    Date(2024, 1, 1), Date(2024, 1, 7);
+    variables = [:tempmax, :tempmin, :precip, :humidity],
+    include = "days")
+files = fetch!(plan)
+```
+
+The `include` parameter controls temporal resolution: `"days"` for daily or `"hours"` for hourly.
+
+## Variables
+
+| Variable | Description |
+|----------|-------------|
+| `temp` | Temperature (°C) |
+| `tempmax` | Maximum temperature (°C) |
+| `tempmin` | Minimum temperature (°C) |
+| `feelslike` | Feels-like temperature (°C) |
+| `humidity` | Humidity (%) |
+| `dew` | Dew point (°C) |
+| `precip` | Precipitation (mm) |
+| `snow` | Snowfall (cm) |
+| `snowdepth` | Snow depth (cm) |
+| `windspeed` | Wind speed (km/h) |
+| `winddir` | Wind direction (°) |
+| `windgust` | Wind gust (km/h) |
+| `pressure` | Sea-level pressure (hPa) |
+| `cloudcover` | Cloud cover (%) |
+| `uvindex` | UV index |
+| `visibility` | Visibility (km) |
+| `conditions` | Weather conditions text |
+| `sunrise` | Sunrise time |
+| `sunset` | Sunset time |
+| `moonphase` | Moon phase (0-1) |

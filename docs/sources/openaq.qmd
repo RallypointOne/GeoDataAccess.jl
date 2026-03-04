@@ -1,0 +1,63 @@
+---
+title: "OpenAQ"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, MetaData, OpenAQ
+using Dates
+```
+
+[OpenAQ](https://openaq.org/) aggregates global air quality data from government agencies, research
+organizations, and low-cost sensor networks (11,000+ stations).  An API key is **required** — set
+the `OPENAQ_API_KEY` environment variable.
+
+```{julia}
+MetaData(OpenAQ())
+```
+
+## Setup
+
+1. Register at [openaq.org](https://openaq.org/) to get an API key
+2. Set the environment variable:
+
+```julia
+ENV["OPENAQ_API_KEY"] = "your-api-key"
+```
+
+## Usage
+
+OpenAQ requires sensor IDs via the `sensors` keyword.  Find sensor IDs at
+[explore.openaq.org](https://explore.openaq.org/).
+
+```julia
+# Daily PM2.5 aggregations for a sensor
+plan = DataAccessPlan(OpenAQ(), (-87.6, 41.9),
+    Date(2024, 1, 1), Date(2024, 1, 31);
+    sensors = [1234],
+    frequency = :daily)
+files = fetch!(plan)
+```
+
+## Options
+
+| Keyword | Type | Default | Description |
+|---------|------|---------|-------------|
+| `sensors` | `Vector{Int}` | (required) | Sensor IDs from OpenAQ Explorer |
+| `frequency` | `Symbol` | `:daily` | `:daily` or `:hourly` |
+
+## Variables
+
+| Variable | Description |
+|----------|-------------|
+| `pm25` | PM2.5 (µg/m³) |
+| `pm10` | PM10 (µg/m³) |
+| `o3` | Ozone (µg/m³) |
+| `no2` | Nitrogen dioxide (µg/m³) |
+| `so2` | Sulfur dioxide (µg/m³) |
+| `co` | Carbon monoxide (ppm) |
+| `bc` | Black carbon (µg/m³) |
+| `pm1` | PM1 (µg/m³) |

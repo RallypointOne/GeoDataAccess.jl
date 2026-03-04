@@ -137,13 +137,21 @@ function Base.show(io::IO, ::MIME"text/plain", plan::DataAccessPlan)
 end
 
 """
+    _request_headers(source::AbstractDataSource) -> Vector{Pair{String,String}}
+
+Return extra HTTP headers needed for a source (e.g. API key headers).  Default is no headers.
+"""
+_request_headers(::AbstractDataSource) = Pair{String,String}[]
+
+"""
     fetch!(plan::DataAccessPlan) -> Vector{String}
 
 Execute a `DataAccessPlan`, downloading the planned requests and returning file paths.
 """
 function fetch!(plan::DataAccessPlan)
     src_name = name(typeof(plan.source))
-    [_cached_get(src_name, req.url) for req in plan.requests]
+    hdrs = _request_headers(plan.source)
+    [_cached_get(src_name, req.url; headers=hdrs) for req in plan.requests]
 end
 
 """
@@ -198,17 +206,17 @@ function _cache_path(source_name::String, url::String)
     Cache.dir(source_name, "$h.json")
 end
 
-function _cached_get(source_name::String, url::String)
+function _cached_get(source_name::String, url::String; headers=Pair{String,String}[])
     cache_path = _cache_path(source_name, url)
     if Cache.ENABLED[] && isfile(cache_path)
         return cache_path
     end
     if Cache.ENABLED[]
         mkpath(dirname(cache_path))
-        Downloads.download(url, cache_path)
+        Downloads.download(url, cache_path; headers)
         return cache_path
     else
-        return Downloads.download(url)
+        return Downloads.download(url; headers)
     end
 end
 
@@ -312,5 +320,10 @@ include("sources/noaa_ncei.jl")
 include("sources/nasa_power.jl")
 include("sources/tomorrow_io.jl")
 include("sources/visual_crossing.jl")
+include("sources/usgs_earthquake.jl")
+include("sources/usgs_waterservices.jl")
+include("sources/openaq.jl")
+include("sources/nasa_firms.jl")
+include("sources/epa_aqs.jl")
 
 end # module

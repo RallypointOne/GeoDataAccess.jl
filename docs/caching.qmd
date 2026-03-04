@@ -1,0 +1,48 @@
+---
+title: "Caching"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: Cache
+```
+
+GeoDataAccess.jl caches API responses to disk via
+[Scratch.jl](https://github.com/JuliaPackaging/Scratch.jl).  Caching is enabled by default —
+repeated requests for the same data are served from disk without hitting the network.
+
+## Status
+
+```{julia}
+Cache.ENABLED[]
+```
+
+## Enable / Disable
+
+```julia
+# Disable caching (all requests go to the network)
+Cache.enable!(false)
+
+# Re-enable caching
+Cache.enable!(true)
+```
+
+## Inspecting the Cache
+
+```julia
+# List all cached files
+Cache.list()
+```
+
+## Clearing the Cache
+
+```julia
+# Clear everything
+Cache.clear!()
+```
+
+Cache files are stored in a Scratch.jl-managed directory and are automatically cleaned up
+when the package is removed or Julia's scratchspace is garbage-collected.

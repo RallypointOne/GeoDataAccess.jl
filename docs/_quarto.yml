@@ -8,7 +8,7 @@ julia:
   exeflags: ["--threads=auto"]
 
 execute:
-  timeout: 600
+  timeout: 900
 
 book:
   title: "GeoDataAccess.jl"
@@ -25,11 +25,27 @@ book:
         text: "Star"
       - icon: github
         href: https://github.com/RallypointOne/GeoDataAccess.jl
+  sidebar:
+    collapse-level: 1
   chapters:
     - part: "Docs"
       chapters:
         - index.qmd
         - getting-started.qmd
+        - caching.qmd
+    - part: "Data Sources"
+      chapters:
+        - sources/open_meteo_archive.qmd
+        - sources/open_meteo_forecast.qmd
+        - sources/noaa_ncei.qmd
+        - sources/nasa_power.qmd
+        - sources/tomorrow_io.qmd
+        - sources/visual_crossing.qmd
+        - sources/usgs_earthquake.qmd
+        - sources/usgs_waterservices.qmd
+        - sources/openaq.qmd
+        - sources/nasa_firms.qmd
+        - sources/epa_aqs.qmd
     - part: "API"
       chapters:
         - api.qmd

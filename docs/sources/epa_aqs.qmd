@@ -1,0 +1,85 @@
+---
+title: "EPA AQS"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, MetaData, EPAAQS
+using Dates
+```
+
+The [EPA Air Quality System](https://aqs.epa.gov/) provides measurements from air quality
+monitoring stations across the United States.  Both an email and API key are **required** —
+register at `https://aqs.epa.gov/data/api/signup?email=your@email.com`.
+
+```{julia}
+MetaData(EPAAQS())
+```
+
+## Setup
+
+Set both environment variables:
+
+```julia
+ENV["EPA_AQS_EMAIL"] = "your@email.com"
+ENV["EPA_AQS_KEY"]   = "your-api-key"
+```
+
+## Bounding Box Query
+
+```julia
+using GeoInterface.Extents: Extent
+
+plan = DataAccessPlan(EPAAQS(),
+    Extent(X=(-87.0, -86.7), Y=(33.3, 33.6)),
+    Date(2023, 6, 1), Date(2023, 6, 30);
+    parameters = [Symbol("88101")])  # PM2.5
+files = fetch!(plan)
+```
+
+## By State / County / Site
+
+Query using FIPS codes (the `extent` argument is ignored):
+
+```julia
+# All ozone monitors in Wake County, NC
+plan = DataAccessPlan(EPAAQS(), (0.0, 0.0),
+    Date(2023, 1, 1), Date(2023, 12, 31);
+    parameters = [Symbol("44201")],
+    state = "37", county = "183")
+
+# Specific site
+plan = DataAccessPlan(EPAAQS(), (0.0, 0.0),
+    Date(2023, 1, 1), Date(2023, 12, 31);
+    parameters = [Symbol("88101")],
+    state = "37", county = "183", site = "0014")
+```
+
+Date ranges spanning multiple calendar years are automatically split into per-year requests
+(an EPA API constraint).
+
+## Options
+
+| Keyword | Type | Default | Description |
+|---------|------|---------|-------------|
+| `service` | `Symbol` | `:dailyData` | `:sampleData`, `:dailyData`, or `:annualData` |
+| `parameters` | `Vector{Symbol}` | `[Symbol("88101")]` | Up to 5 EPA parameter codes |
+| `state` | `String` | `""` | 2-digit state FIPS code |
+| `county` | `String` | `""` | 3-digit county FIPS code |
+| `site` | `String` | `""` | 4-digit AQS site number |
+
+## Variables (Parameter Codes)
+
+| Code | Pollutant |
+|------|-----------|
+| `88101` | PM2.5 - Local Conditions (µg/m³) |
+| `88502` | PM2.5 - Non-FRM (µg/m³) |
+| `81102` | PM10 (µg/m³) |
+| `44201` | Ozone (ppm) |
+| `42101` | Carbon Monoxide (ppm) |
+| `42401` | Sulfur Dioxide (ppb) |
+| `42602` | Nitrogen Dioxide (ppb) |
+| `14129` | Lead TSP (µg/m³) |

@@ -1,0 +1,35 @@
+---
+title: "Open-Meteo Forecast"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, fetch!, MetaData, OpenMeteoForecast
+using Dates
+```
+
+[Open-Meteo Forecast](https://open-meteo.com/) provides up to 16-day weather forecasts at ~9 km
+resolution.  No API key is required.  Shares the same variable set as
+[Open-Meteo Archive](open_meteo_archive.qmd).
+
+```{julia}
+MetaData(OpenMeteoForecast())
+```
+
+## Example
+
+```{julia}
+plan = DataAccessPlan(OpenMeteoForecast(), (-74.0, 40.7),
+    today(), today() + Day(2);
+    variables = [:temperature_2m, :precipitation],
+    frequency = :hourly)
+plan
+```
+
+## Variables
+
+See [Open-Meteo Archive](open_meteo_archive.qmd#variables) for the full variable list — both
+sources share the same set.

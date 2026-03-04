@@ -1,0 +1,96 @@
+---
+title: "Open-Meteo Archive"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, fetch!, fetch_data, MetaData, OpenMeteoArchive
+using Dates, JSON
+import GeoInterface as GI
+```
+
+[Open-Meteo Archive](https://open-meteo.com/) provides global historical weather data from the
+ERA5 reanalysis dataset (1940–present) at ~25 km resolution.  No API key is required.
+
+```{julia}
+MetaData(OpenMeteoArchive())
+```
+
+## Hourly Data
+
+```{julia}
+plan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),
+    Date(2024, 1, 1), Date(2024, 1, 3);
+    variables = [:temperature_2m, :precipitation],
+    frequency = :hourly)
+```
+
+```{julia}
+files = fetch!(plan)
+data = JSON.parsefile(files[1])
+keys(data)
+```
+
+## Daily Data
+
+Daily aggregates use different variable names (e.g. `temperature_2m_max` instead of `temperature_2m`):
+
+```{julia}
+files = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),
+    Date(2024, 1, 1), Date(2024, 1, 7);
+    variables = [:temperature_2m_max, :temperature_2m_min, :precipitation_sum],
+    frequency = :daily)
+
+data = JSON.parsefile(files[1])
+keys(data)
+```
+
+## Variables
+
+### Hourly
+
+| Variable | Description |
+|----------|-------------|
+| `temperature_2m` | Air temperature at 2m (°C) |
+| `relative_humidity_2m` | Relative humidity at 2m (%) |
+| `dew_point_2m` | Dew point at 2m (°C) |
+| `apparent_temperature` | Apparent (feels-like) temperature (°C) |
+| `precipitation` | Total precipitation (mm) |
+| `rain` | Rain (mm) |
+| `snowfall` | Snowfall (cm) |
+| `snow_depth` | Snow depth (m) |
+| `pressure_msl` | Mean sea level pressure (hPa) |
+| `surface_pressure` | Surface pressure (hPa) |
+| `cloud_cover` | Total cloud cover (%) |
+| `wind_speed_10m` | Wind speed at 10m (km/h) |
+| `wind_direction_10m` | Wind direction at 10m (°) |
+| `wind_gusts_10m` | Wind gusts at 10m (km/h) |
+| `shortwave_radiation` | Shortwave radiation (W/m²) |
+| `weather_code` | WMO weather code |
+| `et0_fao_evapotranspiration` | Reference evapotranspiration (mm) |
+| `soil_temperature_0_to_7cm` | Soil temperature 0-7cm (°C) |
+| `soil_moisture_0_to_7cm` | Soil moisture 0-7cm (m³/m³) |
+
+### Daily
+
+| Variable | Description |
+|----------|-------------|
+| `temperature_2m_max` | Daily maximum temperature at 2m (°C) |
+| `temperature_2m_min` | Daily minimum temperature at 2m (°C) |
+| `temperature_2m_mean` | Daily mean temperature at 2m (°C) |
+| `apparent_temperature_max` | Daily maximum apparent temperature (°C) |
+| `apparent_temperature_min` | Daily minimum apparent temperature (°C) |
+| `precipitation_sum` | Daily total precipitation (mm) |
+| `rain_sum` | Daily total rain (mm) |
+| `snowfall_sum` | Daily total snowfall (cm) |
+| `wind_speed_10m_max` | Daily maximum wind speed at 10m (km/h) |
+| `wind_gusts_10m_max` | Daily maximum wind gusts at 10m (km/h) |
+| `wind_direction_10m_dominant` | Daily dominant wind direction (°) |
+| `precipitation_hours` | Daily hours with precipitation |
+| `sunrise` | Sunrise time (ISO8601) |
+| `sunset` | Sunset time (ISO8601) |
+| `sunshine_duration` | Sunshine duration (s) |
+| `shortwave_radiation_sum` | Daily total shortwave radiation (MJ/m²) |

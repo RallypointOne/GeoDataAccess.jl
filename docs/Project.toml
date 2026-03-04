@@ -1,8 +1,8 @@
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+GeoDataAccess = "c6403d6d-7f13-4b8b-8cd8-129f29a0fba1"
 GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
 GeoMakie = "db073c08-6b98-4ee5-b6a4-5efafb3259c6"
-JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 LocalCoverage = "5f6e1e16-694c-5876-87ef-16b5274f298e"
-GeoDataAccess = "c6403d6d-7f13-4b8b-8cd8-129f29a0fba1"

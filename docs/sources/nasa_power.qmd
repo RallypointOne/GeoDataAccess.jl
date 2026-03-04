@@ -1,0 +1,70 @@
+---
+title: "NASA POWER"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, fetch!, MetaData, NASAPower
+using Dates, JSON
+using GeoInterface.Extents: Extent
+```
+
+[NASA POWER](https://power.larc.nasa.gov/) provides global daily meteorological and solar energy
+data (1981–present) at ~55 km resolution.  No API key is required.
+
+```{julia}
+MetaData(NASAPower())
+```
+
+## Point Query
+
+```{julia}
+plan = DataAccessPlan(NASAPower(), (-74.0, 40.7),
+    Date(2024, 1, 1), Date(2024, 1, 7);
+    variables = [:T2M, :PRECTOTCORR])
+plan
+```
+
+```{julia}
+files = fetch!(plan)
+data = JSON.parsefile(files[1])
+keys(data)
+```
+
+## Regional Query
+
+NASA POWER supports regional bounding box queries (requires at least 2° in each dimension):
+
+```{julia}
+ext = Extent(X=(-76.0, -72.0), Y=(39.0, 42.0))
+
+plan = DataAccessPlan(NASAPower(), ext,
+    Date(2024, 1, 1), Date(2024, 1, 7);
+    variables = [:T2M])
+plan
+```
+
+## Variables
+
+| Variable | Description |
+|----------|-------------|
+| `T2M` | Temperature at 2m (°C) |
+| `T2M_MAX` | Maximum temperature at 2m (°C) |
+| `T2M_MIN` | Minimum temperature at 2m (°C) |
+| `T2M_RANGE` | Temperature range at 2m (°C) |
+| `T2MDEW` | Dew/frost point at 2m (°C) |
+| `RH2M` | Relative humidity at 2m (%) |
+| `PRECTOTCORR` | Precipitation corrected (mm/day) |
+| `WS2M` | Wind speed at 2m (m/s) |
+| `WS10M` | Wind speed at 10m (m/s) |
+| `WD2M` | Wind direction at 2m (°) |
+| `WD10M` | Wind direction at 10m (°) |
+| `PS` | Surface pressure (kPa) |
+| `QV2M` | Specific humidity at 2m (g/kg) |
+| `CLOUD_AMT` | Cloud amount (%) |
+| `ALLSKY_SFC_SW_DWN` | All-sky surface shortwave downward irradiance (MJ/m²/day) |
+| `CLRSKY_SFC_SW_DWN` | Clear-sky surface shortwave downward irradiance (MJ/m²/day) |
+| `ALLSKY_SFC_LW_DWN` | All-sky surface longwave downward irradiance (W/m²) |

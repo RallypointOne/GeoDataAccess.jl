@@ -8,11 +8,13 @@ engine: julia
 #| output: false
 using GeoDataAccess
 using GeoDataAccess: Cache, MetaData, DataAccessPlan, fetch!, fetch_data, name,
-    all_sources, available_sources
+    all_sources, available_sources,
+    OpenMeteoArchive, OpenMeteoForecast, NOAANCEI, NASAPower, TomorrowIO, VisualCrossing
 using Dates
 import GeoInterface as GI
 using GeoInterface.Extents: Extent
-using JSON3
+using JSON
+using CairoMakie
 ```
 
 ## Imports
@@ -21,154 +23,148 @@ GeoDataAccess.jl does not export symbols by default.  Import what you need expli
 
 ```julia
 using GeoDataAccess
-using GeoDataAccess: DataAccessPlan, fetch!, fetch_data, MetaData, Cache
+using GeoDataAccess: DataAccessPlan, fetch!, fetch_data, MetaData
 using Dates
-import GeoInterface as GI
 ```
 
-## Workflow
+## Discovering Sources
+
+GeoDataAccess ships with several data sources.  Use `all_sources` and `available_sources` to
+see what's registered:
+
+```{julia}
+all_sources()
+```
+
+```{julia}
+# Only sources you can use right now (API key set or not required)
+available_sources()
+```
+
+Every source carries a `MetaData` record describing its coverage, resolution, variables, and
+access requirements:
+
+```{julia}
+MetaData(NASAPower())
+```
+
+```{julia}
+MetaData(OpenMeteoArchive())
+```
+
+## Plan / Fetch Workflow
 
 Every data request follows two steps:
 
-1. **Plan** — `DataAccessPlan(source, extent, start_date, stop_date; kw...)` builds a plan describing the API calls that will be made, without executing them.
-2. **Fetch** — `fetch!(plan)` executes the plan, downloads data, and returns file paths to cached JSON files.
+1. **Plan** — `DataAccessPlan(source, extent, start_date, stop_date; kw...)` builds a plan
+   describing the API calls that will be made, without executing them.
+2. **Fetch** — `fetch!(plan)` executes the plan, downloads data, and returns file paths to
+   cached JSON files.
 
-The convenience function `fetch_data(...)` combines both steps.
+The interface is the same regardless of which source you choose.
 
-## Open-Meteo Archive
+### Step 1: Create a Plan
 
-[Open-Meteo Archive](https://open-meteo.com/) provides global historical weather data from the
-ERA5 reanalysis dataset (1940–present) at ~25 km resolution.  No API key is required.
-
-### Hourly Data
-
-```{julia}
-plan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),
-    Date(2024, 1, 1), Date(2024, 1, 3);
-    variables = [:temperature_2m, :precipitation],
-    frequency = :hourly)
-```
+Pass a data source, a location `(longitude, latitude)`, a date range, and the variables you want.
+Each source has its own variable names — check its `MetaData` or documentation page for the list.
 
 ```{julia}
-files = fetch!(plan)
-data = JSON3.read(read(files[1]))
-keys(data)
-```
-
-### Daily Data
-
-Daily aggregates use different variable names (e.g. `temperature_2m_max` instead of `temperature_2m`):
-
-```{julia}
-files = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),
-    Date(2024, 1, 1), Date(2024, 1, 7);
-    variables = [:temperature_2m_max, :temperature_2m_min, :precipitation_sum],
-    frequency = :daily)
-
-data = JSON3.read(read(files[1]))
-keys(data)
-```
-
-## Open-Meteo Forecast
-
-[Open-Meteo Forecast](https://open-meteo.com/) provides up to 16-day weather forecasts at ~9 km
-resolution.  The interface is the same as the archive source:
-
-```{julia}
-plan = DataAccessPlan(OpenMeteoForecast(), (-74.0, 40.7),
-    today(), today() + Day(2);
-    variables = [:temperature_2m, :precipitation],
-    frequency = :hourly)
-plan
-```
-
-## NOAA NCEI
-
-[NOAA NCEI](https://www.ncei.noaa.gov/) provides historical station-based observations.
-You must specify station IDs via the `stations` keyword:
-
-```{julia}
-plan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),
-    Date(2024, 1, 1), Date(2024, 1, 7);
-    stations = ["USW00094728"],  # Central Park, NYC
-    variables = [:TMAX, :TMIN, :PRCP])
-plan
-```
-
-```{julia}
-files = fetch!(plan)
-data = JSON3.read(read(files[1]))
-length(data)  # number of records
-```
-
-::: {.callout-note}
-Station IDs can be found at [NOAA's Station Search](https://www.ncdc.noaa.gov/cdo-web/datatools/findstation).
-The `extent` argument is currently unused for NOAA NCEI — data is fetched by station ID.
-:::
-
-## NASA POWER
-
-[NASA POWER](https://power.larc.nasa.gov/) provides global daily meteorological and solar energy
-data (1981–present) at ~55 km resolution.  No API key is required.
-
-```{julia}
+# NASA POWER — daily temperature and precipitation
 plan = DataAccessPlan(NASAPower(), (-74.0, 40.7),
-    Date(2024, 1, 1), Date(2024, 1, 7);
+    Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:T2M, :PRECTOTCORR])
-plan
 ```
+
+The plan shows you exactly what will be fetched — number of API calls, estimated size, time
+range, and variables — before any network requests are made.
+
+### Step 2: Fetch the Data
 
 ```{julia}
 files = fetch!(plan)
-data = JSON3.read(read(files[1]))
-keys(data)
 ```
 
-NASA POWER also supports regional bounding box queries (requires at least 2° in each dimension):
+`fetch!` returns a vector of file paths to cached JSON files.  Read them with
+[JSON.jl](https://github.com/JuliaIO/JSON.jl):
 
 ```{julia}
-ext = Extent(X=(-76.0, -72.0), Y=(39.0, 42.0))
+using JSON
 
-plan = DataAccessPlan(NASAPower(), ext,
-    Date(2024, 1, 1), Date(2024, 1, 7);
+data = JSON.parsefile(files[1])
+collect(keys(data))
+```
+
+### Shortcut: `fetch_data`
+
+The convenience function `fetch_data` combines both steps:
+
+```{julia}
+files = fetch_data(NASAPower(), (-74.0, 40.7),
+    Date(2024, 7, 1), Date(2024, 7, 14);
+    variables = [:T2M, :PRECTOTCORR])
+```
+
+### Same Workflow, Any Source
+
+The plan/fetch pattern works identically across all sources.  Only the source constructor
+and variable names change:
+
+```{julia}
+# Open-Meteo Archive — hourly data with different variable names
+plan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),
+    Date(2024, 7, 1), Date(2024, 7, 14);
+    variables = [:temperature_2m, :precipitation],
+    frequency = :hourly)
+```
+
+```{julia}
+# NOAA NCEI — station-based, requires station IDs
+plan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),
+    Date(2024, 7, 1), Date(2024, 7, 14);
+    stations = ["USW00094728"],
+    variables = [:TMAX, :TMIN, :PRCP])
+```
+
+See the **Data Sources** section in the sidebar for source-specific details, examples, and
+variable listings.
+
+## Example: Comparing Sources
+
+Fetch daily temperature from two independent sources for the same location and overlay them:
+
+```{julia}
+using CairoMakie
+
+# NASA POWER
+files_power = fetch_data(NASAPower(), (-74.0, 40.7),
+    Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:T2M])
-plan
-```
+power = JSON.parsefile(files_power[1])
+power_temps = collect(values(power["properties"]["parameter"]["T2M"]))
+power_dates = Date.(collect(keys(power["properties"]["parameter"]["T2M"])), "yyyymmdd")
 
-## Tomorrow.io
+# Open-Meteo Archive
+files_meteo = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),
+    Date(2024, 7, 1), Date(2024, 7, 14);
+    variables = [:temperature_2m_mean], frequency = :daily)
+meteo = JSON.parsefile(files_meteo[1])
+meteo_temps = meteo["daily"]["temperature_2m_mean"]
+meteo_dates = Date.(meteo["daily"]["time"])
 
-[Tomorrow.io](https://www.tomorrow.io/) provides high-resolution (4 km) global weather data.
-Requires a free API key set as the `TOMORROW_IO_API_KEY` environment variable.
-
-```julia
-ENV["TOMORROW_IO_API_KEY"] = "your-api-key"
-
-plan = DataAccessPlan(TomorrowIO(), (-74.0, 40.7),
-    Date(2024, 1, 1), Date(2024, 1, 7);
-    variables = [:temperature, :humidity, :precipitationIntensity],
-    timestep = "1d")
-files = fetch!(plan)
-```
-
-## Visual Crossing
-
-[Visual Crossing](https://www.visualcrossing.com/) provides ~50 years of historical weather
-data at ~1 km resolution.  Requires a free API key set as the `VISUAL_CROSSING_API_KEY`
-environment variable.
-
-```julia
-ENV["VISUAL_CROSSING_API_KEY"] = "your-api-key"
-
-plan = DataAccessPlan(VisualCrossing(), (-74.0, 40.7),
-    Date(2024, 1, 1), Date(2024, 1, 7);
-    variables = [:tempmax, :tempmin, :precip, :humidity],
-    include = "days")
-files = fetch!(plan)
+fig = Figure(size=(700, 350))
+ax = Axis(fig[1, 1];
+    xlabel="Date", ylabel="Temperature (°C)",
+    title="Daily Mean Temperature — NYC, July 2024",
+    xticklabelrotation=pi/4)
+lines!(ax, power_dates, power_temps; label="NASA POWER", linewidth=2)
+lines!(ax, meteo_dates, meteo_temps; label="Open-Meteo (ERA5)", linewidth=2)
+axislegend(ax; position=:lb, framevisible=false)
+fig
 ```
 
 ## GeoInterface Integration
 
-`DataAccessPlan` (and `fetch_data`) accept any
+`DataAccessPlan` accepts any
 [GeoInterface.jl](https://github.com/JuliaGeo/GeoInterface.jl)-compatible geometry as the
 spatial extent.  The geometry type determines how coordinates are sent to the API:
 
@@ -183,330 +179,25 @@ spatial extent.  The geometry type determines how coordinates are sent to the AP
 ### Multi-Point Query
 
 ```{julia}
+import GeoInterface as GI
+
 mp = GI.MultiPoint([(-74.0, 40.7), (-87.6, 41.9)])
 
-plan = DataAccessPlan(OpenMeteoArchive(), mp,
-    Date(2024, 1, 1), Date(2024, 1, 2);
-    variables = [:temperature_2m], frequency = :hourly)
+plan = DataAccessPlan(NASAPower(), mp,
+    Date(2024, 1, 1), Date(2024, 1, 7);
+    variables = [:T2M])
 plan
 ```
 
 ### Extent Query
 
 ```{julia}
-ext = Extent(X=(-74.0, -73.5), Y=(40.7, 40.9))
+using GeoInterface.Extents: Extent
 
-plan = DataAccessPlan(OpenMeteoArchive(), ext,
-    Date(2024, 1, 1), Date(2024, 1, 2);
-    variables = [:temperature_2m_max], frequency = :daily)
+ext = Extent(X=(-76.0, -72.0), Y=(39.0, 42.0))
+
+plan = DataAccessPlan(NASAPower(), ext,
+    Date(2024, 1, 1), Date(2024, 1, 7);
+    variables = [:T2M])
 plan
 ```
-
-## Plotting with Makie
-
-### Animated Temperature Map
-
-Fetch daily max temperature over a grid of points across the US Northeast and animate it
-on a map using [GeoMakie.jl](https://github.com/MakieOrg/GeoMakie.jl):
-
-```{julia}
-#| code-fold: true
-using CairoMakie, GeoMakie
-
-# Build a grid of points covering the Northeast US
-lons = -80.0:1.5:-68.0
-lats = 36.0:1.0:45.0
-grid_points = vec([(_lon, _lat) for _lon in lons, _lat in lats])
-mp = GI.MultiPoint(grid_points)
-
-files = fetch_data(OpenMeteoArchive(), mp,
-    Date(2024, 7, 1), Date(2024, 7, 14);
-    variables = [:temperature_2m_max], frequency = :daily)
-
-results = [JSON3.read(read(f)) for f in files]
-
-dates = results[1].daily.time
-grid_lons = [p[1] for p in grid_points]
-grid_lats = [p[2] for p in grid_points]
-
-# Global color range across all days
-all_temps = vcat([collect(r.daily.temperature_2m_max) for r in results]...)
-cmin, cmax = extrema(skipmissing(all_temps))
-```
-
-```{julia}
-#| code-fold: true
-day_idx = Observable(1)
-temps = @lift([r.daily.temperature_2m_max[$day_idx] for r in results])
-title = @lift("Daily Max Temperature — " * string(dates[$day_idx]))
-
-fig = Figure(size=(700, 500))
-ga = GeoAxis(fig[1, 1]; dest="+proj=merc",
-    limits=(-82, -66, 34, 47),
-    title=title)
-lines!(ga, GeoMakie.coastlines(); color=:gray40, linewidth=0.75)
-sc = scatter!(ga, grid_lons, grid_lats;
-    color=temps, colormap=:RdYlBu_9, colorrange=(cmin, cmax),
-    markersize=20)
-Colorbar(fig[1, 2], sc; label="Temperature (°C)")
-
-record(fig, "temperature_map.gif", eachindex(dates); framerate=3) do i
-    day_idx[] = i
-end
-```
-
-![](temperature_map.gif)
-
-### Hourly Temperature Heatmap
-
-Fetch hourly temperature for a single point over several days and visualize as a heatmap
-(hour of day vs. date):
-
-```{julia}
-#| code-fold: true
-files = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),
-    Date(2024, 7, 1), Date(2024, 7, 14);
-    variables = [:temperature_2m], frequency = :hourly)
-
-result = JSON3.read(read(files[1]))
-temps_raw = collect(result.hourly.temperature_2m)
-times_raw = result.hourly.time
-
-temps = reshape(temps_raw, 24, :)
-dates = unique([t[1:10] for t in times_raw])
-
-fig = Figure(size=(800, 400))
-ax = Axis(fig[1, 1];
-    xlabel="Date", ylabel="Hour of Day",
-    title="Hourly Temperature — NYC, July 2024",
-    xticklabelrotation=pi/4)
-hm = heatmap!(ax, 1:length(dates), 0:23, temps'; colormap=:RdYlBu_9)
-ax.xticks = (1:2:length(dates), dates[1:2:end])
-Colorbar(fig[1, 2], hm; label="Temperature (°C)")
-fig
-```
-
-### Multi-City Precipitation Comparison
-
-Use a `MultiPoint` geometry to compare precipitation across several cities:
-
-```{julia}
-#| code-fold: true
-cities = GI.MultiPoint([
-    (-74.0, 40.7),   # New York
-    (-87.6, 41.9),   # Chicago
-    (-122.4, 37.8),  # San Francisco
-    (-80.2, 25.8),   # Miami
-])
-city_names = ["New York", "Chicago", "San Francisco", "Miami"]
-
-files = fetch_data(OpenMeteoArchive(), cities,
-    Date(2024, 1, 1), Date(2024, 12, 31);
-    variables = [:precipitation_sum], frequency = :daily)
-
-results = [JSON3.read(read(f)) for f in files]
-
-# Compute monthly totals
-fig = Figure(size=(800, 400))
-ax = Axis(fig[1, 1];
-    xlabel="Month", ylabel="Total Precipitation (mm)",
-    title="Monthly Precipitation — 2024",
-    xticks=(1:12, Dates.format.(Date(2024,1,1):Month(1):Date(2024,12,1), "u")))
-
-for (i, (r, label)) in enumerate(zip(results, city_names))
-    precip = collect(r.daily.precipitation_sum)
-    times = r.daily.time
-    months = [parse(Int, t[6:7]) for t in times]
-    monthly = [sum(precip[months .== m]; init=0.0) for m in 1:12]
-    barplot!(ax, (1:12) .+ (i - 2.5) * 0.2, monthly; width=0.2, label=label)
-end
-axislegend(ax; position=:lt, framevisible=false)
-fig
-```
-
-## MetaData
-
-Each data source has a `MetaData` method that describes its properties:
-
-```{julia}
-m = MetaData(OpenMeteoArchive())
-```
-
-```{julia}
-m.variables
-```
-
-## Discovering Sources
-
-```{julia}
-# All registered sources
-all_sources()
-```
-
-```{julia}
-# Only sources that are currently usable (API key set or not required)
-available_sources()
-```
-
-```{julia}
-# Filter by domain
-all_sources(domain = :weather)
-```
-
-## Caching
-
-GeoDataAccess.jl caches API responses to disk via [Scratch.jl](https://github.com/JuliaPackaging/Scratch.jl).
-Caching is enabled by default.
-
-```{julia}
-Cache.ENABLED[]  # check current state
-```
-
-```julia
-# Disable caching
-Cache.enable!(false)
-
-# Re-enable caching
-Cache.enable!(true)
-
-# List cached files
-Cache.list()
-
-# Clear all cached data
-Cache.clear!()
-```
-
-## Variable Reference
-
-### Open-Meteo (Hourly)
-
-| Variable | Description |
-|----------|-------------|
-| `temperature_2m` | Air temperature at 2m (°C) |
-| `relative_humidity_2m` | Relative humidity at 2m (%) |
-| `dew_point_2m` | Dew point at 2m (°C) |
-| `apparent_temperature` | Apparent (feels-like) temperature (°C) |
-| `precipitation` | Total precipitation (mm) |
-| `rain` | Rain (mm) |
-| `snowfall` | Snowfall (cm) |
-| `snow_depth` | Snow depth (m) |
-| `pressure_msl` | Mean sea level pressure (hPa) |
-| `surface_pressure` | Surface pressure (hPa) |
-| `cloud_cover` | Total cloud cover (%) |
-| `wind_speed_10m` | Wind speed at 10m (km/h) |
-| `wind_direction_10m` | Wind direction at 10m (°) |
-| `wind_gusts_10m` | Wind gusts at 10m (km/h) |
-| `shortwave_radiation` | Shortwave radiation (W/m²) |
-| `weather_code` | WMO weather code |
-| `et0_fao_evapotranspiration` | Reference evapotranspiration (mm) |
-| `soil_temperature_0_to_7cm` | Soil temperature 0-7cm (°C) |
-| `soil_moisture_0_to_7cm` | Soil moisture 0-7cm (m³/m³) |
-
-### Open-Meteo (Daily)
-
-| Variable | Description |
-|----------|-------------|
-| `temperature_2m_max` | Daily maximum temperature at 2m (°C) |
-| `temperature_2m_min` | Daily minimum temperature at 2m (°C) |
-| `temperature_2m_mean` | Daily mean temperature at 2m (°C) |
-| `apparent_temperature_max` | Daily maximum apparent temperature (°C) |
-| `apparent_temperature_min` | Daily minimum apparent temperature (°C) |
-| `precipitation_sum` | Daily total precipitation (mm) |
-| `rain_sum` | Daily total rain (mm) |
-| `snowfall_sum` | Daily total snowfall (cm) |
-| `wind_speed_10m_max` | Daily maximum wind speed at 10m (km/h) |
-| `wind_gusts_10m_max` | Daily maximum wind gusts at 10m (km/h) |
-| `wind_direction_10m_dominant` | Daily dominant wind direction (°) |
-| `precipitation_hours` | Daily hours with precipitation |
-| `sunrise` | Sunrise time (ISO8601) |
-| `sunset` | Sunset time (ISO8601) |
-| `sunshine_duration` | Sunshine duration (s) |
-| `shortwave_radiation_sum` | Daily total shortwave radiation (MJ/m²) |
-
-### NOAA NCEI
-
-| Variable | Description |
-|----------|-------------|
-| `TMAX` | Maximum temperature (tenths of °C) |
-| `TMIN` | Minimum temperature (tenths of °C) |
-| `TAVG` | Average temperature (tenths of °C) |
-| `PRCP` | Precipitation (tenths of mm) |
-| `SNOW` | Snowfall (mm) |
-| `SNWD` | Snow depth (mm) |
-| `AWND` | Average wind speed (tenths of m/s) |
-| `WSF2` | Fastest 2-minute wind speed (tenths of m/s) |
-| `WDF2` | Direction of fastest 2-minute wind (°) |
-| `WSF5` | Fastest 5-second wind speed (tenths of m/s) |
-| `WDF5` | Direction of fastest 5-second wind (°) |
-| `TSUN` | Total sunshine (minutes) |
-| `PSUN` | Percent of possible sunshine (%) |
-
-### NASA POWER
-
-| Variable | Description |
-|----------|-------------|
-| `T2M` | Temperature at 2m (°C) |
-| `T2M_MAX` | Maximum temperature at 2m (°C) |
-| `T2M_MIN` | Minimum temperature at 2m (°C) |
-| `T2M_RANGE` | Temperature range at 2m (°C) |
-| `T2MDEW` | Dew/frost point at 2m (°C) |
-| `RH2M` | Relative humidity at 2m (%) |
-| `PRECTOTCORR` | Precipitation corrected (mm/day) |
-| `WS2M` | Wind speed at 2m (m/s) |
-| `WS10M` | Wind speed at 10m (m/s) |
-| `WD2M` | Wind direction at 2m (°) |
-| `WD10M` | Wind direction at 10m (°) |
-| `PS` | Surface pressure (kPa) |
-| `QV2M` | Specific humidity at 2m (g/kg) |
-| `CLOUD_AMT` | Cloud amount (%) |
-| `ALLSKY_SFC_SW_DWN` | All-sky surface shortwave downward irradiance (MJ/m²/day) |
-| `CLRSKY_SFC_SW_DWN` | Clear-sky surface shortwave downward irradiance (MJ/m²/day) |
-| `ALLSKY_SFC_LW_DWN` | All-sky surface longwave downward irradiance (W/m²) |
-
-### Tomorrow.io
-
-| Variable | Description |
-|----------|-------------|
-| `temperature` | Temperature (°C) |
-| `temperatureApparent` | Apparent temperature (°C) |
-| `temperatureMax` | Daily max temperature (°C) |
-| `temperatureMin` | Daily min temperature (°C) |
-| `humidity` | Humidity (%) |
-| `dewPoint` | Dew point (°C) |
-| `windSpeed` | Wind speed (m/s) |
-| `windDirection` | Wind direction (°) |
-| `windGust` | Wind gust (m/s) |
-| `precipitationIntensity` | Precipitation intensity (mm/hr) |
-| `precipitationProbability` | Precipitation probability (%) |
-| `rainIntensity` | Rain intensity (mm/hr) |
-| `snowIntensity` | Snow intensity (mm/hr) |
-| `pressureSurfaceLevel` | Surface-level pressure (hPa) |
-| `cloudCover` | Cloud cover (%) |
-| `uvIndex` | UV index |
-| `weatherCode` | Weather condition code |
-| `visibility` | Visibility (km) |
-
-### Visual Crossing
-
-| Variable | Description |
-|----------|-------------|
-| `temp` | Temperature (°C) |
-| `tempmax` | Maximum temperature (°C) |
-| `tempmin` | Minimum temperature (°C) |
-| `feelslike` | Feels-like temperature (°C) |
-| `humidity` | Humidity (%) |
-| `dew` | Dew point (°C) |
-| `precip` | Precipitation (mm) |
-| `snow` | Snowfall (cm) |
-| `snowdepth` | Snow depth (cm) |
-| `windspeed` | Wind speed (km/h) |
-| `winddir` | Wind direction (°) |
-| `windgust` | Wind gust (km/h) |
-| `pressure` | Sea-level pressure (hPa) |
-| `cloudcover` | Cloud cover (%) |
-| `uvindex` | UV index |
-| `visibility` | Visibility (km) |
-| `conditions` | Weather conditions text |
-| `sunrise` | Sunrise time |
-| `sunset` | Sunset time |
-| `moonphase` | Moon phase (0-1) |

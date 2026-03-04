@@ -1,0 +1,64 @@
+---
+title: "Tomorrow.io"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: MetaData, TomorrowIO
+```
+
+[Tomorrow.io](https://www.tomorrow.io/) provides high-resolution (4 km) global weather data
+with hourly or daily granularity.  Requires a free API key.
+
+```{julia}
+MetaData(TomorrowIO())
+```
+
+## Setup
+
+Sign up at [tomorrow.io](https://www.tomorrow.io/) and set your API key:
+
+```julia
+ENV["TOMORROW_IO_API_KEY"] = "your-api-key"
+```
+
+## Example
+
+```julia
+using GeoDataAccess: DataAccessPlan, fetch!, TomorrowIO
+using Dates
+
+plan = DataAccessPlan(TomorrowIO(), (-74.0, 40.7),
+    Date(2024, 1, 1), Date(2024, 1, 7);
+    variables = [:temperature, :humidity, :precipitationIntensity],
+    timestep = "1d")
+files = fetch!(plan)
+```
+
+The `timestep` parameter controls temporal resolution: `"1h"` for hourly or `"1d"` for daily.
+
+## Variables
+
+| Variable | Description |
+|----------|-------------|
+| `temperature` | Temperature (°C) |
+| `temperatureApparent` | Apparent temperature (°C) |
+| `temperatureMax` | Daily max temperature (°C) |
+| `temperatureMin` | Daily min temperature (°C) |
+| `humidity` | Humidity (%) |
+| `dewPoint` | Dew point (°C) |
+| `windSpeed` | Wind speed (m/s) |
+| `windDirection` | Wind direction (°) |
+| `windGust` | Wind gust (m/s) |
+| `precipitationIntensity` | Precipitation intensity (mm/hr) |
+| `precipitationProbability` | Precipitation probability (%) |
+| `rainIntensity` | Rain intensity (mm/hr) |
+| `snowIntensity` | Snow intensity (mm/hr) |
+| `pressureSurfaceLevel` | Surface-level pressure (hPa) |
+| `cloudCover` | Cloud cover (%) |
+| `uvIndex` | UV index |
+| `weatherCode` | Weather condition code |
+| `visibility` | Visibility (km) |

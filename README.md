@@ -5,4 +5,4 @@
 
 # GeoDataAccess.jl
 
-A Julia package for accessing weather data.
+A Julia package for accessing spatiotemporal data for a given geometry and datetime range.

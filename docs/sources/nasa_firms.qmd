@@ -1,0 +1,90 @@
+---
+title: "NASA FIRMS"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, MetaData, NASAFIRMS
+using Dates
+```
+
+[NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) (Fire Information for Resource Management
+System) provides global active fire hotspot data from MODIS and VIIRS satellite instruments.
+An API key is **required** — register for free at
+[firms.modaps.eosdis.nasa.gov/api/map_key/](https://firms.modaps.eosdis.nasa.gov/api/map_key/).
+
+The response format is **CSV** (not JSON).
+
+```{julia}
+MetaData(NASAFIRMS())
+```
+
+## Setup
+
+Set the environment variable:
+
+```julia
+ENV["FIRMS_MAP_KEY"] = "your-map-key"
+```
+
+## Bounding Box Query
+
+```julia
+using GeoInterface.Extents: Extent
+
+plan = DataAccessPlan(NASAFIRMS(),
+    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),
+    Date(2024, 7, 1), Date(2024, 7, 5))
+files = fetch!(plan)
+```
+
+Requests longer than 10 days are automatically split into 10-day chunks.
+
+## Country Query
+
+Query by ISO 3-letter country code (the `extent` argument is ignored):
+
+```julia
+plan = DataAccessPlan(NASAFIRMS(), (0.0, 0.0),
+    Date(2024, 7, 1), Date(2024, 7, 3);
+    country = "AUS")
+```
+
+## Options
+
+| Keyword | Type | Default | Description |
+|---------|------|---------|-------------|
+| `satellite` | `String` | `"VIIRS_SNPP_NRT"` | Satellite source (see below) |
+| `country` | `String` | `""` | ISO 3-letter country code (overrides spatial extent) |
+
+### Satellite Sources
+
+| Source ID | Description |
+|-----------|-------------|
+| `VIIRS_SNPP_NRT` | VIIRS Suomi-NPP Near Real-Time |
+| `VIIRS_SNPP_SP` | VIIRS Suomi-NPP Standard Processing |
+| `VIIRS_NOAA20_NRT` | VIIRS NOAA-20 Near Real-Time |
+| `VIIRS_NOAA21_NRT` | VIIRS NOAA-21 Near Real-Time |
+| `MODIS_NRT` | MODIS Near Real-Time |
+| `MODIS_SP` | MODIS Standard Processing |
+| `LANDSAT_NRT` | Landsat 8/9 (US/Canada only) |
+
+## Variables
+
+| Variable | Description |
+|----------|-------------|
+| `latitude` | Center latitude of fire pixel (°) |
+| `longitude` | Center longitude of fire pixel (°) |
+| `bright_ti4` | VIIRS I-4 brightness temperature (K) |
+| `bright_ti5` | VIIRS I-5 brightness temperature (K) |
+| `frp` | Fire Radiative Power (MW) |
+| `confidence` | Detection confidence |
+| `acq_date` | Acquisition date (YYYY-MM-DD) |
+| `acq_time` | Acquisition time UTC (HHMM) |
+| `satellite` | Satellite platform |
+| `daynight` | Day (D) or Night (N) observation |
+| `scan` | Along-scan pixel size (km) |
+| `track` | Along-track pixel size (km) |

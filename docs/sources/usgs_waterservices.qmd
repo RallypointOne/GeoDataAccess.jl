@@ -1,0 +1,72 @@
+---
+title: "USGS Water Services"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, fetch!, MetaData, USGSWaterServices
+using Dates, JSON
+```
+
+The [USGS National Water Information System](https://waterservices.usgs.gov/) provides streamflow,
+water quality, and related hydrological data from 1.5 million+ sites across the US.  No API key
+is required.
+
+```{julia}
+MetaData(USGSWaterServices())
+```
+
+## Daily Values
+
+Retrieve daily mean discharge for the Potomac River near Washington, DC (site 01646500):
+
+```{julia}
+plan = DataAccessPlan(USGSWaterServices(), (-77.1, 38.9),
+    Date(2024, 1, 1), Date(2024, 1, 31);
+    sites = ["01646500"],
+    variables = [Symbol("00060")])
+plan
+```
+
+```{julia}
+files = fetch!(plan)
+data = JSON.parsefile(files[1])
+ts = data["value"]["timeSeries"][1]
+println("Site: ", ts["sourceInfo"]["siteName"])
+println("Variable: ", ts["variable"]["variableDescription"])
+println("Values: ", length(ts["values"][1]["value"]), " records")
+```
+
+## Instantaneous Values
+
+For higher-resolution (~15-minute) data, use `service="iv"`:
+
+```julia
+plan = DataAccessPlan(USGSWaterServices(service="iv"), (-77.1, 38.9),
+    Date(2024, 1, 1), Date(2024, 1, 7);
+    sites = ["01646500"],
+    variables = [Symbol("00060")])
+```
+
+## Finding Sites
+
+Site numbers can be found at [USGS Water Data](https://waterdata.usgs.gov/).
+
+## Variables
+
+Variables are specified by USGS parameter codes:
+
+| Code | Description |
+|------|-------------|
+| `00060` | Streamflow / Discharge (ft³/s) |
+| `00065` | Gage height (ft) |
+| `00010` | Water temperature (°C) |
+| `00011` | Air temperature (°C) |
+| `00045` | Precipitation (in) |
+| `00095` | Specific conductance (µS/cm at 25°C) |
+| `00300` | Dissolved oxygen (mg/L) |
+| `00400` | pH (standard units) |
+| `63680` | Turbidity (FNU) |

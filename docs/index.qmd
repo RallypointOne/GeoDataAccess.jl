@@ -8,15 +8,17 @@ engine: julia
 #| output: false
 using GeoDataAccess
 using GeoDataAccess: Cache, MetaData, fetch_data, DataAccessPlan, fetch!, name,
-    all_sources, available_sources
+    all_sources, available_sources,
+    OpenMeteoArchive, OpenMeteoForecast, NOAANCEI, NASAPower, TomorrowIO, VisualCrossing,
+    USGSEarthquake, USGSWaterServices, OpenAQ, NASAFIRMS, EPAAQS
 using Dates
 import GeoInterface as GI
-using JSON3
+using JSON
 ```
 
-**GeoDataAccess.jl** is a Julia package for collecting weather and climate data from multiple
-public APIs.  It provides a unified interface across historical observations, reanalysis data,
-and forecasts with built-in caching and [GeoInterface.jl](https://github.com/JuliaGeo/GeoInterface.jl)
+**GeoDataAccess.jl** is a Julia package for collecting geospatial data from multiple
+public APIs.  It provides a unified interface across weather, hydrology, seismology, air quality,
+and more — with built-in caching and [GeoInterface.jl](https://github.com/JuliaGeo/GeoInterface.jl)
 integration for flexible spatial queries.
 
 ## Data Sources
@@ -29,6 +31,11 @@ integration for flexible spatial queries.
 | [`NASAPower`](@ref) | Raster | Global, 1981–present | Daily, 55 km | No |
 | [`TomorrowIO`](@ref) | Raster | Global, 2000–present | Hourly/Daily, 4 km | Yes |
 | [`VisualCrossing`](@ref) | Raster | Global, ~50 years | Daily/Hourly, 1 km | Yes |
+| [`USGSEarthquake`](@ref) | Event-based | Global catalog | Event-based | No |
+| [`USGSWaterServices`](@ref) | Station-based | US, 1.5M+ sites | Daily/15-min | No |
+| [`OpenAQ`](@ref) | Station-based | Global, 11K+ stations | Hourly/Daily | Yes |
+| [`NASAFIRMS`](@ref) | Event-based | Global, near real-time | 375 m / 1 km | Yes |
+| [`EPAAQS`](@ref) | Station-based | US stations | Hourly/Daily | Yes |
 
 ## Installation
 
@@ -44,7 +51,7 @@ as JSON files.
 
 ```{julia}
 using GeoDataAccess
-using GeoDataAccess: DataAccessPlan, fetch!
+using GeoDataAccess: DataAccessPlan, fetch!, OpenMeteoArchive
 using Dates
 
 # Create a plan: hourly temperature and precipitation for NYC
@@ -61,15 +68,15 @@ files = fetch!(plan)
 
 ```{julia}
 # Read the JSON data
-using JSON3
-data = JSON3.read(read(files[1]))
+using JSON
+data = JSON.parsefile(files[1])
 keys(data)
 ```
 
 Or use the convenience function `fetch_data` which combines both steps:
 
 ```{julia}
-using GeoDataAccess: fetch_data
+using GeoDataAccess: fetch_data, OpenMeteoArchive
 
 files = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 3);

@@ -1,0 +1,60 @@
+---
+title: "NOAA NCEI"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, fetch!, MetaData, NOAANCEI
+using Dates, JSON
+```
+
+[NOAA NCEI](https://www.ncei.noaa.gov/) provides historical station-based weather observations
+from a global network of stations dating back to 1763.  No API key is required.
+
+Data is fetched by station ID rather than spatial coordinates.  Station IDs can be found at
+[NOAA's Station Search](https://www.ncdc.noaa.gov/cdo-web/datatools/findstation).
+
+```{julia}
+MetaData(NOAANCEI())
+```
+
+## Example
+
+```{julia}
+plan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),
+    Date(2024, 1, 1), Date(2024, 1, 7);
+    stations = ["USW00094728"],  # Central Park, NYC
+    variables = [:TMAX, :TMIN, :PRCP])
+plan
+```
+
+```{julia}
+files = fetch!(plan)
+data = JSON.parsefile(files[1])
+length(data)  # number of records
+```
+
+::: {.callout-note}
+The `extent` argument is currently unused for NOAA NCEI — data is fetched by station ID.
+:::
+
+## Variables
+
+| Variable | Description |
+|----------|-------------|
+| `TMAX` | Maximum temperature (tenths of °C) |
+| `TMIN` | Minimum temperature (tenths of °C) |
+| `TAVG` | Average temperature (tenths of °C) |
+| `PRCP` | Precipitation (tenths of mm) |
+| `SNOW` | Snowfall (mm) |
+| `SNWD` | Snow depth (mm) |
+| `AWND` | Average wind speed (tenths of m/s) |
+| `WSF2` | Fastest 2-minute wind speed (tenths of m/s) |
+| `WDF2` | Direction of fastest 2-minute wind (°) |
+| `WSF5` | Fastest 5-second wind speed (tenths of m/s) |
+| `WDF5` | Direction of fastest 5-second wind (°) |
+| `TSUN` | Total sunshine (minutes) |
+| `PSUN` | Percent of possible sunshine (%) |
