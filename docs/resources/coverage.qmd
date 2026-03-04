@@ -7,7 +7,7 @@ engine: julia
 #| echo: false
 #| output: false
 using LocalCoverage
-coverage = generate_coverage("WeatherData"; run_test=true)
+coverage = generate_coverage("GeoDataAccess"; run_test=true)
 html_coverage(coverage; dir=joinpath(@__DIR__, "_site", "coverage"), open=false)
 rm(joinpath(dirname(@__DIR__), "coverage"); recursive=true, force=true)
 ```

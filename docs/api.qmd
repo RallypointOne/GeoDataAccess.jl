@@ -8,22 +8,22 @@ toc-depth: 4
 ```{julia}
 #| echo: false
 #| output: false
-using WeatherData
+using GeoDataAccess
 ```
 
 ```{julia}
 #| echo: false
 #| output: asis
-export_names = filter(!=(:WeatherData), names(WeatherData))
+export_names = filter(!=(:GeoDataAccess), names(GeoDataAccess))
 
 classify(b) = b isa Type ? :type : b isa Function ? :function : :constant
 
 for (kind, label) in [(:type, "Types"), (:function, "Functions"), (:constant, "Constants")]
-    items = filter(n -> classify(getfield(WeatherData, n)) == kind, export_names)
+    items = filter(n -> classify(getfield(GeoDataAccess, n)) == kind, export_names)
     isempty(items) && continue
     println("## $label\n")
     for name in items
-        binding = getfield(WeatherData, name)
+        binding = getfield(GeoDataAccess, name)
         doc = string(Docs.doc(binding))
         println("""
         ::: {.card .mb-3}

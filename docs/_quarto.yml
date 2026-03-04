@@ -5,9 +5,13 @@ project:
 engine: julia
 julia:
   project: "."
+  exeflags: ["--threads=auto"]
+
+execute:
+  timeout: 600
 
 book:
-  title: "WeatherData.jl"
+  title: "GeoDataAccess.jl"
   search:
     location: sidebar
     keyboard-shortcut:
@@ -17,10 +21,10 @@ book:
     logo-href: https://rallypoint1.com
     right:
       - icon: star
-        href: https://github.com/RallypointOne/WeatherData.jl/stargazers
+        href: https://github.com/RallypointOne/GeoDataAccess.jl/stargazers
         text: "Star"
       - icon: github
-        href: https://github.com/RallypointOne/WeatherData.jl
+        href: https://github.com/RallypointOne/GeoDataAccess.jl
   chapters:
     - part: "Docs"
       chapters:
