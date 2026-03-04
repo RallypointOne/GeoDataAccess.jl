@@ -1,0 +1,108 @@
+---
+title: "NOAA GFS"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, MetaData, NOAAGFS
+using Dates
+```
+
+The [NOAA Global Forecast System (GFS)](https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast)
+provides global weather forecast data at 0.25° (~25 km) resolution.  Data is accessed via the
+[NOMADS grib filter](https://nomads.ncep.noaa.gov/), which allows subsetting GRIB2 files by
+region, variables, and levels — returning smaller GRIB2 files over HTTP.
+
+No API key is required.  A ~10 second delay between requests is recommended.
+
+```{julia}
+MetaData(NOAAGFS())
+```
+
+## Basic Usage
+
+Unlike most sources, GFS is **forecast data** — you specify a model `run_date` and `cycle`
+instead of a date range, plus `forecast_hours` for which forecast steps to retrieve.
+
+```julia
+using GeoInterface.Extents: Extent
+using Dates
+
+# Temperature and wind for the central US, today's 00z run, analysis + 3h + 6h
+plan = DataAccessPlan(NOAAGFS(),
+    Extent(X=(-100.0, -90.0), Y=(35.0, 45.0));
+    variables = [:TMP, :UGRD, :VGRD],
+    levels = ["2_m_above_ground"],
+    forecast_hours = [0, 3, 6])
+files = fetch(plan)
+```
+
+Each forecast hour produces a separate GRIB2 file.
+
+## Specific Model Run
+
+```julia
+plan = DataAccessPlan(NOAAGFS(),
+    Extent(X=(-120.0, -80.0), Y=(30.0, 50.0));
+    run_date = Date(2025, 6, 15),
+    cycle = 12,
+    variables = [:TMP, :RH, :PRATE],
+    levels = ["surface", "2_m_above_ground"],
+    forecast_hours = [0, 6, 12, 24])
+```
+
+## Options
+
+| Keyword | Type | Default | Description |
+|---------|------|---------|-------------|
+| `run_date` | `Date` | `today()` | Model run date |
+| `cycle` | `Int` | `0` | Model cycle hour (0, 6, 12, or 18) |
+| `forecast_hours` | `Vector{Int}` | `[0]` | Forecast steps to retrieve (0–240) |
+| `variables` | `Vector{Symbol}` | `[:TMP, :UGRD, :VGRD]` | GFS variable names |
+| `levels` | `Vector{String}` | `["2_m_above_ground", "10_m_above_ground"]` | Vertical levels |
+
+## Common Variables
+
+| Variable | Description |
+|----------|-------------|
+| `TMP` | Temperature (K) |
+| `UGRD` | U-component of wind (m/s) |
+| `VGRD` | V-component of wind (m/s) |
+| `RH` | Relative humidity (%) |
+| `PRATE` | Precipitation rate (kg/m²/s) |
+| `APCP` | Total precipitation (kg/m²) |
+| `PRMSL` | Pressure reduced to MSL (Pa) |
+| `DSWRF` | Downward short-wave radiation flux (W/m²) |
+| `DLWRF` | Downward long-wave radiation flux (W/m²) |
+| `CAPE` | Convective Available Potential Energy (J/kg) |
+| `TCDC` | Total cloud cover (%) |
+| `PWAT` | Precipitable water (kg/m²) |
+| `HGT` | Geopotential height (gpm) |
+
+## Common Levels
+
+| Level | Description |
+|-------|-------------|
+| `surface` | Ground surface |
+| `2_m_above_ground` | 2 m above ground (standard temperature) |
+| `10_m_above_ground` | 10 m above ground (standard wind) |
+| `entire_atmosphere` | Entire atmospheric column |
+| `mean_sea_level` | Mean sea level |
+| `500_mb`, `850_mb`, etc. | Pressure levels (1000–10 mb) |
+
+## Loading GRIB2 Data
+
+`fetch` returns file paths to GRIB2 files.  To load them as raster data, install the
+`Rasters` package:
+
+```julia
+using Pkg
+Pkg.add("Rasters")
+
+using Rasters
+files = fetch(plan)
+r = Raster(files[1])
+```

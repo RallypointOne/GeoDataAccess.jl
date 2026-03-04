@@ -60,7 +60,8 @@ MetaData(::NOAANCEI) = MetaData(
     :point, "Station-based", "Global (station-based)",
     :timeseries, Day(1), "1763-present",
     "Public Domain",
-    "https://www.ncei.noaa.gov/support/access-data-service-api-user-documentation",
+    "https://www.ncei.noaa.gov/support/access-data-service-api-user-documentation";
+    load_packages = Dict("DataFrames" => "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"),
 )
 
 #--------------------------------------------------------------------------------# DataAccessPlan

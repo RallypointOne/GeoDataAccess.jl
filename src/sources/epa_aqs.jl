@@ -65,7 +65,8 @@ MetaData(::EPAAQS) = MetaData(
     :point, "Station-based", "US",
     :timeseries, Day(1), "Varies by station (decades)",
     "Public Domain",
-    "https://aqs.epa.gov/aqsweb/documents/data_api.html",
+    "https://aqs.epa.gov/aqsweb/documents/data_api.html";
+    load_packages = Dict("DataFrames" => "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"),
 )
 
 #--------------------------------------------------------------------------------# Request Headers / Auth

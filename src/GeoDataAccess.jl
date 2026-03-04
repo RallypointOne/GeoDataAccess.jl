@@ -2,6 +2,7 @@ module GeoDataAccess
 
 using Dates
 using Downloads
+using JSON3
 using URIs
 
 import GeoInterface as GI
@@ -88,8 +89,8 @@ struct RequestInfo
     cache_path::String
 end
 
-RequestInfo(source::AbstractDataSource, url::String, method::Symbol, description::String) =
-    RequestInfo(url, method, description, _cache_path(name(typeof(source)), url))
+RequestInfo(source::AbstractDataSource, url::String, method::Symbol, description::String; ext::String=".json") =
+    RequestInfo(url, method, description, _cache_path(name(typeof(source)), url; ext))
 
 function Base.show(io::IO, r::RequestInfo)
     short_path = replace(r.cache_path, r"^.*?(/geodataaccess_cache/)" => "")
@@ -163,7 +164,7 @@ Execute a `DataAccessPlan`, downloading the planned requests and returning local
 function fetch(plan::DataAccessPlan)
     src_name = name(typeof(plan.source))
     hdrs = _request_headers(plan.source)
-    [_cached_get(src_name, req.url; headers=hdrs) for req in plan.requests]
+    [_cached_get(src_name, req.url; headers=hdrs, ext=splitext(req.cache_path)[2]) for req in plan.requests]
 end
 
 """
@@ -232,13 +233,13 @@ function _build_url(base::String, params::AbstractDict)
     string(URI(base; query = escapeuri(params)))
 end
 
-function _cache_path(source_name::String, url::String)
+function _cache_path(source_name::String, url::String; ext::String=".json")
     h = string(hash(url), base=16)
-    Cache.dir(source_name, "$h.json")
+    Cache.dir(source_name, "$h$ext")
 end
 
-function _cached_get(source_name::String, url::String; headers=Pair{String,String}[])
-    cache_path = _cache_path(source_name, url)
+function _cached_get(source_name::String, url::String; headers=Pair{String,String}[], ext::String=".json")
+    cache_path = _cache_path(source_name, url; ext)
     if Cache.ENABLED[] && isfile(cache_path)
         return cache_path
     end
@@ -356,5 +357,6 @@ include("sources/usgs_waterservices.jl")
 include("sources/openaq.jl")
 include("sources/nasa_firms.jl")
 include("sources/epa_aqs.jl")
+include("sources/noaa_gfs.jl")
 
 end # module

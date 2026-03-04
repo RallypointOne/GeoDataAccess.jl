@@ -53,7 +53,8 @@ MetaData(::OpenAQ) = MetaData(
     :point, "Station-based", "Global",
     :timeseries, Hour(1), "Varies by station",
     "CC BY 4.0",
-    "https://docs.openaq.org/",
+    "https://docs.openaq.org/";
+    load_packages = Dict("DataFrames" => "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"),
 )
 
 #--------------------------------------------------------------------------------# Request Headers

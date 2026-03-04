@@ -10,7 +10,7 @@ using GeoDataAccess
 using GeoDataAccess: Cache, MetaData, fetch_data, DataAccessPlan, fetch, name,
     all_sources, available_sources,
     OpenMeteoArchive, OpenMeteoForecast, NOAANCEI, NASAPower, TomorrowIO, VisualCrossing,
-    USGSEarthquake, USGSWaterServices, OpenAQ, NASAFIRMS, EPAAQS
+    USGSEarthquake, USGSWaterServices, OpenAQ, NASAFIRMS, EPAAQS, NOAAGFS
 using Dates
 import GeoInterface as GI
 using JSON
@@ -37,6 +37,7 @@ integration for flexible spatial queries.
 | [`NASAFIRMS`](@ref) | Event-based | Global, near real-time | 375 m / 1 km | Yes |
 | [`EPAAQS`](@ref) | Station-based | US stations | Hourly/Daily | Yes |
 | `LandfireSource` | Raster | CONUS, AK, HI | 30 m | No (email) |
+| [`NOAAGFS`](@ref) | Raster (GRIB2) | Global, forecast | 0.25° (~25 km) | No |
 
 ## Installation
 

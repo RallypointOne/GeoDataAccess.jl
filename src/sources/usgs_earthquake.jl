@@ -55,7 +55,8 @@ MetaData(::USGSEarthquake) = MetaData(
     :point, "Event-based", "Global",
     :timeseries, nothing, "Comprehensive catalog",
     "Public Domain",
-    "https://earthquake.usgs.gov/fdsnws/event/1/",
+    "https://earthquake.usgs.gov/fdsnws/event/1/";
+    load_packages = Dict("DataFrames" => "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"),
 )
 
 #--------------------------------------------------------------------------------# DataAccessPlan

@@ -58,7 +58,8 @@ MetaData(::TomorrowIO) = MetaData(
     :raster, "4 km", "Global",
     :timeseries, Hour(1), "2000-present",
     "Commercial (free tier available)",
-    "https://docs.tomorrow.io/reference/welcome",
+    "https://docs.tomorrow.io/reference/welcome";
+    load_packages = Dict("DataFrames" => "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"),
 )
 
 #--------------------------------------------------------------------------------# DataAccessPlan

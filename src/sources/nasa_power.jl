@@ -58,7 +58,8 @@ MetaData(::NASAPower) = MetaData(
     :raster, "55 km", "Global",
     :timeseries, Day(1), "1981-present",
     "Open Data (NASA)",
-    "https://power.larc.nasa.gov/docs/services/api/",
+    "https://power.larc.nasa.gov/docs/services/api/";
+    load_packages = Dict("DataFrames" => "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"),
 )
 
 #--------------------------------------------------------------------------------# DataAccessPlan

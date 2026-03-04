@@ -67,7 +67,9 @@ MetaData(::NASAFIRMS) = MetaData(
     :point, "375 m (VIIRS) / 1 km (MODIS)", "Global",
     :timeseries, nothing, "Near real-time + archive",
     "NASA EOSDIS",
-    "https://firms.modaps.eosdis.nasa.gov/api/",
+    "https://firms.modaps.eosdis.nasa.gov/api/";
+    load_packages = Dict("DataFrames" => "a93c6f00-e57d-5684-b7b6-d8193f3e46c0",
+                         "CSV" => "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"),
 )
 
 #--------------------------------------------------------------------------------# DataAccessPlan
@@ -99,7 +101,7 @@ function DataAccessPlan(source::NASAFIRMS, extent, start_date::Date, stop_date::
         date_str = Dates.format(current, dateformat"yyyy-mm-dd")
         url = "$base_url/$api_key/$satellite/$spatial_param/$chunk/$date_str"
         push!(requests, RequestInfo(source, url, :GET,
-            "$satellite, $chunk days from $date_str"))
+            "$satellite, $chunk days from $date_str"; ext=".csv"))
         current += Day(chunk)
     end
 
