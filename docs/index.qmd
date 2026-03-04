@@ -36,6 +36,7 @@ integration for flexible spatial queries.
 | [`OpenAQ`](@ref) | Station-based | Global, 11K+ stations | Hourly/Daily | Yes |
 | [`NASAFIRMS`](@ref) | Event-based | Global, near real-time | 375 m / 1 km | Yes |
 | [`EPAAQS`](@ref) | Station-based | US stations | Hourly/Daily | Yes |
+| `LandfireSource` | Raster | CONUS, AK, HI | 30 m | No (email) |
 
 ## Installation
 

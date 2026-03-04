@@ -1,0 +1,85 @@
+---
+title: "LANDFIRE"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: MetaData
+```
+
+[LANDFIRE](https://landfire.gov/) (Landscape Fire and Resource Management Planning Tools) provides
+nationwide geospatial data on vegetation, fuels, and disturbance at 30 m resolution.  This data source
+is available as a **package extension** — load both `GeoDataAccess` and
+[`Landfire.jl`](https://github.com/JuliaGeo/Landfire.jl) to activate it.
+
+::: {.callout-note}
+LANDFIRE uses an async job workflow (submit -> poll -> download ZIP -> extract GeoTIFF) which is
+handled automatically by `fetch!`.  Jobs may take several minutes to complete depending on the
+extent and number of products requested.
+:::
+
+## Setup
+
+1. Install `Landfire.jl`:
+
+```julia
+using Pkg
+Pkg.add("Landfire")
+```
+
+2. Set the `LANDFIRE_EMAIL` environment variable (required by the LFPS API):
+
+```julia
+ENV["LANDFIRE_EMAIL"] = "your-email@example.com"
+```
+
+## Usage
+
+```julia
+using GeoDataAccess, Landfire
+using GeoDataAccess: DataAccessPlan, fetch!
+using GeoInterface.Extents: Extent
+
+# Browse available products
+prods = Landfire.products(layer="FBFM40")
+
+# Define area of interest
+ext = Extent(X=(-107.7, -106.0), Y=(46.5, 47.3))
+
+# Create plan and fetch
+plan = DataAccessPlan(LandfireSource(), ext; products=prods)
+files = fetch!(plan)  # submits job, polls, downloads, extracts -> [tif_path]
+```
+
+## Options
+
+| Keyword | Type | Default | Description |
+|---------|------|---------|-------------|
+| `products` | `Vector{Landfire.Product}` | (required) | Products to download — use `Landfire.products()` to browse |
+| `email` | `String` | `ENV["LANDFIRE_EMAIL"]` | Email for LFPS API |
+| `output_projection` | `String` or `nothing` | `nothing` | Output CRS (e.g., `"EPSG:4326"`) |
+| `resample_resolution` | `Int` or `nothing` | `nothing` | Resample resolution in meters |
+
+## Common Products
+
+| Layer | Description |
+|-------|-------------|
+| `FBFM13` | 13 Anderson Fire Behavior Fuel Models |
+| `FBFM40` | 40 Scott & Burgan Fire Behavior Fuel Models |
+| `CC` | Forest Canopy Cover (%) |
+| `CH` | Forest Canopy Height (m) |
+| `CBD` | Forest Canopy Bulk Density (kg/m³) |
+| `CBH` | Forest Canopy Base Height (m) |
+| `EVT` | Existing Vegetation Type |
+| `EVC` | Existing Vegetation Cover |
+| `EVH` | Existing Vegetation Height |
+| `BPS` | Biophysical Settings |
+| `ELEV` | Elevation (m) |
+| `SLP` | Slope (degrees) |
+| `ASP` | Aspect (degrees) |
+| `FDIST` | Fuel Disturbance |
+
+Use `Landfire.products()` to see all available products and filter by layer, category, or keyword.

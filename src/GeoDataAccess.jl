@@ -103,8 +103,8 @@ plan          # inspect
 fetch!(plan)  # execute
 ```
 """
-struct DataAccessPlan
-    source::AbstractDataSource
+struct DataAccessPlan{S<:AbstractDataSource}
+    source::S
     requests::Vector{RequestInfo}
     extent_description::String
     time_range::Union{Nothing, Tuple{Date, Date}}
