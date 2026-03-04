@@ -266,6 +266,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="./sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/noaa_gfs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA GFS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sources/era5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">ERA5</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -359,7 +369,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="imports">Imports</h2>
 <p>GeoDataAccess.jl does not export symbols by default. Import what you need explicitly:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: DataAccessPlan, fetch!, fetch_data, MetaData</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: DataAccessPlan, fetch, fetch_data, MetaData</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Dates</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="discovering-sources" class="level2">
@@ -368,7 +378,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all_sources</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>11-element Vector{GeoDataAccess.AbstractDataSource}:
+<pre><code>13-element Vector{GeoDataAccess.AbstractDataSource}:
  OpenMeteoArchive()
  OpenMeteoForecast()
  NOAANCEI("daily-summaries")
@@ -379,33 +389,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  USGSWaterServices("dv")
  GeoDataAccess.OpenAQ()
  GeoDataAccess.NASAFIRMS()
- GeoDataAccess.EPAAQS()</code></pre>
+ GeoDataAccess.EPAAQS()
+ GeoDataAccess.NOAAGFS()
+ GeoDataAccess.ERA5()</code></pre>
 </div>
 </div>
 <div id="6" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Only sources you can use right now (API key set or not required)</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">available_sources</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>6-element Vector{GeoDataAccess.AbstractDataSource}:
+<pre><code>7-element Vector{GeoDataAccess.AbstractDataSource}:
  OpenMeteoArchive()
  OpenMeteoForecast()
  NOAANCEI("daily-summaries")
  NASAPower()
  GeoDataAccess.USGSEarthquake()
- USGSWaterServices("dv")</code></pre>
+ USGSWaterServices("dv")
+ GeoDataAccess.NOAAGFS()</code></pre>
 </div>
 </div>
 <p>Every source carries a <code>MetaData</code> record describing its coverage, resolution, variables, and access requirements:</p>
 <div id="8" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">NASAPower</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("", "No published rate limit", :weather, Dict(:WD2M =&gt; "Wind direction at 2m (°)", :PRECTOTCORR =&gt; "Precipitation corrected (mm/day)", :CLOUD_AMT =&gt; "Cloud amount (%)", :CLRSKY_SFC_SW_DWN =&gt; "Clear-sky surface shortwave downward irradiance (MJ/m²/day)", :ALLSKY_SFC_SW_DWN =&gt; "All-sky surface shortwave downward irradiance (MJ/m²/day)", :RH2M =&gt; "Relative humidity at 2m (%)", :WS10M =&gt; "Wind speed at 10m (m/s)", :ALLSKY_SFC_LW_DWN =&gt; "All-sky surface longwave downward irradiance (W/m²)", :WD10M =&gt; "Wind direction at 10m (°)", :WS2M =&gt; "Wind speed at 2m (m/s)"…), :raster, "55 km", "Global", :timeseries, Day(1), "1981-present", "Open Data (NASA)", "https://power.larc.nasa.gov/docs/services/api/")</code></pre>
+<pre><code>MetaData("", "No published rate limit", :weather, Dict(:WD2M =&gt; "Wind direction at 2m (°)", :PRECTOTCORR =&gt; "Precipitation corrected (mm/day)", :CLOUD_AMT =&gt; "Cloud amount (%)", :CLRSKY_SFC_SW_DWN =&gt; "Clear-sky surface shortwave downward irradiance (MJ/m²/day)", :ALLSKY_SFC_SW_DWN =&gt; "All-sky surface shortwave downward irradiance (MJ/m²/day)", :RH2M =&gt; "Relative humidity at 2m (%)", :WS10M =&gt; "Wind speed at 10m (m/s)", :ALLSKY_SFC_LW_DWN =&gt; "All-sky surface longwave downward irradiance (W/m²)", :WD10M =&gt; "Wind direction at 10m (°)", :WS2M =&gt; "Wind speed at 2m (m/s)"…), :raster, "55 km", "Global", :timeseries, Day(1), "1981-present", "Open Data (NASA)", "https://power.larc.nasa.gov/docs/services/api/", Dict("DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
 </div>
 </div>
 <div id="10" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">OpenMeteoArchive</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("", "10,000 calls/day (non-commercial)", :weather, Dict(:temperature_2m_mean =&gt; "Daily mean temperature at 2m (°C)", :wind_direction_10m_dominant =&gt; "Daily dominant wind direction (°)", :apparent_temperature_max =&gt; "Daily maximum apparent temperature (°C)", :surface_pressure =&gt; "Surface pressure (hPa)", :precipitation_sum =&gt; "Daily total precipitation (mm)", :wind_gusts_10m_max =&gt; "Daily maximum wind gusts at 10m (km/h)", :precipitation_hours =&gt; "Daily hours with precipitation", :temperature_2m =&gt; "Air temperature at 2m (°C)", :rain_sum =&gt; "Daily total rain (mm)", :wind_direction_10m =&gt; "Wind direction at 10m (°)"…), :raster, "25 km", "Global", :timeseries, Hour(1), "1940-present", "CC BY 4.0", "https://open-meteo.com/en/docs/historical-weather-api")</code></pre>
+<pre><code>MetaData("", "10,000 calls/day (non-commercial)", :weather, Dict(:temperature_2m_mean =&gt; "Daily mean temperature at 2m (°C)", :wind_direction_10m_dominant =&gt; "Daily dominant wind direction (°)", :apparent_temperature_max =&gt; "Daily maximum apparent temperature (°C)", :surface_pressure =&gt; "Surface pressure (hPa)", :precipitation_sum =&gt; "Daily total precipitation (mm)", :wind_gusts_10m_max =&gt; "Daily maximum wind gusts at 10m (km/h)", :precipitation_hours =&gt; "Daily hours with precipitation", :temperature_2m =&gt; "Air temperature at 2m (°C)", :rain_sum =&gt; "Daily total rain (mm)", :wind_direction_10m =&gt; "Wind direction at 10m (°)"…), :raster, "25 km", "Global", :timeseries, Hour(1), "1940-present", "CC BY 4.0", "https://open-meteo.com/en/docs/historical-weather-api", Dict("DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
 </div>
 </div>
 </section>
@@ -414,7 +427,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Every data request follows two steps:</p>
 <ol type="1">
 <li><strong>Plan</strong> — <code>DataAccessPlan(source, extent, start_date, stop_date; kw...)</code> builds a plan describing the API calls that will be made, without executing them.</li>
-<li><strong>Fetch</strong> — <code>fetch!(plan)</code> executes the plan, downloads data, and returns file paths to cached JSON files.</li>
+<li><strong>Fetch</strong> — <code>fetch(plan)</code> executes the plan, downloads data, and returns file paths to cached JSON files.</li>
 </ol>
 <p>The interface is the same regardless of which source you choose.</p>
 <section id="step-1-create-a-plan" class="level3">
@@ -443,7 +456,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-2-fetch-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="step-2-fetch-the-data">Step 2: Fetch the Data</h3>
 <div id="14" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="ansi-escaped-output">
 <pre>1-element Vector{String}:
@@ -451,7 +464,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p><code>fetch!</code> returns a vector of file paths to cached JSON files. Read them with <a href="https://github.com/JuliaIO/JSON.jl">JSON.jl</a>:</p>
+<p><code>fetch</code> returns a vector of file paths to cached JSON files. Read them with <a href="https://github.com/JuliaIO/JSON.jl">JSON.jl</a>:</p>
 <div id="16" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">JSON</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>

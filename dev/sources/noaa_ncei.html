@@ -263,6 +263,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="../sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/noaa_gfs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA GFS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/era5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">ERA5</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -344,7 +354,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">NOAANCEI</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("", "Undocumented", :weather, Dict(:SNOW =&gt; "Snowfall (mm)", :PRCP =&gt; "Precipitation (tenths of mm)", :TSUN =&gt; "Total sunshine (minutes)", :SNWD =&gt; "Snow depth (mm)", :WSF2 =&gt; "Fastest 2-minute wind speed (tenths of m/s)", :TMIN =&gt; "Minimum temperature (tenths of °C)", :WSF5 =&gt; "Fastest 5-second wind speed (tenths of m/s)", :PSUN =&gt; "Percent of possible sunshine (%)", :TMAX =&gt; "Maximum temperature (tenths of °C)", :TAVG =&gt; "Average temperature (tenths of °C)"…), :point, "Station-based", "Global (station-based)", :timeseries, Day(1), "1763-present", "Public Domain", "https://www.ncei.noaa.gov/support/access-data-service-api-user-documentation")</code></pre>
+<pre><code>MetaData("", "Undocumented", :weather, Dict(:SNOW =&gt; "Snowfall (mm)", :PRCP =&gt; "Precipitation (tenths of mm)", :TSUN =&gt; "Total sunshine (minutes)", :SNWD =&gt; "Snow depth (mm)", :WSF2 =&gt; "Fastest 2-minute wind speed (tenths of m/s)", :TMIN =&gt; "Minimum temperature (tenths of °C)", :WSF5 =&gt; "Fastest 5-second wind speed (tenths of m/s)", :PSUN =&gt; "Percent of possible sunshine (%)", :TMAX =&gt; "Maximum temperature (tenths of °C)", :TAVG =&gt; "Average temperature (tenths of °C)"…), :point, "Station-based", "Global (station-based)", :timeseries, Day(1), "1763-present", "Public Domain", "https://www.ncei.noaa.gov/support/access-data-service-api-user-documentation", Dict("DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
 </div>
 </div>
 <section id="example" class="level2">
@@ -368,7 +378,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div id="8" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> JSON.<span class="fu">parsefile</span>(files[<span class="fl">1</span>])</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(data)  <span class="co"># number of records</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">

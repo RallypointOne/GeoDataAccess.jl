@@ -263,6 +263,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="../sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/noaa_gfs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA GFS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/era5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">ERA5</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -344,7 +354,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">TomorrowIO</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("TOMORROW_IO_API_KEY", "~500 req/day (free tier)", :weather, Dict(:temperatureMin =&gt; "Daily min temperature (°C)", :pressureSurfaceLevel =&gt; "Surface-level pressure (hPa)", :precipitationIntensity =&gt; "Precipitation intensity (mm/hr)", :dewPoint =&gt; "Dew point (°C)", :windDirection =&gt; "Wind direction (°)", :temperatureApparent =&gt; "Apparent temperature (°C)", :humidity =&gt; "Humidity (%)", :windSpeed =&gt; "Wind speed (m/s)", :temperature =&gt; "Temperature (°C)", :temperatureMax =&gt; "Daily max temperature (°C)"…), :raster, "4 km", "Global", :timeseries, Dates.Hour(1), "2000-present", "Commercial (free tier available)", "https://docs.tomorrow.io/reference/welcome")</code></pre>
+<pre><code>MetaData("TOMORROW_IO_API_KEY", "~500 req/day (free tier)", :weather, Dict(:temperatureMin =&gt; "Daily min temperature (°C)", :pressureSurfaceLevel =&gt; "Surface-level pressure (hPa)", :precipitationIntensity =&gt; "Precipitation intensity (mm/hr)", :dewPoint =&gt; "Dew point (°C)", :windDirection =&gt; "Wind direction (°)", :temperatureApparent =&gt; "Apparent temperature (°C)", :humidity =&gt; "Humidity (%)", :windSpeed =&gt; "Wind speed (m/s)", :temperature =&gt; "Temperature (°C)", :temperatureMax =&gt; "Daily max temperature (°C)"…), :raster, "4 km", "Global", :timeseries, Dates.Hour(1), "2000-present", "Commercial (free tier available)", "https://docs.tomorrow.io/reference/welcome", Dict("DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
 </div>
 </div>
 <section id="setup" class="level2">
@@ -354,14 +364,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: DataAccessPlan, fetch!, TomorrowIO</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: DataAccessPlan, fetch, TomorrowIO</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Dates</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">TomorrowIO</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">1</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">1</span>, <span class="fl">7</span>);</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>temperature, <span class="op">:</span>humidity, <span class="op">:</span>precipitationIntensity],</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    timestep <span class="op">=</span> <span class="st">"1d"</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The <code>timestep</code> parameter controls temporal resolution: <code>"1h"</code> for hourly or <code>"1d"</code> for daily.</p>
 </section>
 <section id="variables" class="level2">

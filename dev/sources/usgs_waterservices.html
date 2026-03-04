@@ -263,6 +263,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="../sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/noaa_gfs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA GFS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/era5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">ERA5</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -345,7 +355,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">USGSWaterServices</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("", "~5-10 req/s (informal)", :hydrology, Dict(Symbol("00060") =&gt; "Streamflow / Discharge (ft³/s)", Symbol("00300") =&gt; "Dissolved oxygen (mg/L)", Symbol("00045") =&gt; "Precipitation (in)", Symbol("00010") =&gt; "Water temperature (°C)", Symbol("00400") =&gt; "pH (standard units)", Symbol("00065") =&gt; "Gage height (ft)", Symbol("00095") =&gt; "Specific conductance (µS/cm at 25°C)", Symbol("63680") =&gt; "Turbidity (FNU)", Symbol("00011") =&gt; "Air temperature (°C)"), :point, "Station-based", "US", :timeseries, Day(1), "Varies by site (many decades)", "Public Domain", "https://waterservices.usgs.gov/docs/")</code></pre>
+<pre><code>MetaData("", "~5-10 req/s (informal)", :hydrology, Dict(Symbol("00060") =&gt; "Streamflow / Discharge (ft³/s)", Symbol("00300") =&gt; "Dissolved oxygen (mg/L)", Symbol("00045") =&gt; "Precipitation (in)", Symbol("00010") =&gt; "Water temperature (°C)", Symbol("00400") =&gt; "pH (standard units)", Symbol("00065") =&gt; "Gage height (ft)", Symbol("00095") =&gt; "Specific conductance (µS/cm at 25°C)", Symbol("63680") =&gt; "Turbidity (FNU)", Symbol("00011") =&gt; "Air temperature (°C)"), :point, "Station-based", "US", :timeseries, Day(1), "Varies by site (many decades)", "Public Domain", "https://waterservices.usgs.gov/docs/", Dict("DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
 </div>
 </div>
 <section id="daily-values" class="level2">
@@ -372,7 +382,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div id="8" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> JSON.<span class="fu">parsefile</span>(files[<span class="fl">1</span>])</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>ts <span class="op">=</span> data[<span class="st">"value"</span>][<span class="st">"timeSeries"</span>][<span class="fl">1</span>]</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"Site: "</span>, ts[<span class="st">"sourceInfo"</span>][<span class="st">"siteName"</span>])</span>

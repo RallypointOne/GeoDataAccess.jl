@@ -263,6 +263,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="../sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/noaa_gfs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA GFS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/era5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">ERA5</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -344,7 +354,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">VisualCrossing</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("VISUAL_CROSSING_API_KEY", "1000 records/day (free tier)", :weather, Dict(:sunset =&gt; "Sunset time", :sunrise =&gt; "Sunrise time", :moonphase =&gt; "Moon phase (0-1)", :humidity =&gt; "Humidity (%)", :dew =&gt; "Dew point (°C)", :snow =&gt; "Snowfall (cm)", :feelslike =&gt; "Feels-like temperature (°C)", :snowdepth =&gt; "Snow depth (cm)", :winddir =&gt; "Wind direction (°)", :precip =&gt; "Precipitation (mm)"…), :raster, "1 km", "Global", :timeseries, Dates.Day(1), "~50 years of history", "Commercial (free tier available)", "https://www.visualcrossing.com/resources/documentation/weather-api/timeline-weather-api/")</code></pre>
+<pre><code>MetaData("VISUAL_CROSSING_API_KEY", "1000 records/day (free tier)", :weather, Dict(:sunset =&gt; "Sunset time", :sunrise =&gt; "Sunrise time", :moonphase =&gt; "Moon phase (0-1)", :humidity =&gt; "Humidity (%)", :dew =&gt; "Dew point (°C)", :snow =&gt; "Snowfall (cm)", :feelslike =&gt; "Feels-like temperature (°C)", :snowdepth =&gt; "Snow depth (cm)", :winddir =&gt; "Wind direction (°)", :precip =&gt; "Precipitation (mm)"…), :raster, "1 km", "Global", :timeseries, Dates.Day(1), "~50 years of history", "Commercial (free tier available)", "https://www.visualcrossing.com/resources/documentation/weather-api/timeline-weather-api/", Dict("DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
 </div>
 </div>
 <section id="setup" class="level2">
@@ -354,14 +364,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: DataAccessPlan, fetch!, VisualCrossing</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: DataAccessPlan, fetch, VisualCrossing</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Dates</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">VisualCrossing</span>(), (<span class="op">-</span><span class="fl">74.0</span>, <span class="fl">40.7</span>),</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">1</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">1</span>, <span class="fl">7</span>);</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>tempmax, <span class="op">:</span>tempmin, <span class="op">:</span>precip, <span class="op">:</span>humidity],</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    include <span class="op">=</span> <span class="st">"days"</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The <code>include</code> parameter controls temporal resolution: <code>"days"</code> for daily or <code>"hours"</code> for hourly.</p>
 </section>
 <section id="variables" class="level2">

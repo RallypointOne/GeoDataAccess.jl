@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>EPA AQS – GeoDataAccess.jl</title>
+<title>ERA5 – GeoDataAccess.jl</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../sources/landfire.html" rel="next">
-<link href="../sources/nasa_firms.html" rel="prev">
+<link href="../api.html" rel="next">
+<link href="../sources/noaa_gfs.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -148,7 +148,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../sources/open_meteo_archive.html">Data Sources</a></li><li class="breadcrumb-item"><a href="../sources/epa_aqs.html"><span class="chapter-title">EPA AQS</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../sources/open_meteo_archive.html">Data Sources</a></li><li class="breadcrumb-item"><a href="../sources/era5.html"><span class="chapter-title">ERA5</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -255,7 +255,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../sources/epa_aqs.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">EPA AQS</span></a>
+  <a href="../sources/epa_aqs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">EPA AQS</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -270,7 +270,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../sources/era5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">ERA5</span></a>
+  <a href="../sources/era5.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">ERA5</span></a>
   </div>
 </li>
       </ul>
@@ -323,19 +323,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup">Setup</a></li>
-  <li><a href="#bounding-box-query" id="toc-bounding-box-query" class="nav-link" data-scroll-target="#bounding-box-query">Bounding Box Query</a></li>
-  <li><a href="#by-state-county-site" id="toc-by-state-county-site" class="nav-link" data-scroll-target="#by-state-county-site">By State / County / Site</a></li>
+  <li><a href="#basic-usage" id="toc-basic-usage" class="nav-link" data-scroll-target="#basic-usage">Basic Usage</a></li>
+  <li><a href="#specific-times" id="toc-specific-times" class="nav-link" data-scroll-target="#specific-times">Specific Times</a></li>
   <li><a href="#options" id="toc-options" class="nav-link" data-scroll-target="#options">Options</a></li>
-  <li><a href="#variables-parameter-codes" id="toc-variables-parameter-codes" class="nav-link" data-scroll-target="#variables-parameter-codes">Variables (Parameter Codes)</a></li>
+  <li><a href="#common-variables" id="toc-common-variables" class="nav-link" data-scroll-target="#common-variables">Common Variables</a></li>
+  <li><a href="#loading-data" id="toc-loading-data" class="nav-link" data-scroll-target="#loading-data">Loading Data</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../sources/open_meteo_archive.html">Data Sources</a></li><li class="breadcrumb-item"><a href="../sources/epa_aqs.html"><span class="chapter-title">EPA AQS</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../sources/open_meteo_archive.html">Data Sources</a></li><li class="breadcrumb-item"><a href="../sources/era5.html"><span class="chapter-title">ERA5</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">EPA AQS</span></h1>
+<h1 class="title"><span class="chapter-title">ERA5</span></h1>
 </div>
 
 
@@ -352,57 +353,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The <a href="https://aqs.epa.gov/">EPA Air Quality System</a> provides measurements from air quality monitoring stations across the United States. Both an email and API key are <strong>required</strong> — register at <code>https://aqs.epa.gov/data/api/signup?email=your@email.com</code>.</p>
+<p><a href="https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5">ERA5</a> is ECMWF’s fifth-generation global climate reanalysis, combining historical observations with numerical weather prediction models to produce a comprehensive, consistent record of past weather and climate from 1940 to present. Data is accessed via the <a href="https://cds.climate.copernicus.eu/">Copernicus Climate Data Store (CDS)</a> API.</p>
 <div id="4" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">EPAAQS</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">ERA5</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("EPA_AQS_KEY", "10 req/min", :air_quality, Dict(Symbol("14129") =&gt; "Lead TSP (µg/m³)", Symbol("44201") =&gt; "Ozone (ppm)", Symbol("42101") =&gt; "Carbon Monoxide (ppm)", Symbol("42602") =&gt; "Nitrogen Dioxide (ppb)", Symbol("88101") =&gt; "PM2.5 - Local Conditions (µg/m³)", Symbol("81102") =&gt; "PM10 (µg/m³)", Symbol("42401") =&gt; "Sulfur Dioxide (ppb)", Symbol("88502") =&gt; "PM2.5 - Non-FRM (µg/m³)"), :point, "Station-based", "US", :timeseries, Day(1), "Varies by station (decades)", "Public Domain", "https://aqs.epa.gov/aqsweb/documents/data_api.html", Dict("DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
+<pre><code>MetaData("CDSAPI_KEY", "1 concurrent job", :weather, Dict(:u_wind_10m =&gt; "10m u-component of wind (m/s)", :total_cloud_cover =&gt; "Total cloud cover (0–1)", :volumetric_soil_water_1 =&gt; "Volumetric soil water layer 1 (m³/m³)", :dewpoint_temperature_2m =&gt; "2m dewpoint temperature (K)", :surface_pressure =&gt; "Surface pressure (Pa)", :skin_temperature =&gt; "Skin temperature (K)", :snowfall =&gt; "Snowfall (m of water equivalent)", :evaporation =&gt; "Total evaporation (m of water equivalent)", :temperature_2m =&gt; "2m temperature (K)", :v_wind_10m =&gt; "10m v-component of wind (m/s)"…), :raster, "0.25° (~25 km)", "Global", :timeseries, Hour(1), "1940–present", "CC BY 4.0", "https://cds.climate.copernicus.eu/", Dict("Rasters" =&gt; "a3a2b9e3-a471-40c9-b274-f788e487c689"))</code></pre>
 </div>
 </div>
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
-<p>Set both environment variables:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cn">ENV</span>[<span class="st">"EPA_AQS_EMAIL"</span>] <span class="op">=</span> <span class="st">"your@email.com"</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cn">ENV</span>[<span class="st">"EPA_AQS_KEY"</span>]   <span class="op">=</span> <span class="st">"your-api-key"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ol type="1">
+<li>Create a free account at <a href="https://cds.climate.copernicus.eu/" class="uri">https://cds.climate.copernicus.eu/</a></li>
+<li>Accept the ERA5 dataset license on the CDS website</li>
+<li>Get your Personal Access Token from <a href="https://cds.climate.copernicus.eu/profile" class="uri">https://cds.climate.copernicus.eu/profile</a></li>
+<li>Set the <code>CDSAPI_KEY</code> environment variable:</li>
+</ol>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cn">ENV</span>[<span class="st">"CDSAPI_KEY"</span>] <span class="op">=</span> <span class="st">"your-personal-access-token"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="bounding-box-query" class="level2">
-<h2 class="anchored" data-anchor-id="bounding-box-query">Bounding Box Query</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoInterface.Extents</span>: Extent</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">EPAAQS</span>(),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Extent</span>(X<span class="op">=</span>(<span class="op">-</span><span class="fl">87.0</span>, <span class="op">-</span><span class="fl">86.7</span>), Y<span class="op">=</span>(<span class="fl">33.3</span>, <span class="fl">33.6</span>)),</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2023</span>, <span class="fl">6</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2023</span>, <span class="fl">6</span>, <span class="fl">30</span>);</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    parameters <span class="op">=</span> [<span class="fu">Symbol</span>(<span class="st">"88101"</span>)])  <span class="co"># PM2.5</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="basic-usage" class="level2">
+<h2 class="anchored" data-anchor-id="basic-usage">Basic Usage</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoDataAccess</span>: ERA5, DataAccessPlan, fetch</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GeoInterface.Extents</span>: Extent</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Dates</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Temperature and precipitation over Europe for 3 days</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>ext <span class="op">=</span> <span class="fu">Extent</span>(X<span class="op">=</span>(<span class="op">-</span><span class="fl">10.0</span>, <span class="fl">30.0</span>), Y<span class="op">=</span>(<span class="fl">35.0</span>, <span class="fl">60.0</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">ERA5</span>(), ext, <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">1</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">1</span>, <span class="fl">3</span>);</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>temperature_2m, <span class="op">:</span>total_precipitation])</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="by-state-county-site" class="level2">
-<h2 class="anchored" data-anchor-id="by-state-county-site">By State / County / Site</h2>
-<p>Query using FIPS codes (the <code>extent</code> argument is ignored):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># All ozone monitors in Wake County, NC</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">EPAAQS</span>(), (<span class="fl">0.0</span>, <span class="fl">0.0</span>),</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2023</span>, <span class="fl">1</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2023</span>, <span class="fl">12</span>, <span class="fl">31</span>);</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    parameters <span class="op">=</span> [<span class="fu">Symbol</span>(<span class="st">"44201"</span>)],</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> <span class="st">"37"</span>, county <span class="op">=</span> <span class="st">"183"</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Specific site</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">EPAAQS</span>(), (<span class="fl">0.0</span>, <span class="fl">0.0</span>),</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2023</span>, <span class="fl">1</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2023</span>, <span class="fl">12</span>, <span class="fl">31</span>);</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    parameters <span class="op">=</span> [<span class="fu">Symbol</span>(<span class="st">"88101"</span>)],</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> <span class="st">"37"</span>, county <span class="op">=</span> <span class="st">"183"</span>, site <span class="op">=</span> <span class="st">"0014"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Date ranges spanning multiple calendar years are automatically split into per-year requests (an EPA API constraint).</p>
+<section id="specific-times" class="level2">
+<h2 class="anchored" data-anchor-id="specific-times">Specific Times</h2>
+<p>By default, data is retrieved at 6-hourly intervals (00:00, 06:00, 12:00, 18:00). Request all 24 hours or specific times:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># All hours</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">ERA5</span>(), ext, <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>);</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>temperature_2m],</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    times <span class="op">=</span> [<span class="fu">lpad</span>(h, <span class="fl">2</span>, <span class="ch">'0'</span>) <span class="op">*</span> <span class="st">":00"</span> for h <span class="kw">in</span> <span class="fl">0</span><span class="op">:</span><span class="fl">23</span>])</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Only noon</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">ERA5</span>(), ext, <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">31</span>);</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> [<span class="op">:</span>temperature_2m],</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    times <span class="op">=</span> [<span class="st">"12:00"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="options" class="level2">
 <h2 class="anchored" data-anchor-id="options">Options</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 24%">
+<col style="width: 22%">
 <col style="width: 16%">
-<col style="width: 24%">
-<col style="width: 35%">
+<col style="width: 25%">
+<col style="width: 36%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Keyword</th>
+<th>Option</th>
 <th>Type</th>
 <th>Default</th>
 <th>Description</th>
@@ -410,82 +415,163 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>service</code></td>
-<td><code>Symbol</code></td>
-<td><code>:dailyData</code></td>
-<td><code>:sampleData</code>, <code>:dailyData</code>, or <code>:annualData</code></td>
-</tr>
-<tr class="even">
-<td><code>parameters</code></td>
+<td><code>variables</code></td>
 <td><code>Vector{Symbol}</code></td>
-<td><code>[Symbol("88101")]</code></td>
-<td>Up to 5 EPA parameter codes</td>
-</tr>
-<tr class="odd">
-<td><code>state</code></td>
-<td><code>String</code></td>
-<td><code>""</code></td>
-<td>2-digit state FIPS code</td>
+<td><code>[:temperature_2m]</code></td>
+<td>Variables to retrieve</td>
 </tr>
 <tr class="even">
-<td><code>county</code></td>
+<td><code>dataset</code></td>
 <td><code>String</code></td>
-<td><code>""</code></td>
-<td>3-digit county FIPS code</td>
+<td><code>"reanalysis-era5-single-levels"</code></td>
+<td>CDS dataset identifier</td>
 </tr>
 <tr class="odd">
-<td><code>site</code></td>
+<td><code>product_type</code></td>
 <td><code>String</code></td>
-<td><code>""</code></td>
-<td>4-digit AQS site number</td>
+<td><code>"reanalysis"</code></td>
+<td><code>"reanalysis"</code> or <code>"ensemble_members"</code></td>
+</tr>
+<tr class="even">
+<td><code>times</code></td>
+<td><code>Vector{String}</code></td>
+<td><code>["00:00","06:00","12:00","18:00"]</code></td>
+<td>Hours to retrieve (UTC)</td>
+</tr>
+<tr class="odd">
+<td><code>data_format</code></td>
+<td><code>String</code></td>
+<td><code>"netcdf"</code></td>
+<td><code>"netcdf"</code> or <code>"grib"</code></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="variables-parameter-codes" class="level2">
-<h2 class="anchored" data-anchor-id="variables-parameter-codes">Variables (Parameter Codes)</h2>
+<section id="common-variables" class="level2">
+<h2 class="anchored" data-anchor-id="common-variables">Common Variables</h2>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>Code</th>
-<th>Pollutant</th>
+<th>Symbol</th>
+<th>CDS Name</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>88101</code></td>
-<td>PM2.5 - Local Conditions (µg/m³)</td>
+<td><code>:temperature_2m</code></td>
+<td><code>2m_temperature</code></td>
+<td>Air temperature at 2m (K)</td>
 </tr>
 <tr class="even">
-<td><code>88502</code></td>
-<td>PM2.5 - Non-FRM (µg/m³)</td>
+<td><code>:dewpoint_temperature_2m</code></td>
+<td><code>2m_dewpoint_temperature</code></td>
+<td>Dewpoint temperature at 2m (K)</td>
 </tr>
 <tr class="odd">
-<td><code>81102</code></td>
-<td>PM10 (µg/m³)</td>
+<td><code>:u_wind_10m</code></td>
+<td><code>10m_u_component_of_wind</code></td>
+<td>U-wind at 10m (m/s)</td>
 </tr>
 <tr class="even">
-<td><code>44201</code></td>
-<td>Ozone (ppm)</td>
+<td><code>:v_wind_10m</code></td>
+<td><code>10m_v_component_of_wind</code></td>
+<td>V-wind at 10m (m/s)</td>
 </tr>
 <tr class="odd">
-<td><code>42101</code></td>
-<td>Carbon Monoxide (ppm)</td>
+<td><code>:total_precipitation</code></td>
+<td><code>total_precipitation</code></td>
+<td>Total precipitation (m)</td>
 </tr>
 <tr class="even">
-<td><code>42401</code></td>
-<td>Sulfur Dioxide (ppb)</td>
+<td><code>:surface_pressure</code></td>
+<td><code>surface_pressure</code></td>
+<td>Surface pressure (Pa)</td>
 </tr>
 <tr class="odd">
-<td><code>42602</code></td>
-<td>Nitrogen Dioxide (ppb)</td>
+<td><code>:mean_sea_level_pressure</code></td>
+<td><code>mean_sea_level_pressure</code></td>
+<td>Mean sea level pressure (Pa)</td>
 </tr>
 <tr class="even">
-<td><code>14129</code></td>
-<td>Lead TSP (µg/m³)</td>
+<td><code>:skin_temperature</code></td>
+<td><code>skin_temperature</code></td>
+<td>Skin temperature (K)</td>
+</tr>
+<tr class="odd">
+<td><code>:sea_surface_temperature</code></td>
+<td><code>sea_surface_temperature</code></td>
+<td>Sea surface temperature (K)</td>
+</tr>
+<tr class="even">
+<td><code>:total_cloud_cover</code></td>
+<td><code>total_cloud_cover</code></td>
+<td>Total cloud cover (0–1)</td>
+</tr>
+<tr class="odd">
+<td><code>:low_cloud_cover</code></td>
+<td><code>low_cloud_cover</code></td>
+<td>Low cloud cover (0–1)</td>
+</tr>
+<tr class="even">
+<td><code>:high_cloud_cover</code></td>
+<td><code>high_cloud_cover</code></td>
+<td>High cloud cover (0–1)</td>
+</tr>
+<tr class="odd">
+<td><code>:surface_solar_radiation</code></td>
+<td><code>surface_solar_radiation_downwards</code></td>
+<td>Surface solar radiation (J/m²)</td>
+</tr>
+<tr class="even">
+<td><code>:surface_thermal_radiation</code></td>
+<td><code>surface_thermal_radiation_downwards</code></td>
+<td>Surface thermal radiation (J/m²)</td>
+</tr>
+<tr class="odd">
+<td><code>:snowfall</code></td>
+<td><code>snowfall</code></td>
+<td>Snowfall (m of water eq.)</td>
+</tr>
+<tr class="even">
+<td><code>:snow_depth</code></td>
+<td><code>snow_depth</code></td>
+<td>Snow depth (m of water eq.)</td>
+</tr>
+<tr class="odd">
+<td><code>:soil_temperature_level_1</code></td>
+<td><code>soil_temperature_level_1</code></td>
+<td>Soil temperature level 1 (K)</td>
+</tr>
+<tr class="even">
+<td><code>:volumetric_soil_water_1</code></td>
+<td><code>volumetric_soil_water_layer_1</code></td>
+<td>Volumetric soil water layer 1 (m³/m³)</td>
+</tr>
+<tr class="odd">
+<td><code>:boundary_layer_height</code></td>
+<td><code>boundary_layer_height</code></td>
+<td>Boundary layer height (m)</td>
+</tr>
+<tr class="even">
+<td><code>:evaporation</code></td>
+<td><code>total_evaporation</code></td>
+<td>Total evaporation (m of water eq.)</td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="loading-data" class="level2">
+<h2 class="anchored" data-anchor-id="loading-data">Loading Data</h2>
+<p>Loading ERA5 NetCDF/GRIB files requires the <code>Rasters</code> package:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Rasters</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>raster <span class="op">=</span> <span class="fu">load</span>(plan)  <span class="co"># returns Raster or RasterStack</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
@@ -893,13 +979,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../sources/nasa_firms.html" class="pagination-link" aria-label="NASA FIRMS">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">NASA FIRMS</span></span>
+      <a href="../sources/noaa_gfs.html" class="pagination-link" aria-label="NOAA GFS">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">NOAA GFS</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../sources/landfire.html" class="pagination-link" aria-label="LANDFIRE">
-        <span class="nav-page-text"><span class="chapter-title">LANDFIRE</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../api.html" class="pagination-link" aria-label="API">
+        <span class="nav-page-text"><span class="chapter-title">API</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

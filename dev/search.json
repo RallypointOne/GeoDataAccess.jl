@@ -15,7 +15,7 @@
     "href": "index.html#data-sources",
     "title": "GeoDataAccess.jl",
     "section": "",
-    "text": "Source\nType\nCoverage\nResolution\nAPI Key\n\n\n\n\nOpenMeteoArchive\nRaster (ERA5)\nGlobal, 1940–present\nHourly/Daily, 25 km\nNo\n\n\nOpenMeteoForecast\nRaster\nGlobal, 16-day forecast\nHourly/Daily, 9 km\nNo\n\n\nNOAANCEI\nStation-based\nGlobal stations, 1763–present\nDaily\nNo\n\n\nNASAPower\nRaster\nGlobal, 1981–present\nDaily, 55 km\nNo\n\n\nTomorrowIO\nRaster\nGlobal, 2000–present\nHourly/Daily, 4 km\nYes\n\n\nVisualCrossing\nRaster\nGlobal, ~50 years\nDaily/Hourly, 1 km\nYes\n\n\nUSGSEarthquake\nEvent-based\nGlobal catalog\nEvent-based\nNo\n\n\nUSGSWaterServices\nStation-based\nUS, 1.5M+ sites\nDaily/15-min\nNo\n\n\nOpenAQ\nStation-based\nGlobal, 11K+ stations\nHourly/Daily\nYes\n\n\nNASAFIRMS\nEvent-based\nGlobal, near real-time\n375 m / 1 km\nYes\n\n\nEPAAQS\nStation-based\nUS stations\nHourly/Daily\nYes\n\n\nLandfireSource\nRaster\nCONUS, AK, HI\n30 m\nNo (email)",
+    "text": "Source\nType\nCoverage\nResolution\nAPI Key\n\n\n\n\nOpenMeteoArchive\nRaster (ERA5)\nGlobal, 1940–present\nHourly/Daily, 25 km\nNo\n\n\nOpenMeteoForecast\nRaster\nGlobal, 16-day forecast\nHourly/Daily, 9 km\nNo\n\n\nNOAANCEI\nStation-based\nGlobal stations, 1763–present\nDaily\nNo\n\n\nNASAPower\nRaster\nGlobal, 1981–present\nDaily, 55 km\nNo\n\n\nTomorrowIO\nRaster\nGlobal, 2000–present\nHourly/Daily, 4 km\nYes\n\n\nVisualCrossing\nRaster\nGlobal, ~50 years\nDaily/Hourly, 1 km\nYes\n\n\nUSGSEarthquake\nEvent-based\nGlobal catalog\nEvent-based\nNo\n\n\nUSGSWaterServices\nStation-based\nUS, 1.5M+ sites\nDaily/15-min\nNo\n\n\nOpenAQ\nStation-based\nGlobal, 11K+ stations\nHourly/Daily\nYes\n\n\nNASAFIRMS\nEvent-based\nGlobal, near real-time\n375 m / 1 km\nYes\n\n\nEPAAQS\nStation-based\nUS stations\nHourly/Daily\nYes\n\n\nLandfireSource\nRaster\nCONUS, AK, HI\n30 m\nNo (email)\n\n\nNOAAGFS\nRaster (GRIB2)\nGlobal, forecast\n0.25° (~25 km)\nNo\n\n\nERA5\nRaster (NetCDF/GRIB)\nGlobal, 1940–present\n0.25° (~25 km)\nYes",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>GeoDataAccess.jl</span>"
@@ -37,7 +37,7 @@
     "href": "index.html#quickstart",
     "title": "GeoDataAccess.jl",
     "section": "Quickstart",
-    "text": "Quickstart\nThe core workflow is: create a DataAccessPlan, inspect it, then fetch! to download the data as JSON files.\n\nusing GeoDataAccess\nusing GeoDataAccess: DataAccessPlan, fetch!, OpenMeteoArchive\nusing Dates\n\n# Create a plan: hourly temperature and precipitation for NYC\nplan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 3);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\nDataAccessPlan for openmeteoarchive\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-07-01 to 2024-07-03 (3 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 1.125 KiB\n\n  Request 1: GET 1 point(s), hourly 3 days → openmeteoarchive/3669ebf219e4f089.json\n\n\n\n# Execute the plan — returns file paths to cached JSON\nfiles = fetch!(plan)\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 68 bytes ⋯ \"oarchive/3669ebf219e4f089.json\"\n\n\n\n\n# Read the JSON data\nusing JSON\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 9 entries. Keys:\n  \"latitude\"\n  \"longitude\"\n  \"generationtime_ms\"\n  \"utc_offset_seconds\"\n  \"timezone\"\n  \"timezone_abbreviation\"\n  \"elevation\"\n  \"hourly_units\"\n  \"hourly\"\n\n\nOr use the convenience function fetch_data which combines both steps:\n\nusing GeoDataAccess: fetch_data, OpenMeteoArchive\n\nfiles = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 3);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 68 bytes ⋯ \"oarchive/3669ebf219e4f089.json\"",
+    "text": "Quickstart\nThe core workflow is: create a DataAccessPlan, inspect it, then fetch to download the data as JSON files.\n\nusing GeoDataAccess\nusing GeoDataAccess: DataAccessPlan, fetch, OpenMeteoArchive\nusing Dates\n\n# Create a plan: hourly temperature and precipitation for NYC\nplan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 3);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\nDataAccessPlan for openmeteoarchive\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-07-01 to 2024-07-03 (3 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 1.125 KiB\n\n  Request 1: GET 1 point(s), hourly 3 days → openmeteoarchive/3669ebf219e4f089.json\n\n\n\n# Execute the plan — returns file paths to cached JSON\nfiles = fetch(plan)\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 68 bytes ⋯ \"oarchive/3669ebf219e4f089.json\"\n\n\n\n\n# Read the JSON data\nusing JSON\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 9 entries. Keys:\n  \"latitude\"\n  \"longitude\"\n  \"generationtime_ms\"\n  \"utc_offset_seconds\"\n  \"timezone\"\n  \"timezone_abbreviation\"\n  \"elevation\"\n  \"hourly_units\"\n  \"hourly\"\n\n\nOr use the convenience function fetch_data which combines both steps:\n\nusing GeoDataAccess: fetch_data, OpenMeteoArchive\n\nfiles = fetch_data(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 3);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 68 bytes ⋯ \"oarchive/3669ebf219e4f089.json\"",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>GeoDataAccess.jl</span>"
@@ -59,7 +59,7 @@
     "href": "getting-started.html#imports",
     "title": "Getting Started",
     "section": "",
-    "text": "using GeoDataAccess\nusing GeoDataAccess: DataAccessPlan, fetch!, fetch_data, MetaData\nusing Dates",
+    "text": "using GeoDataAccess\nusing GeoDataAccess: DataAccessPlan, fetch, fetch_data, MetaData\nusing Dates",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
@@ -70,7 +70,7 @@
     "href": "getting-started.html#discovering-sources",
     "title": "Getting Started",
     "section": "Discovering Sources",
-    "text": "Discovering Sources\nGeoDataAccess ships with several data sources. Use all_sources and available_sources to see what’s registered:\n\nall_sources()\n\n11-element Vector{GeoDataAccess.AbstractDataSource}:\n OpenMeteoArchive()\n OpenMeteoForecast()\n NOAANCEI(\"daily-summaries\")\n NASAPower()\n TomorrowIO()\n VisualCrossing()\n GeoDataAccess.USGSEarthquake()\n USGSWaterServices(\"dv\")\n GeoDataAccess.OpenAQ()\n GeoDataAccess.NASAFIRMS()\n GeoDataAccess.EPAAQS()\n\n\n\n# Only sources you can use right now (API key set or not required)\navailable_sources()\n\n6-element Vector{GeoDataAccess.AbstractDataSource}:\n OpenMeteoArchive()\n OpenMeteoForecast()\n NOAANCEI(\"daily-summaries\")\n NASAPower()\n GeoDataAccess.USGSEarthquake()\n USGSWaterServices(\"dv\")\n\n\nEvery source carries a MetaData record describing its coverage, resolution, variables, and access requirements:\n\nMetaData(NASAPower())\n\nMetaData(\"\", \"No published rate limit\", :weather, Dict(:WD2M =&gt; \"Wind direction at 2m (°)\", :PRECTOTCORR =&gt; \"Precipitation corrected (mm/day)\", :CLOUD_AMT =&gt; \"Cloud amount (%)\", :CLRSKY_SFC_SW_DWN =&gt; \"Clear-sky surface shortwave downward irradiance (MJ/m²/day)\", :ALLSKY_SFC_SW_DWN =&gt; \"All-sky surface shortwave downward irradiance (MJ/m²/day)\", :RH2M =&gt; \"Relative humidity at 2m (%)\", :WS10M =&gt; \"Wind speed at 10m (m/s)\", :ALLSKY_SFC_LW_DWN =&gt; \"All-sky surface longwave downward irradiance (W/m²)\", :WD10M =&gt; \"Wind direction at 10m (°)\", :WS2M =&gt; \"Wind speed at 2m (m/s)\"…), :raster, \"55 km\", \"Global\", :timeseries, Day(1), \"1981-present\", \"Open Data (NASA)\", \"https://power.larc.nasa.gov/docs/services/api/\")\n\n\n\nMetaData(OpenMeteoArchive())\n\nMetaData(\"\", \"10,000 calls/day (non-commercial)\", :weather, Dict(:temperature_2m_mean =&gt; \"Daily mean temperature at 2m (°C)\", :wind_direction_10m_dominant =&gt; \"Daily dominant wind direction (°)\", :apparent_temperature_max =&gt; \"Daily maximum apparent temperature (°C)\", :surface_pressure =&gt; \"Surface pressure (hPa)\", :precipitation_sum =&gt; \"Daily total precipitation (mm)\", :wind_gusts_10m_max =&gt; \"Daily maximum wind gusts at 10m (km/h)\", :precipitation_hours =&gt; \"Daily hours with precipitation\", :temperature_2m =&gt; \"Air temperature at 2m (°C)\", :rain_sum =&gt; \"Daily total rain (mm)\", :wind_direction_10m =&gt; \"Wind direction at 10m (°)\"…), :raster, \"25 km\", \"Global\", :timeseries, Hour(1), \"1940-present\", \"CC BY 4.0\", \"https://open-meteo.com/en/docs/historical-weather-api\")",
+    "text": "Discovering Sources\nGeoDataAccess ships with several data sources. Use all_sources and available_sources to see what’s registered:\n\nall_sources()\n\n13-element Vector{GeoDataAccess.AbstractDataSource}:\n OpenMeteoArchive()\n OpenMeteoForecast()\n NOAANCEI(\"daily-summaries\")\n NASAPower()\n TomorrowIO()\n VisualCrossing()\n GeoDataAccess.USGSEarthquake()\n USGSWaterServices(\"dv\")\n GeoDataAccess.OpenAQ()\n GeoDataAccess.NASAFIRMS()\n GeoDataAccess.EPAAQS()\n GeoDataAccess.NOAAGFS()\n GeoDataAccess.ERA5()\n\n\n\n# Only sources you can use right now (API key set or not required)\navailable_sources()\n\n7-element Vector{GeoDataAccess.AbstractDataSource}:\n OpenMeteoArchive()\n OpenMeteoForecast()\n NOAANCEI(\"daily-summaries\")\n NASAPower()\n GeoDataAccess.USGSEarthquake()\n USGSWaterServices(\"dv\")\n GeoDataAccess.NOAAGFS()\n\n\nEvery source carries a MetaData record describing its coverage, resolution, variables, and access requirements:\n\nMetaData(NASAPower())\n\nMetaData(\"\", \"No published rate limit\", :weather, Dict(:WD2M =&gt; \"Wind direction at 2m (°)\", :PRECTOTCORR =&gt; \"Precipitation corrected (mm/day)\", :CLOUD_AMT =&gt; \"Cloud amount (%)\", :CLRSKY_SFC_SW_DWN =&gt; \"Clear-sky surface shortwave downward irradiance (MJ/m²/day)\", :ALLSKY_SFC_SW_DWN =&gt; \"All-sky surface shortwave downward irradiance (MJ/m²/day)\", :RH2M =&gt; \"Relative humidity at 2m (%)\", :WS10M =&gt; \"Wind speed at 10m (m/s)\", :ALLSKY_SFC_LW_DWN =&gt; \"All-sky surface longwave downward irradiance (W/m²)\", :WD10M =&gt; \"Wind direction at 10m (°)\", :WS2M =&gt; \"Wind speed at 2m (m/s)\"…), :raster, \"55 km\", \"Global\", :timeseries, Day(1), \"1981-present\", \"Open Data (NASA)\", \"https://power.larc.nasa.gov/docs/services/api/\", Dict(\"DataFrames\" =&gt; \"a93c6f00-e57d-5684-b7b6-d8193f3e46c0\"))\n\n\n\nMetaData(OpenMeteoArchive())\n\nMetaData(\"\", \"10,000 calls/day (non-commercial)\", :weather, Dict(:temperature_2m_mean =&gt; \"Daily mean temperature at 2m (°C)\", :wind_direction_10m_dominant =&gt; \"Daily dominant wind direction (°)\", :apparent_temperature_max =&gt; \"Daily maximum apparent temperature (°C)\", :surface_pressure =&gt; \"Surface pressure (hPa)\", :precipitation_sum =&gt; \"Daily total precipitation (mm)\", :wind_gusts_10m_max =&gt; \"Daily maximum wind gusts at 10m (km/h)\", :precipitation_hours =&gt; \"Daily hours with precipitation\", :temperature_2m =&gt; \"Air temperature at 2m (°C)\", :rain_sum =&gt; \"Daily total rain (mm)\", :wind_direction_10m =&gt; \"Wind direction at 10m (°)\"…), :raster, \"25 km\", \"Global\", :timeseries, Hour(1), \"1940-present\", \"CC BY 4.0\", \"https://open-meteo.com/en/docs/historical-weather-api\", Dict(\"DataFrames\" =&gt; \"a93c6f00-e57d-5684-b7b6-d8193f3e46c0\"))",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
@@ -81,7 +81,7 @@
     "href": "getting-started.html#plan-fetch-workflow",
     "title": "Getting Started",
     "section": "Plan / Fetch Workflow",
-    "text": "Plan / Fetch Workflow\nEvery data request follows two steps:\n\nPlan — DataAccessPlan(source, extent, start_date, stop_date; kw...) builds a plan describing the API calls that will be made, without executing them.\nFetch — fetch!(plan) executes the plan, downloads data, and returns file paths to cached JSON files.\n\nThe interface is the same regardless of which source you choose.\n\nStep 1: Create a Plan\nPass a data source, a location (longitude, latitude), a date range, and the variables you want. Each source has its own variable names — check its MetaData or documentation page for the list.\n\n# NASA POWER — daily temperature and precipitation\nplan = DataAccessPlan(NASAPower(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:T2M, :PRECTOTCORR])\n\nDataAccessPlan for nasapower\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-07-01 to 2024-07-14 (14 days)\n  Variables: T2M, PRECTOTCORR\n  community: AG\n  query_type: point\n  API calls: 1\n  Est. size: 224 bytes\n\n  Request 1: GET Point(40.7, -74.0), 14 days → nasapower/f4aeeed25010a44.json\n\n\nThe plan shows you exactly what will be fetched — number of API calls, estimated size, time range, and variables — before any network requests are made.\n\n\nStep 2: Fetch the Data\n\nfiles = fetch!(plan)\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 60 bytes ⋯ \"nasapower/f4aeeed25010a44.json\"\n\n\n\nfetch! returns a vector of file paths to cached JSON files. Read them with JSON.jl:\n\nusing JSON\n\ndata = JSON.parsefile(files[1])\ncollect(keys(data))\n\n7-element Vector{String}:\n \"type\"\n \"geometry\"\n \"properties\"\n \"header\"\n \"messages\"\n \"parameters\"\n \"times\"\n\n\n\n\nShortcut: fetch_data\nThe convenience function fetch_data combines both steps:\n\nfiles = fetch_data(NASAPower(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:T2M, :PRECTOTCORR])\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 60 bytes ⋯ \"nasapower/f4aeeed25010a44.json\"\n\n\n\n\n\nSame Workflow, Any Source\nThe plan/fetch pattern works identically across all sources. Only the source constructor and variable names change:\n\n# Open-Meteo Archive — hourly data with different variable names\nplan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\nDataAccessPlan for openmeteoarchive\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-07-01 to 2024-07-14 (14 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 5.250 KiB\n\n  Request 1: GET 1 point(s), hourly 14 days → openmeteoarchive/d24c1282ace1ab86.json\n\n\n\n# NOAA NCEI — station-based, requires station IDs\nplan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    stations = [\"USW00094728\"],\n    variables = [:TMAX, :TMIN, :PRCP])\n\nDataAccessPlan for noaancei\n  Extent:    1 station(s): USW00094728\n  Time:      2024-07-01 to 2024-07-14 (14 days)\n  Variables: TMAX, TMIN, PRCP\n  stations: [\"USW00094728\"]\n  API calls: 1\n  Est. size: 336 bytes\n\n  Request 1: GET 1 station(s), 14 days → noaancei/a0665c46cb739385.json\n\n\nSee the Data Sources section in the sidebar for source-specific details, examples, and variable listings.",
+    "text": "Plan / Fetch Workflow\nEvery data request follows two steps:\n\nPlan — DataAccessPlan(source, extent, start_date, stop_date; kw...) builds a plan describing the API calls that will be made, without executing them.\nFetch — fetch(plan) executes the plan, downloads data, and returns file paths to cached JSON files.\n\nThe interface is the same regardless of which source you choose.\n\nStep 1: Create a Plan\nPass a data source, a location (longitude, latitude), a date range, and the variables you want. Each source has its own variable names — check its MetaData or documentation page for the list.\n\n# NASA POWER — daily temperature and precipitation\nplan = DataAccessPlan(NASAPower(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:T2M, :PRECTOTCORR])\n\nDataAccessPlan for nasapower\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-07-01 to 2024-07-14 (14 days)\n  Variables: T2M, PRECTOTCORR\n  community: AG\n  query_type: point\n  API calls: 1\n  Est. size: 224 bytes\n\n  Request 1: GET Point(40.7, -74.0), 14 days → nasapower/f4aeeed25010a44.json\n\n\nThe plan shows you exactly what will be fetched — number of API calls, estimated size, time range, and variables — before any network requests are made.\n\n\nStep 2: Fetch the Data\n\nfiles = fetch(plan)\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 60 bytes ⋯ \"nasapower/f4aeeed25010a44.json\"\n\n\n\nfetch returns a vector of file paths to cached JSON files. Read them with JSON.jl:\n\nusing JSON\n\ndata = JSON.parsefile(files[1])\ncollect(keys(data))\n\n7-element Vector{String}:\n \"type\"\n \"geometry\"\n \"properties\"\n \"header\"\n \"messages\"\n \"parameters\"\n \"times\"\n\n\n\n\nShortcut: fetch_data\nThe convenience function fetch_data combines both steps:\n\nfiles = fetch_data(NASAPower(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:T2M, :PRECTOTCORR])\n\n\n1-element Vector{String}:\n \"/home/runner/.julia/scratchspac\" ⋯ 60 bytes ⋯ \"nasapower/f4aeeed25010a44.json\"\n\n\n\n\n\nSame Workflow, Any Source\nThe plan/fetch pattern works identically across all sources. Only the source constructor and variable names change:\n\n# Open-Meteo Archive — hourly data with different variable names\nplan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\nDataAccessPlan for openmeteoarchive\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-07-01 to 2024-07-14 (14 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 5.250 KiB\n\n  Request 1: GET 1 point(s), hourly 14 days → openmeteoarchive/d24c1282ace1ab86.json\n\n\n\n# NOAA NCEI — station-based, requires station IDs\nplan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),\n    Date(2024, 7, 1), Date(2024, 7, 14);\n    stations = [\"USW00094728\"],\n    variables = [:TMAX, :TMIN, :PRCP])\n\nDataAccessPlan for noaancei\n  Extent:    1 station(s): USW00094728\n  Time:      2024-07-01 to 2024-07-14 (14 days)\n  Variables: TMAX, TMIN, PRCP\n  stations: [\"USW00094728\"]\n  API calls: 1\n  Est. size: 336 bytes\n\n  Request 1: GET 1 station(s), 14 days → noaancei/a0665c46cb739385.json\n\n\nSee the Data Sources section in the sidebar for source-specific details, examples, and variable listings.",
     "crumbs": [
       "Docs",
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Getting Started</span>"
@@ -158,7 +158,7 @@
     "href": "sources/open_meteo_archive.html",
     "title": "Open-Meteo Archive",
     "section": "",
-    "text": "Hourly Data\nOpen-Meteo Archive provides global historical weather data from the ERA5 reanalysis dataset (1940–present) at ~25 km resolution. No API key is required.\nplan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 3);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\nDataAccessPlan for openmeteoarchive\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-01-01 to 2024-01-03 (3 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 1.125 KiB\n\n  Request 1: GET 1 point(s), hourly 3 days → openmeteoarchive/8ffb4df0acfa8b3.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 9 entries. Keys:\n  \"latitude\"\n  \"longitude\"\n  \"generationtime_ms\"\n  \"utc_offset_seconds\"\n  \"timezone\"\n  \"timezone_abbreviation\"\n  \"elevation\"\n  \"hourly_units\"\n  \"hourly\"",
+    "text": "Hourly Data\nOpen-Meteo Archive provides global historical weather data from the ERA5 reanalysis dataset (1940–present) at ~25 km resolution. No API key is required.\nplan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 3);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\n\nDataAccessPlan for openmeteoarchive\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-01-01 to 2024-01-03 (3 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 1.125 KiB\n\n  Request 1: GET 1 point(s), hourly 3 days → openmeteoarchive/8ffb4df0acfa8b3.json\nfiles = fetch(plan)\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 9 entries. Keys:\n  \"latitude\"\n  \"longitude\"\n  \"generationtime_ms\"\n  \"utc_offset_seconds\"\n  \"timezone\"\n  \"timezone_abbreviation\"\n  \"elevation\"\n  \"hourly_units\"\n  \"hourly\"",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Open-Meteo Archive</span>"
@@ -213,7 +213,7 @@
     "href": "sources/noaa_ncei.html",
     "title": "NOAA NCEI",
     "section": "",
-    "text": "Example\nNOAA NCEI provides historical station-based weather observations from a global network of stations dating back to 1763. No API key is required.\nData is fetched by station ID rather than spatial coordinates. Station IDs can be found at NOAA’s Station Search.\nplan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    stations = [\"USW00094728\"],  # Central Park, NYC\n    variables = [:TMAX, :TMIN, :PRCP])\nplan\n\nDataAccessPlan for noaancei\n  Extent:    1 station(s): USW00094728\n  Time:      2024-01-01 to 2024-01-07 (7 days)\n  Variables: TMAX, TMIN, PRCP\n  stations: [\"USW00094728\"]\n  API calls: 1\n  Est. size: 168 bytes\n\n  Request 1: GET 1 station(s), 7 days → noaancei/4d9fdd1fc40cc0d5.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nlength(data)  # number of records\n\n7",
+    "text": "Example\nNOAA NCEI provides historical station-based weather observations from a global network of stations dating back to 1763. No API key is required.\nData is fetched by station ID rather than spatial coordinates. Station IDs can be found at NOAA’s Station Search.\nplan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    stations = [\"USW00094728\"],  # Central Park, NYC\n    variables = [:TMAX, :TMIN, :PRCP])\nplan\n\nDataAccessPlan for noaancei\n  Extent:    1 station(s): USW00094728\n  Time:      2024-01-01 to 2024-01-07 (7 days)\n  Variables: TMAX, TMIN, PRCP\n  stations: [\"USW00094728\"]\n  API calls: 1\n  Est. size: 168 bytes\n\n  Request 1: GET 1 station(s), 7 days → noaancei/4d9fdd1fc40cc0d5.json\nfiles = fetch(plan)\ndata = JSON.parsefile(files[1])\nlength(data)  # number of records\n\n7",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>NOAA NCEI</span>"
@@ -246,7 +246,7 @@
     "href": "sources/nasa_power.html",
     "title": "NASA POWER",
     "section": "",
-    "text": "Point Query\nNASA POWER provides global daily meteorological and solar energy data (1981–present) at ~55 km resolution. No API key is required.\nplan = DataAccessPlan(NASAPower(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:T2M, :PRECTOTCORR])\nplan\n\nDataAccessPlan for nasapower\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-01-01 to 2024-01-07 (7 days)\n  Variables: T2M, PRECTOTCORR\n  community: AG\n  query_type: point\n  API calls: 1\n  Est. size: 112 bytes\n\n  Request 1: GET Point(40.7, -74.0), 7 days → nasapower/8aa767d440b8371b.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 7 entries. Keys:\n  \"type\"\n  \"geometry\"\n  \"properties\"\n  \"header\"\n  \"messages\"\n  \"parameters\"\n  \"times\"",
+    "text": "Point Query\nNASA POWER provides global daily meteorological and solar energy data (1981–present) at ~55 km resolution. No API key is required.\nplan = DataAccessPlan(NASAPower(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:T2M, :PRECTOTCORR])\nplan\n\nDataAccessPlan for nasapower\n  Extent:    Point(40.7, -74.0)\n  Time:      2024-01-01 to 2024-01-07 (7 days)\n  Variables: T2M, PRECTOTCORR\n  community: AG\n  query_type: point\n  API calls: 1\n  Est. size: 112 bytes\n\n  Request 1: GET Point(40.7, -74.0), 7 days → nasapower/8aa767d440b8371b.json\nfiles = fetch(plan)\ndata = JSON.parsefile(files[1])\nkeys(data)\n\nKeySet for a JSON.Object{String, Any} with 7 entries. Keys:\n  \"type\"\n  \"geometry\"\n  \"properties\"\n  \"header\"\n  \"messages\"\n  \"parameters\"\n  \"times\"",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>NASA POWER</span>"
@@ -301,7 +301,7 @@
     "href": "sources/tomorrow_io.html#example",
     "title": "Tomorrow.io",
     "section": "Example",
-    "text": "Example\nusing GeoDataAccess: DataAccessPlan, fetch!, TomorrowIO\nusing Dates\n\nplan = DataAccessPlan(TomorrowIO(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:temperature, :humidity, :precipitationIntensity],\n    timestep = \"1d\")\nfiles = fetch!(plan)\nThe timestep parameter controls temporal resolution: \"1h\" for hourly or \"1d\" for daily.",
+    "text": "Example\nusing GeoDataAccess: DataAccessPlan, fetch, TomorrowIO\nusing Dates\n\nplan = DataAccessPlan(TomorrowIO(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:temperature, :humidity, :precipitationIntensity],\n    timestep = \"1d\")\nfiles = fetch(plan)\nThe timestep parameter controls temporal resolution: \"1h\" for hourly or \"1d\" for daily.",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>8</span>  <span class='chapter-title'>Tomorrow.io</span>"
@@ -345,7 +345,7 @@
     "href": "sources/visual_crossing.html#example",
     "title": "Visual Crossing",
     "section": "Example",
-    "text": "Example\nusing GeoDataAccess: DataAccessPlan, fetch!, VisualCrossing\nusing Dates\n\nplan = DataAccessPlan(VisualCrossing(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:tempmax, :tempmin, :precip, :humidity],\n    include = \"days\")\nfiles = fetch!(plan)\nThe include parameter controls temporal resolution: \"days\" for daily or \"hours\" for hourly.",
+    "text": "Example\nusing GeoDataAccess: DataAccessPlan, fetch, VisualCrossing\nusing Dates\n\nplan = DataAccessPlan(VisualCrossing(), (-74.0, 40.7),\n    Date(2024, 1, 1), Date(2024, 1, 7);\n    variables = [:tempmax, :tempmin, :precip, :humidity],\n    include = \"days\")\nfiles = fetch(plan)\nThe include parameter controls temporal resolution: \"days\" for daily or \"hours\" for hourly.",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>9</span>  <span class='chapter-title'>Visual Crossing</span>"
@@ -367,7 +367,7 @@
     "href": "sources/usgs_earthquake.html",
     "title": "USGS Earthquake",
     "section": "",
-    "text": "Bounding Box Query\nThe USGS Earthquake Hazards Program provides a comprehensive global catalog of earthquake events. No API key is required.\nQuery earthquakes within a geographic bounding box. Results are returned as GeoJSON FeatureCollections.\n# M4+ earthquakes in California, January 2024\nplan = DataAccessPlan(USGSEarthquake(),\n    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),\n    Date(2024, 1, 1), Date(2024, 1, 31);\n    minmagnitude = 4.0)\nplan\n\nDataAccessPlan for usgsearthquake\n  Extent:    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0))\n  Time:      2024-01-01 to 2024-01-31 (31 days)\n  Variables: cdi, felt, place, sig, tsunami, time, magType, type, mmi, alert, mag, depth\n  orderby: time\n  limit: 20000\n  minmagnitude: 4.0\n  API calls: 1\n  Est. size: 29.062 KiB\n\n  Request 1: GET Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)), 31 days → usgsearthquake/124a44893d7f0600.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nn = length(data[\"features\"])\nprintln(\"$n earthquakes found\")\n\n6 earthquakes found",
+    "text": "Bounding Box Query\nThe USGS Earthquake Hazards Program provides a comprehensive global catalog of earthquake events. No API key is required.\nQuery earthquakes within a geographic bounding box. Results are returned as GeoJSON FeatureCollections.\n# M4+ earthquakes in California, January 2024\nplan = DataAccessPlan(USGSEarthquake(),\n    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),\n    Date(2024, 1, 1), Date(2024, 1, 31);\n    minmagnitude = 4.0)\nplan\n\nDataAccessPlan for usgsearthquake\n  Extent:    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0))\n  Time:      2024-01-01 to 2024-01-31 (31 days)\n  Variables: cdi, felt, place, sig, tsunami, time, magType, type, mmi, alert, mag, depth\n  orderby: time\n  limit: 20000\n  minmagnitude: 4.0\n  API calls: 1\n  Est. size: 29.062 KiB\n\n  Request 1: GET Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)), 31 days → usgsearthquake/124a44893d7f0600.json\nfiles = fetch(plan)\ndata = JSON.parsefile(files[1])\nn = length(data[\"features\"])\nprintln(\"$n earthquakes found\")\n\n6 earthquakes found",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>USGS Earthquake</span>"
@@ -411,7 +411,7 @@
     "href": "sources/usgs_waterservices.html",
     "title": "USGS Water Services",
     "section": "",
-    "text": "Daily Values\nThe USGS National Water Information System provides streamflow, water quality, and related hydrological data from 1.5 million+ sites across the US. No API key is required.\nRetrieve daily mean discharge for the Potomac River near Washington, DC (site 01646500):\nplan = DataAccessPlan(USGSWaterServices(), (-77.1, 38.9),\n    Date(2024, 1, 1), Date(2024, 1, 31);\n    sites = [\"01646500\"],\n    variables = [Symbol(\"00060\")])\nplan\n\nDataAccessPlan for usgswaterservices\n  Extent:    1 site(s): 01646500\n  Time:      2024-01-01 to 2024-01-31 (31 days)\n  Variables: 00060\n  service: dv\n  statCd: 00003\n  sites: [\"01646500\"]\n  API calls: 1\n  Est. size: 248 bytes\n\n  Request 1: GET 1 site(s), 31 days → usgswaterservices/3681f53199e103d6.json\nfiles = fetch!(plan)\ndata = JSON.parsefile(files[1])\nts = data[\"value\"][\"timeSeries\"][1]\nprintln(\"Site: \", ts[\"sourceInfo\"][\"siteName\"])\nprintln(\"Variable: \", ts[\"variable\"][\"variableDescription\"])\nprintln(\"Values: \", length(ts[\"values\"][1][\"value\"]), \" records\")\n\nSite: POTOMAC RIVER NEAR WASH, DC LITTLE FALLS PUMP STA\nVariable: Discharge, cubic feet per second\nValues: 31 records",
+    "text": "Daily Values\nThe USGS National Water Information System provides streamflow, water quality, and related hydrological data from 1.5 million+ sites across the US. No API key is required.\nRetrieve daily mean discharge for the Potomac River near Washington, DC (site 01646500):\nplan = DataAccessPlan(USGSWaterServices(), (-77.1, 38.9),\n    Date(2024, 1, 1), Date(2024, 1, 31);\n    sites = [\"01646500\"],\n    variables = [Symbol(\"00060\")])\nplan\n\nDataAccessPlan for usgswaterservices\n  Extent:    1 site(s): 01646500\n  Time:      2024-01-01 to 2024-01-31 (31 days)\n  Variables: 00060\n  service: dv\n  statCd: 00003\n  sites: [\"01646500\"]\n  API calls: 1\n  Est. size: 248 bytes\n\n  Request 1: GET 1 site(s), 31 days → usgswaterservices/3681f53199e103d6.json\nfiles = fetch(plan)\ndata = JSON.parsefile(files[1])\nts = data[\"value\"][\"timeSeries\"][1]\nprintln(\"Site: \", ts[\"sourceInfo\"][\"siteName\"])\nprintln(\"Variable: \", ts[\"variable\"][\"variableDescription\"])\nprintln(\"Values: \", length(ts[\"values\"][1][\"value\"]), \" records\")\n\nSite: POTOMAC RIVER NEAR WASH, DC LITTLE FALLS PUMP STA\nVariable: Discharge, cubic feet per second\nValues: 31 records",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>11</span>  <span class='chapter-title'>USGS Water Services</span>"
@@ -477,7 +477,7 @@
     "href": "sources/openaq.html#usage",
     "title": "OpenAQ",
     "section": "Usage",
-    "text": "Usage\nOpenAQ requires sensor IDs via the sensors keyword. Find sensor IDs at explore.openaq.org.\n# Daily PM2.5 aggregations for a sensor\nplan = DataAccessPlan(OpenAQ(), (-87.6, 41.9),\n    Date(2024, 1, 1), Date(2024, 1, 31);\n    sensors = [1234],\n    frequency = :daily)\nfiles = fetch!(plan)",
+    "text": "Usage\nOpenAQ requires sensor IDs via the sensors keyword. Find sensor IDs at explore.openaq.org.\n# Daily PM2.5 aggregations for a sensor\nplan = DataAccessPlan(OpenAQ(), (-87.6, 41.9),\n    Date(2024, 1, 1), Date(2024, 1, 31);\n    sensors = [1234],\n    frequency = :daily)\nfiles = fetch(plan)",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>12</span>  <span class='chapter-title'>OpenAQ</span>"
@@ -532,7 +532,7 @@
     "href": "sources/nasa_firms.html#bounding-box-query",
     "title": "NASA FIRMS",
     "section": "Bounding Box Query",
-    "text": "Bounding Box Query\nusing GeoInterface.Extents: Extent\n\nplan = DataAccessPlan(NASAFIRMS(),\n    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),\n    Date(2024, 7, 1), Date(2024, 7, 5))\nfiles = fetch!(plan)\nRequests longer than 10 days are automatically split into 10-day chunks.",
+    "text": "Bounding Box Query\nusing GeoInterface.Extents: Extent\n\nplan = DataAccessPlan(NASAFIRMS(),\n    Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),\n    Date(2024, 7, 1), Date(2024, 7, 5))\nfiles = fetch(plan)\nRequests longer than 10 days are automatically split into 10-day chunks.",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>13</span>  <span class='chapter-title'>NASA FIRMS</span>"
@@ -598,7 +598,7 @@
     "href": "sources/epa_aqs.html#bounding-box-query",
     "title": "EPA AQS",
     "section": "Bounding Box Query",
-    "text": "Bounding Box Query\nusing GeoInterface.Extents: Extent\n\nplan = DataAccessPlan(EPAAQS(),\n    Extent(X=(-87.0, -86.7), Y=(33.3, 33.6)),\n    Date(2023, 6, 1), Date(2023, 6, 30);\n    parameters = [Symbol(\"88101\")])  # PM2.5\nfiles = fetch!(plan)",
+    "text": "Bounding Box Query\nusing GeoInterface.Extents: Extent\n\nplan = DataAccessPlan(EPAAQS(),\n    Extent(X=(-87.0, -86.7), Y=(33.3, 33.6)),\n    Date(2023, 6, 1), Date(2023, 6, 30);\n    parameters = [Symbol(\"88101\")])  # PM2.5\nfiles = fetch(plan)",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>14</span>  <span class='chapter-title'>EPA AQS</span>"
@@ -664,7 +664,7 @@
     "href": "sources/landfire.html#usage",
     "title": "LANDFIRE",
     "section": "Usage",
-    "text": "Usage\nusing GeoDataAccess, Landfire\nusing GeoDataAccess: DataAccessPlan, fetch!\nusing GeoInterface.Extents: Extent\n\n# Browse available products\nprods = Landfire.products(layer=\"FBFM40\")\n\n# Define area of interest\next = Extent(X=(-107.7, -106.0), Y=(46.5, 47.3))\n\n# Create plan and fetch\nplan = DataAccessPlan(LandfireSource(), ext; products=prods)\nfiles = fetch!(plan)  # submits job, polls, downloads, extracts -&gt; [tif_path]",
+    "text": "Usage\nusing GeoDataAccess, Landfire\nusing GeoDataAccess: DataAccessPlan, fetch\nusing GeoInterface.Extents: Extent\n\n# Browse available products\nprods = Landfire.products(layer=\"FBFM40\")\n\n# Define area of interest\next = Extent(X=(-107.7, -106.0), Y=(46.5, 47.3))\n\n# Create plan and fetch\nplan = DataAccessPlan(LandfireSource(), ext; products=prods)\nfiles = fetch(plan)  # submits job, polls, downloads, extracts -&gt; [tif_path]",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>15</span>  <span class='chapter-title'>LANDFIRE</span>"
@@ -693,6 +693,160 @@
     ]
   },
   {
+    "objectID": "sources/noaa_gfs.html",
+    "href": "sources/noaa_gfs.html",
+    "title": "NOAA GFS",
+    "section": "",
+    "text": "Basic Usage\nThe NOAA Global Forecast System (GFS) provides global weather forecast data at 0.25° (~25 km) resolution. Data is accessed via the NOMADS grib filter, which allows subsetting GRIB2 files by region, variables, and levels — returning smaller GRIB2 files over HTTP.\nNo API key is required. A ~10 second delay between requests is recommended.\nUnlike most sources, GFS is forecast data — you specify a model run_date and cycle instead of a date range, plus forecast_hours for which forecast steps to retrieve.\nEach forecast hour produces a separate GRIB2 file.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>NOAA GFS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/noaa_gfs.html#basic-usage",
+    "href": "sources/noaa_gfs.html#basic-usage",
+    "title": "NOAA GFS",
+    "section": "",
+    "text": "using GeoInterface.Extents: Extent\nusing Dates\n\n# Temperature and wind for the central US, today's 00z run, analysis + 3h + 6h\nplan = DataAccessPlan(NOAAGFS(),\n    Extent(X=(-100.0, -90.0), Y=(35.0, 45.0));\n    variables = [:TMP, :UGRD, :VGRD],\n    levels = [\"2_m_above_ground\"],\n    forecast_hours = [0, 3, 6])\nfiles = fetch(plan)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>NOAA GFS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/noaa_gfs.html#specific-model-run",
+    "href": "sources/noaa_gfs.html#specific-model-run",
+    "title": "NOAA GFS",
+    "section": "Specific Model Run",
+    "text": "Specific Model Run\nplan = DataAccessPlan(NOAAGFS(),\n    Extent(X=(-120.0, -80.0), Y=(30.0, 50.0));\n    run_date = Date(2025, 6, 15),\n    cycle = 12,\n    variables = [:TMP, :RH, :PRATE],\n    levels = [\"surface\", \"2_m_above_ground\"],\n    forecast_hours = [0, 6, 12, 24])",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>NOAA GFS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/noaa_gfs.html#options",
+    "href": "sources/noaa_gfs.html#options",
+    "title": "NOAA GFS",
+    "section": "Options",
+    "text": "Options\n\n\n\n\n\n\n\n\n\nKeyword\nType\nDefault\nDescription\n\n\n\n\nrun_date\nDate\ntoday()\nModel run date\n\n\ncycle\nInt\n0\nModel cycle hour (0, 6, 12, or 18)\n\n\nforecast_hours\nVector{Int}\n[0]\nForecast steps to retrieve (0–240)\n\n\nvariables\nVector{Symbol}\n[:TMP, :UGRD, :VGRD]\nGFS variable names\n\n\nlevels\nVector{String}\n[\"2_m_above_ground\", \"10_m_above_ground\"]\nVertical levels",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>NOAA GFS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/noaa_gfs.html#common-variables",
+    "href": "sources/noaa_gfs.html#common-variables",
+    "title": "NOAA GFS",
+    "section": "Common Variables",
+    "text": "Common Variables\n\n\n\nVariable\nDescription\n\n\n\n\nTMP\nTemperature (K)\n\n\nUGRD\nU-component of wind (m/s)\n\n\nVGRD\nV-component of wind (m/s)\n\n\nRH\nRelative humidity (%)\n\n\nPRATE\nPrecipitation rate (kg/m²/s)\n\n\nAPCP\nTotal precipitation (kg/m²)\n\n\nPRMSL\nPressure reduced to MSL (Pa)\n\n\nDSWRF\nDownward short-wave radiation flux (W/m²)\n\n\nDLWRF\nDownward long-wave radiation flux (W/m²)\n\n\nCAPE\nConvective Available Potential Energy (J/kg)\n\n\nTCDC\nTotal cloud cover (%)\n\n\nPWAT\nPrecipitable water (kg/m²)\n\n\nHGT\nGeopotential height (gpm)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>NOAA GFS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/noaa_gfs.html#common-levels",
+    "href": "sources/noaa_gfs.html#common-levels",
+    "title": "NOAA GFS",
+    "section": "Common Levels",
+    "text": "Common Levels\n\n\n\nLevel\nDescription\n\n\n\n\nsurface\nGround surface\n\n\n2_m_above_ground\n2 m above ground (standard temperature)\n\n\n10_m_above_ground\n10 m above ground (standard wind)\n\n\nentire_atmosphere\nEntire atmospheric column\n\n\nmean_sea_level\nMean sea level\n\n\n500_mb, 850_mb, etc.\nPressure levels (1000–10 mb)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>NOAA GFS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/noaa_gfs.html#loading-grib2-data",
+    "href": "sources/noaa_gfs.html#loading-grib2-data",
+    "title": "NOAA GFS",
+    "section": "Loading GRIB2 Data",
+    "text": "Loading GRIB2 Data\nfetch returns file paths to GRIB2 files. To load them as raster data, install the Rasters package:\nusing Pkg\nPkg.add(\"Rasters\")\n\nusing Rasters\nfiles = fetch(plan)\nr = Raster(files[1])",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>NOAA GFS</span>"
+    ]
+  },
+  {
+    "objectID": "sources/era5.html",
+    "href": "sources/era5.html",
+    "title": "ERA5",
+    "section": "",
+    "text": "Setup\nERA5 is ECMWF’s fifth-generation global climate reanalysis, combining historical observations with numerical weather prediction models to produce a comprehensive, consistent record of past weather and climate from 1940 to present. Data is accessed via the Copernicus Climate Data Store (CDS) API.",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>ERA5</span>"
+    ]
+  },
+  {
+    "objectID": "sources/era5.html#setup",
+    "href": "sources/era5.html#setup",
+    "title": "ERA5",
+    "section": "",
+    "text": "Create a free account at https://cds.climate.copernicus.eu/\nAccept the ERA5 dataset license on the CDS website\nGet your Personal Access Token from https://cds.climate.copernicus.eu/profile\nSet the CDSAPI_KEY environment variable:\n\nENV[\"CDSAPI_KEY\"] = \"your-personal-access-token\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>ERA5</span>"
+    ]
+  },
+  {
+    "objectID": "sources/era5.html#basic-usage",
+    "href": "sources/era5.html#basic-usage",
+    "title": "ERA5",
+    "section": "Basic Usage",
+    "text": "Basic Usage\nusing GeoDataAccess\nusing GeoDataAccess: ERA5, DataAccessPlan, fetch\nusing GeoInterface.Extents: Extent\nusing Dates\n\n# Temperature and precipitation over Europe for 3 days\next = Extent(X=(-10.0, 30.0), Y=(35.0, 60.0))\nplan = DataAccessPlan(ERA5(), ext, Date(2024, 1, 1), Date(2024, 1, 3);\n    variables = [:temperature_2m, :total_precipitation])\nfiles = fetch(plan)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>ERA5</span>"
+    ]
+  },
+  {
+    "objectID": "sources/era5.html#specific-times",
+    "href": "sources/era5.html#specific-times",
+    "title": "ERA5",
+    "section": "Specific Times",
+    "text": "Specific Times\nBy default, data is retrieved at 6-hourly intervals (00:00, 06:00, 12:00, 18:00). Request all 24 hours or specific times:\n# All hours\nplan = DataAccessPlan(ERA5(), ext, Date(2024, 7, 1), Date(2024, 7, 1);\n    variables = [:temperature_2m],\n    times = [lpad(h, 2, '0') * \":00\" for h in 0:23])\n\n# Only noon\nplan = DataAccessPlan(ERA5(), ext, Date(2024, 7, 1), Date(2024, 7, 31);\n    variables = [:temperature_2m],\n    times = [\"12:00\"])",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>ERA5</span>"
+    ]
+  },
+  {
+    "objectID": "sources/era5.html#options",
+    "href": "sources/era5.html#options",
+    "title": "ERA5",
+    "section": "Options",
+    "text": "Options\n\n\n\n\n\n\n\n\n\nOption\nType\nDefault\nDescription\n\n\n\n\nvariables\nVector{Symbol}\n[:temperature_2m]\nVariables to retrieve\n\n\ndataset\nString\n\"reanalysis-era5-single-levels\"\nCDS dataset identifier\n\n\nproduct_type\nString\n\"reanalysis\"\n\"reanalysis\" or \"ensemble_members\"\n\n\ntimes\nVector{String}\n[\"00:00\",\"06:00\",\"12:00\",\"18:00\"]\nHours to retrieve (UTC)\n\n\ndata_format\nString\n\"netcdf\"\n\"netcdf\" or \"grib\"",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>ERA5</span>"
+    ]
+  },
+  {
+    "objectID": "sources/era5.html#common-variables",
+    "href": "sources/era5.html#common-variables",
+    "title": "ERA5",
+    "section": "Common Variables",
+    "text": "Common Variables\n\n\n\n\n\n\n\n\nSymbol\nCDS Name\nDescription\n\n\n\n\n:temperature_2m\n2m_temperature\nAir temperature at 2m (K)\n\n\n:dewpoint_temperature_2m\n2m_dewpoint_temperature\nDewpoint temperature at 2m (K)\n\n\n:u_wind_10m\n10m_u_component_of_wind\nU-wind at 10m (m/s)\n\n\n:v_wind_10m\n10m_v_component_of_wind\nV-wind at 10m (m/s)\n\n\n:total_precipitation\ntotal_precipitation\nTotal precipitation (m)\n\n\n:surface_pressure\nsurface_pressure\nSurface pressure (Pa)\n\n\n:mean_sea_level_pressure\nmean_sea_level_pressure\nMean sea level pressure (Pa)\n\n\n:skin_temperature\nskin_temperature\nSkin temperature (K)\n\n\n:sea_surface_temperature\nsea_surface_temperature\nSea surface temperature (K)\n\n\n:total_cloud_cover\ntotal_cloud_cover\nTotal cloud cover (0–1)\n\n\n:low_cloud_cover\nlow_cloud_cover\nLow cloud cover (0–1)\n\n\n:high_cloud_cover\nhigh_cloud_cover\nHigh cloud cover (0–1)\n\n\n:surface_solar_radiation\nsurface_solar_radiation_downwards\nSurface solar radiation (J/m²)\n\n\n:surface_thermal_radiation\nsurface_thermal_radiation_downwards\nSurface thermal radiation (J/m²)\n\n\n:snowfall\nsnowfall\nSnowfall (m of water eq.)\n\n\n:snow_depth\nsnow_depth\nSnow depth (m of water eq.)\n\n\n:soil_temperature_level_1\nsoil_temperature_level_1\nSoil temperature level 1 (K)\n\n\n:volumetric_soil_water_1\nvolumetric_soil_water_layer_1\nVolumetric soil water layer 1 (m³/m³)\n\n\n:boundary_layer_height\nboundary_layer_height\nBoundary layer height (m)\n\n\n:evaporation\ntotal_evaporation\nTotal evaporation (m of water eq.)",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>ERA5</span>"
+    ]
+  },
+  {
+    "objectID": "sources/era5.html#loading-data",
+    "href": "sources/era5.html#loading-data",
+    "title": "ERA5",
+    "section": "Loading Data",
+    "text": "Loading Data\nLoading ERA5 NetCDF/GRIB files requires the Rasters package:\nusing Rasters\n\nraster = load(plan)  # returns Raster or RasterStack",
+    "crumbs": [
+      "Data Sources",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>ERA5</span>"
+    ]
+  },
+  {
     "objectID": "resources/changelog.html",
     "href": "resources/changelog.html",
     "title": "Changelog",
@@ -700,7 +854,7 @@
     "text": "Unreleased",
     "crumbs": [
       "Resources",
-      "<span class='chapter-number'>17</span>  <span class='chapter-title'>Changelog</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Changelog</span>"
     ]
   }
 ]

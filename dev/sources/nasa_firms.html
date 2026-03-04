@@ -263,6 +263,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="../sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/noaa_gfs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA GFS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/era5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">ERA5</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -350,7 +360,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">NASAFIRMS</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("FIRMS_MAP_KEY", "5,000 req/10 min", :natural_hazards, Dict(:longitude =&gt; "Center longitude of fire pixel (°)", :acq_date =&gt; "Acquisition date (YYYY-MM-DD)", :bright_ti4 =&gt; "VIIRS I-4 brightness temperature (K)", :acq_time =&gt; "Acquisition time UTC (HHMM)", :daynight =&gt; "Day (D) or Night (N) observation", :confidence =&gt; "Detection confidence", :frp =&gt; "Fire Radiative Power (MW)", :scan =&gt; "Along-scan pixel size (km)", :bright_ti5 =&gt; "VIIRS I-5 brightness temperature (K)", :satellite =&gt; "Satellite platform"…), :point, "375 m (VIIRS) / 1 km (MODIS)", "Global", :timeseries, nothing, "Near real-time + archive", "NASA EOSDIS", "https://firms.modaps.eosdis.nasa.gov/api/")</code></pre>
+<pre><code>MetaData("FIRMS_MAP_KEY", "5,000 req/10 min", :natural_hazards, Dict(:longitude =&gt; "Center longitude of fire pixel (°)", :acq_date =&gt; "Acquisition date (YYYY-MM-DD)", :bright_ti4 =&gt; "VIIRS I-4 brightness temperature (K)", :acq_time =&gt; "Acquisition time UTC (HHMM)", :daynight =&gt; "Day (D) or Night (N) observation", :confidence =&gt; "Detection confidence", :frp =&gt; "Fire Radiative Power (MW)", :scan =&gt; "Along-scan pixel size (km)", :bright_ti5 =&gt; "VIIRS I-5 brightness temperature (K)", :satellite =&gt; "Satellite platform"…), :point, "375 m (VIIRS) / 1 km (MODIS)", "Global", :timeseries, nothing, "Near real-time + archive", "NASA EOSDIS", "https://firms.modaps.eosdis.nasa.gov/api/", Dict("CSV" =&gt; "336ed68f-0bac-5ca0-87d4-7b16caf5d00b", "DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
 </div>
 </div>
 <section id="setup" class="level2">
@@ -365,7 +375,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>plan <span class="op">=</span> <span class="fu">DataAccessPlan</span>(<span class="fu">NASAFIRMS</span>(),</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Extent</span>(X<span class="op">=</span>(<span class="op">-</span><span class="fl">125.0</span>, <span class="op">-</span><span class="fl">114.0</span>), Y<span class="op">=</span>(<span class="fl">32.0</span>, <span class="fl">42.0</span>)),</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">7</span>, <span class="fl">5</span>))</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Requests longer than 10 days are automatically split into 10-day chunks.</p>
 </section>
 <section id="country-query" class="level2">

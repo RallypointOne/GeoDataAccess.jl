@@ -263,6 +263,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="../sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/noaa_gfs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA GFS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/era5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">ERA5</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -345,7 +355,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">OpenAQ</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("OPENAQ_API_KEY", "60 req/min (free tier)", :air_quality, Dict(:pm25 =&gt; "PM2.5 (µg/m³)", :pm1 =&gt; "PM1 (µg/m³)", :co =&gt; "Carbon monoxide (ppm)", :so2 =&gt; "Sulfur dioxide (µg/m³)", :bc =&gt; "Black carbon (µg/m³)", :pm10 =&gt; "PM10 (µg/m³)", :o3 =&gt; "Ozone (µg/m³)", :no2 =&gt; "Nitrogen dioxide (µg/m³)"), :point, "Station-based", "Global", :timeseries, Hour(1), "Varies by station", "CC BY 4.0", "https://docs.openaq.org/")</code></pre>
+<pre><code>MetaData("OPENAQ_API_KEY", "60 req/min (free tier)", :air_quality, Dict(:pm25 =&gt; "PM2.5 (µg/m³)", :pm1 =&gt; "PM1 (µg/m³)", :co =&gt; "Carbon monoxide (ppm)", :so2 =&gt; "Sulfur dioxide (µg/m³)", :bc =&gt; "Black carbon (µg/m³)", :pm10 =&gt; "PM10 (µg/m³)", :o3 =&gt; "Ozone (µg/m³)", :no2 =&gt; "Nitrogen dioxide (µg/m³)"), :point, "Station-based", "Global", :timeseries, Hour(1), "Varies by station", "CC BY 4.0", "https://docs.openaq.org/", Dict("DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
 </div>
 </div>
 <section id="setup" class="level2">
@@ -364,7 +374,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">1</span>, <span class="fl">1</span>), <span class="fu">Date</span>(<span class="fl">2024</span>, <span class="fl">1</span>, <span class="fl">31</span>);</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    sensors <span class="op">=</span> [<span class="fl">1234</span>],</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    frequency <span class="op">=</span> <span class="op">:</span>daily)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="options" class="level2">
 <h2 class="anchored" data-anchor-id="options">Options</h2>

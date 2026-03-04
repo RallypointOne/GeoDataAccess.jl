@@ -263,6 +263,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="../sources/landfire.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">LANDFIRE</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/noaa_gfs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">NOAA GFS</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sources/era5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">ERA5</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -344,7 +354,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MetaData</span>(<span class="fu">NASAPower</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>MetaData("", "No published rate limit", :weather, Dict(:WD2M =&gt; "Wind direction at 2m (°)", :PRECTOTCORR =&gt; "Precipitation corrected (mm/day)", :CLOUD_AMT =&gt; "Cloud amount (%)", :CLRSKY_SFC_SW_DWN =&gt; "Clear-sky surface shortwave downward irradiance (MJ/m²/day)", :ALLSKY_SFC_SW_DWN =&gt; "All-sky surface shortwave downward irradiance (MJ/m²/day)", :RH2M =&gt; "Relative humidity at 2m (%)", :WS10M =&gt; "Wind speed at 10m (m/s)", :ALLSKY_SFC_LW_DWN =&gt; "All-sky surface longwave downward irradiance (W/m²)", :WD10M =&gt; "Wind direction at 10m (°)", :WS2M =&gt; "Wind speed at 2m (m/s)"…), :raster, "55 km", "Global", :timeseries, Day(1), "1981-present", "Open Data (NASA)", "https://power.larc.nasa.gov/docs/services/api/")</code></pre>
+<pre><code>MetaData("", "No published rate limit", :weather, Dict(:WD2M =&gt; "Wind direction at 2m (°)", :PRECTOTCORR =&gt; "Precipitation corrected (mm/day)", :CLOUD_AMT =&gt; "Cloud amount (%)", :CLRSKY_SFC_SW_DWN =&gt; "Clear-sky surface shortwave downward irradiance (MJ/m²/day)", :ALLSKY_SFC_SW_DWN =&gt; "All-sky surface shortwave downward irradiance (MJ/m²/day)", :RH2M =&gt; "Relative humidity at 2m (%)", :WS10M =&gt; "Wind speed at 10m (m/s)", :ALLSKY_SFC_LW_DWN =&gt; "All-sky surface longwave downward irradiance (W/m²)", :WD10M =&gt; "Wind direction at 10m (°)", :WS2M =&gt; "Wind speed at 2m (m/s)"…), :raster, "55 km", "Global", :timeseries, Day(1), "1981-present", "Open Data (NASA)", "https://power.larc.nasa.gov/docs/services/api/", Dict("DataFrames" =&gt; "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"))</code></pre>
 </div>
 </div>
 <section id="point-query" class="level2">
@@ -368,7 +378,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div id="8" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch!</span>(plan)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>files <span class="op">=</span> <span class="fu">fetch</span>(plan)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> JSON.<span class="fu">parsefile</span>(files[<span class="fl">1</span>])</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">keys</span>(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
