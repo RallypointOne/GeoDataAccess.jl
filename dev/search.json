@@ -191,7 +191,7 @@
     "href": "sources/open_meteo_forecast.html",
     "title": "Open-Meteo Forecast",
     "section": "",
-    "text": "Example\nOpen-Meteo Forecast provides up to 16-day weather forecasts at ~9 km resolution. No API key is required. Shares the same variable set as Open-Meteo Archive.\nplan = DataAccessPlan(OpenMeteoForecast(), (-74.0, 40.7),\n    today(), today() + Day(2);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\nplan\n\nDataAccessPlan for openmeteoforecast\n  Extent:    Point(40.7, -74.0)\n  Time:      2026-03-04 to 2026-03-06 (3 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 1.125 KiB\n\n  Request 1: GET 1 point(s), hourly 3 days → openmeteoforecast/99d1e23305ae0998.json",
+    "text": "Example\nOpen-Meteo Forecast provides up to 16-day weather forecasts at ~9 km resolution. No API key is required. Shares the same variable set as Open-Meteo Archive.\nplan = DataAccessPlan(OpenMeteoForecast(), (-74.0, 40.7),\n    today(), today() + Day(2);\n    variables = [:temperature_2m, :precipitation],\n    frequency = :hourly)\nplan\n\nDataAccessPlan for openmeteoforecast\n  Extent:    Point(40.7, -74.0)\n  Time:      2026-03-05 to 2026-03-07 (3 days)\n  Variables: temperature_2m, precipitation\n  frequency: hourly\n  timezone: GMT\n  API calls: 1\n  Est. size: 1.125 KiB\n\n  Request 1: GET 1 point(s), hourly 3 days → openmeteoforecast/8daa8a317980de01.json",
     "crumbs": [
       "Data Sources",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Open-Meteo Forecast</span>"
