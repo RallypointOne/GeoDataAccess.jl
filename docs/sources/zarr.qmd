@@ -1,0 +1,118 @@
+---
+title: "Zarr Sources"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: MetaData, ARCOERA5, NASAPowerZarr, GFSZarr,
+    AbstractZarrSource, store_url
+```
+
+Zarr sources provide **lazy, chunk-on-demand access** to cloud-hosted datasets.  Unlike
+download-based sources that use `fetch` to retrieve files, Zarr sources give you a store URL
+that you open directly with [Zarr.jl](https://github.com/JuliaIO/Zarr.jl).  Only the chunks
+you actually index are transferred over the network.
+
+```julia
+using Zarr
+url = store_url(ARCOERA5())
+store = zopen(url, consolidated=true)
+store["2m_temperature"]  # lazy — no data transferred yet
+store["2m_temperature"][1, :, :]  # fetches one timestep
+```
+
+All Zarr sources are subtypes of `AbstractZarrSource <: AbstractDataSource` and appear in
+`all_sources()`.  They define `MetaData` (for variable listings and documentation) and
+`store_url` (to get the cloud path).
+
+## ARCO-ERA5
+
+Analysis-Ready, Cloud-Optimized ERA5 reanalysis on Google Cloud Storage.  277 variables,
+0.25° resolution, hourly, 1940–present.
+
+| | |
+|---|---|
+| **Store** | `gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3` |
+| **Format** | Zarr v2, consolidated |
+| **Dims** | `[time, latitude, longitude]` (surface) or `[time, level, latitude, longitude]` (model-level) |
+| **Chunks** | `[1, 721, 1440]` — one timestep, full spatial grid |
+| **Auth** | None |
+| **Requires** | `Zarr.jl` |
+
+```{julia}
+MetaData(ARCOERA5())
+```
+
+```julia
+using Zarr
+store = zopen(store_url(ARCOERA5()), consolidated=true)
+t2m = store["2m_temperature"]
+```
+
+## NASA POWER Zarr
+
+NASA POWER Analysis-Ready Data on AWS S3.  Multiple products (MERRA-2, SYN1Deg) with
+configurable chunking orientation.
+
+| | |
+|---|---|
+| **Store** | `s3://nasa-power/{product}/{orientation}/power_{product}_{frequency}_{orientation}_utc.zarr` |
+| **Format** | Zarr v2, consolidated |
+| **Dims** | `[time, lat, lon]` |
+| **Auth** | None (anonymous S3, `us-west-2`) |
+| **Requires** | `Zarr.jl`, `AWS.jl` |
+
+```{julia}
+MetaData(NASAPowerZarr())
+```
+
+```{julia}
+# Default: MERRA-2 daily, temporal chunking
+store_url(NASAPowerZarr())
+```
+
+```{julia}
+# SYN1Deg hourly, spatial chunking
+using GeoDataAccess: NASAPowerZarr
+store_url(NASAPowerZarr(product=NASAPowerZarr.Product.syn1deg, frequency=NASAPowerZarr.Frequency.hourly, orientation=NASAPowerZarr.Orientation.spatial))
+```
+
+### Orientation
+
+Choose based on your access pattern:
+
+- **`Orientation.temporal`** — chunks are `[5844, 15, 15]` (many timesteps, small spatial tiles).  Best
+  for time series at a point or small region.
+- **`Orientation.spatial`** — chunks are `[1, 361, 576]` (one timestep, full grid).  Best for spatial
+  maps at a single date.
+
+## GFS Zarr (dynamical.org)
+
+NOAA GFS forecast data via dynamical.org.  21 surface variables, 0.25° resolution,
+forecasts initialized every 6 hours from 2021 to present.
+
+| | |
+|---|---|
+| **Store** | `https://data.dynamical.org/noaa/gfs/forecast/latest.zarr` |
+| **Format** | Zarr v3 with sharding |
+| **Dims** | `[init_time, lead_time, latitude, longitude]` |
+| **Auth** | None |
+| **Requires** | `Zarr.jl` with v3 support |
+
+```{julia}
+MetaData(GFSZarr())
+```
+
+::: {.callout-warning}
+This store uses **Zarr v3** with sharding codecs.  Verify that your version of Zarr.jl
+supports v3 before opening.
+:::
+
+```julia
+using Zarr
+store = zopen(store_url(GFSZarr()))
+t2m = store["temperature_2m"]  # [init_time, lead_time, lat, lon]
+```

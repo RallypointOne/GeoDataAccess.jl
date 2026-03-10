@@ -25,6 +25,11 @@ A Julia package for collecting geospatial data from multiple public APIs. It pro
 | `LandfireSource` | Raster | CONUS, AK, HI | 30 m | No (email) |
 | `NOAAGFS` | Raster (GRIB2) | Global, forecast | 0.25° (~25 km) | No |
 | `ERA5` | Raster (NetCDF/GRIB) | Global, 1940–present | 0.25° (~25 km) | Yes |
+| `OpenStreetMap` | Vector (Overpass API) | Global, continuously updated | Individual features | No |
+| `NOAAOISST` | Raster (NetCDF) | Global, 1981–present | Daily, 0.25° (~25 km) | No |
+| `ARCOERA5` | Zarr (GCS) | Global, 1940–present | Hourly, 0.25° (~25 km) | No |
+| `NASAPowerZarr` | Zarr (S3) | Global, 1981–present | Daily, 0.5° × 0.625° | No |
+| `GFSZarr` | Zarr (HTTPS) | Global, 2021–present | Forecast, 0.25° (~25 km) | No |
 
 ## Installation
 

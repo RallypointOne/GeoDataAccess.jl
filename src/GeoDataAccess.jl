@@ -2,6 +2,7 @@ module GeoDataAccess
 
 using Dates
 using Downloads
+using EnumX
 using JSON3
 using URIs
 
@@ -10,11 +11,160 @@ import GeoInterface as GI
 #--------------------------------------------------------------------------------# Cache
 module Cache
 using Scratch
-const ENABLED = Ref(true)
+using Dates
+using TOML
+
+const RETENTION_FILE = "__retention__.toml"
+
 dir(x...) = joinpath(@get_scratch!("geodataaccess_cache"), x...)
-enable!(x = true) = (ENABLED[] = x)
 clear!(x...) = rm(dir(x...); force=true, recursive=true)
-list() = filter(isfile, [joinpath(root, f) for (root, _, files) in walkdir(dir()) for f in files])
+
+function list()
+    isdir(dir()) || return String[]
+    all = [joinpath(root, f) for (root, _, files) in walkdir(dir()) for f in files]
+    filter(f -> isfile(f) && basename(f) != RETENTION_FILE, all)
+end
+
+#--------------------------------------------------------------------------------# Retention TOML
+
+function _retention_path()
+    dir(RETENTION_FILE)
+end
+
+function _read_toml()
+    p = _retention_path()
+    isfile(p) ? TOML.parsefile(p) : Dict{String, Any}()
+end
+
+function _write_toml(data::Dict)
+    p = _retention_path()
+    mkpath(dirname(p))
+    open(p, "w") do io
+        TOML.print(io, data)
+    end
+end
+
+function _relative_key(path::String)
+    relpath(path, dir())
+end
+
+function _write_retention(path::String, retention::Period)
+    data = _read_toml()
+    key = _relative_key(path)
+    data[key] = Dict{String, Any}(
+        "retention" => Dates.value(retention),
+        "retention_unit" => string(nameof(typeof(retention))),
+    )
+    _write_toml(data)
+end
+
+function _read_retention(path::String)
+    data = _read_toml()
+    key = _relative_key(path)
+    haskey(data, key) || return nothing
+    entry = data[key]
+    try
+        T = getfield(Dates, Symbol(entry["retention_unit"]))
+        return T(entry["retention"])
+    catch
+        return nothing
+    end
+end
+
+function _remove_retention(path::String)
+    data = _read_toml()
+    key = _relative_key(path)
+    delete!(data, key)
+    _write_toml(data)
+end
+
+#--------------------------------------------------------------------------------# table
+
+"""
+    table() -> Vector{NamedTuple}
+
+Return a vector of `NamedTuple`s describing every cached file.  Each entry has:
+
+- `path::String` — absolute file path
+- `size::Int` — file size in bytes
+- `retention::Union{Nothing, Int}` — retention value (e.g., `7`)
+- `retention_unit::Union{Nothing, Type{<:Period}}` — period type (e.g., `Day`)
+"""
+function table()
+    files = list()
+    data = _read_toml()
+    map(files) do f
+        key = _relative_key(f)
+        entry = get(data, key, nothing)
+        r = if !isnothing(entry)
+            try
+                T = getfield(Dates, Symbol(entry["retention_unit"]))
+                T(entry["retention"])
+            catch
+                nothing
+            end
+        else
+            nothing
+        end
+        (
+            path = f,
+            size = filesize(f),
+            retention = isnothing(r) ? nothing : Dates.value(r),
+            retention_unit = isnothing(r) ? nothing : typeof(r),
+        )
+    end
+end
+
+#--------------------------------------------------------------------------------# cleanup!
+
+"""
+    cleanup!() -> NamedTuple{(:removed, :freed), Tuple{Int, Int}}
+
+Remove cached files whose age exceeds their per-source retention period.
+Returns the number of files removed and bytes freed.
+"""
+function cleanup!()
+    files = list()
+    removed = 0
+    freed = 0
+    now_dt = now()
+    data = _read_toml()
+
+    for f in files
+        key = _relative_key(f)
+        entry = get(data, key, nothing)
+        isnothing(entry) && continue
+
+        r = try
+            T = getfield(Dates, Symbol(entry["retention_unit"]))
+            T(entry["retention"])
+        catch
+            continue
+        end
+
+        file_dt = Dates.unix2datetime(mtime(f))
+        if file_dt < now_dt - r
+            sz = filesize(f)
+            rm(f; force=true)
+            delete!(data, key)
+            removed += 1
+            freed += sz
+        end
+    end
+
+    _write_toml(data)
+    _remove_empty_dirs!(dir())
+    (removed=removed, freed=freed)
+end
+
+function _remove_empty_dirs!(path)
+    isdir(path) || return
+    for entry in readdir(path; join=true)
+        isdir(entry) && _remove_empty_dirs!(entry)
+    end
+    isempty(readdir(path)) && rm(path; force=true)
+end
+
 end  # Cache module
 
 #--------------------------------------------------------------------------------# AbstractDataSource
@@ -22,11 +172,23 @@ abstract type AbstractDataSource end
 
 #--------------------------------------------------------------------------------# Enums
 
-@enum Domain Weather Terrain AirQuality Hydrology NaturalHazards Infrastructure
+@enum Domain WEATHER TERRAIN AIR_QUALITY HYDROLOGY NATURAL_HAZARDS INFRASTRUCTURE
 
-@enum SpatialType Raster Point VectorFeature
+@enum SpatialType RASTER POINT VECTOR_FEATURE
 
-@enum License CC_BY_4_0 PublicDomain Commercial OpenDataNASA NASA_EOSDIS CopernicusLicense ODbL_1_0
+@enumx TemporalType timeseries snapshot climatology forecast
+
+@enumx HTTPMethod GET POST
+
+@enumx Frequency hourly daily
+
+@enumx QueryType point regional multi_point
+
+@enumx EPAService sampleData dailyData annualData
+
+@enumx HRRRLevel sfc prs
+
+@enumx HRRRRunType anl fcst
 
 """
     name(::Type{<:AbstractDataSource}) -> String
@@ -46,25 +208,27 @@ struct MetaData
     api_key_env_var::String                     # "" if no key needed
     rate_limit::String                          # human-readable, e.g., "10,000/day"
     domain::Domain
-    variables::Dict{Symbol, String}             # variable_name => description
+    variables::NamedTuple
     spatial_type::SpatialType
     spatial_resolution::String                  # "25 km", "30 m", "station-based"
     coverage::String                            # "Global", "US", "Europe"
-    temporal_type::Symbol                       # :timeseries, :snapshot, :climatology, :forecast
+    temporal_type::TemporalType.T
     temporal_resolution::Union{Dates.Period, Nothing}  # nothing for static data
     temporal_extent::String                     # "1940-present", "2020", "N/A"
-    license::License
+    license::String                             # "CC BY 4.0", "Public Domain", etc.
     docs_url::String                            # URL to API documentation
-    load_packages::Dict{String, String}           # name => uuid of packages needed by `load`
+    load_packages::Dict{String, String}         # name => uuid of packages needed by `load`
+    default_retention::Union{Nothing, Dates.Period}  # default cache retention for this source
 end
 
 function MetaData(api_key_env_var, rate_limit, domain, variables, spatial_type,
                   spatial_resolution, coverage, temporal_type, temporal_resolution,
                   temporal_extent, license, docs_url;
-                  load_packages::Dict{String, String} = Dict{String, String}())
+                  load_packages::Dict{String, String} = Dict{String, String}(),
+                  default_retention::Union{Nothing, Dates.Period} = nothing)
     MetaData(api_key_env_var, rate_limit, domain, variables, spatial_type,
              spatial_resolution, coverage, temporal_type, temporal_resolution,
-             temporal_extent, license, docs_url, load_packages)
+             temporal_extent, license, docs_url, load_packages, default_retention)
 end
 
 has_api_key(source::AbstractDataSource) = !isempty(MetaData(source).api_key_env_var)
@@ -92,12 +256,12 @@ Describes a single HTTP request that will be made as part of a `DataAccessPlan`.
 """
 struct RequestInfo
     url::String
-    method::Symbol
+    method::HTTPMethod.T
     description::String
     cache_path::String
 end
 
-RequestInfo(source::AbstractDataSource, url::String, method::Symbol, description::String; ext::String=".json") =
+RequestInfo(source::AbstractDataSource, url::String, method::HTTPMethod.T, description::String; ext::String=".json") =
     RequestInfo(url, method, description, _cache_path(name(typeof(source)), url; ext))
 
 function Base.show(io::IO, r::RequestInfo)
@@ -132,6 +296,7 @@ struct DataAccessPlan{S<:AbstractDataSource}
     variables::Vector{Symbol}
     kwargs::Dict{Symbol, Any}
     estimated_bytes::Int
+    retention::Union{Nothing, Dates.Period}
 end
 
 function Base.show(io::IO, ::MIME"text/plain", plan::DataAccessPlan)
@@ -147,6 +312,9 @@ function Base.show(io::IO, ::MIME"text/plain", plan::DataAccessPlan)
         for (k, v) in plan.kwargs
             println(io, "  $(k): $v")
         end
+    end
+    if !isnothing(plan.retention)
+        println(io, "  Retention: ", plan.retention)
     end
     println(io, "  API calls: ", length(plan.requests))
     println(io, "  Est. size: ", Base.format_bytes(plan.estimated_bytes))
@@ -172,7 +340,7 @@ Execute a `DataAccessPlan`, downloading the planned requests and returning local
 function fetch(plan::DataAccessPlan)
     src_name = name(typeof(plan.source))
     hdrs = _request_headers(plan.source)
-    [_cached_get(src_name, req.url; headers=hdrs, ext=splitext(req.cache_path)[2]) for req in plan.requests]
+    [_cached_get(src_name, req.url; headers=hdrs, ext=splitext(req.cache_path)[2], retention=plan.retention) for req in plan.requests]
 end
 
 """
@@ -238,21 +406,20 @@ function _cache_path(source_name::String, url::String; ext::String=".json")
     Cache.dir(source_name, "$h$ext")
 end
 
-function _cached_get(source_name::String, url::String; headers=Pair{String,String}[], ext::String=".json", retries::Int=3)
+function _cached_get(source_name::String, url::String;
+                     headers=Pair{String,String}[], ext::String=".json", retries::Int=3,
+                     retention::Union{Nothing, Dates.Period}=nothing)
     cache_path = _cache_path(source_name, url; ext)
-    if Cache.ENABLED[] && isfile(cache_path)
-        return cache_path
-    end
+    isfile(cache_path) && return cache_path
     local last_err
     for attempt in 1:retries
         try
-            if Cache.ENABLED[]
-                mkpath(dirname(cache_path))
-                Downloads.download(url, cache_path; headers, timeout=120)
-                return cache_path
-            else
-                return Downloads.download(url; headers, timeout=120)
+            mkpath(dirname(cache_path))
+            Downloads.download(url, cache_path; headers, timeout=120)
+            if !isnothing(retention)
+                Cache._write_retention(cache_path, retention)
             end
+            return cache_path
         catch e
             last_err = e
             attempt < retries && @warn "Download attempt $attempt/$retries failed, retrying..." url exception=e
@@ -355,6 +522,9 @@ function _count_points(::Nothing, geom)
     error("Cannot count points for $(typeof(geom))")
 end
 
+#--------------------------------------------------------------------------------# Lazy Loading
+include("lazy.jl")
+
 #--------------------------------------------------------------------------------# Sources
 include("sources/open_meteo.jl")
 include("sources/noaa_ncei.jl")
@@ -370,5 +540,13 @@ include("sources/noaa_gfs.jl")
 include("sources/era5.jl")
 include("sources/copernicus_dem.jl")
 include("sources/openstreetmap.jl")
+include("sources/noaa_oisst.jl")
+
+#--------------------------------------------------------------------------------# Zarr Sources
+include("zarr/common.jl")
+include("zarr/arco_era5.jl")
+include("zarr/nasa_power.jl")
+include("zarr/gfs.jl")
+include("zarr/hrrr.jl")
 
 end # module

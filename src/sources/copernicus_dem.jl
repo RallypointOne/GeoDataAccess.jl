@@ -1,62 +1,59 @@
 #--------------------------------------------------------------------------------# Copernicus DEM
 
+module CopernicusDEM
+
+import ..GeoDataAccess
+using ..GeoDataAccess: AbstractDataSource, MetaData, DataAccessPlan, RequestInfo,
+    _register_source!, _describe_extent,
+    TERRAIN, RASTER, TemporalType, HTTPMethod
+using Dates
+import GeoInterface as GI
+
 """
-    CopernicusDEM(; resolution=30)
+    CopernicusDEM.Source(; resolution=30)
 
 Copernicus DEM elevation data from [AWS Open Data](https://registry.opendata.aws/copernicus-dem/).
-Downloads Cloud Optimized GeoTIFF (COG) tiles.  Each tile covers a 1°×1° area.
-
-Two resolutions are available:
-- `30` — GLO-30 (~30 m, 10 arc-second tiles)
-- `90` — GLO-90 (~90 m, 30 arc-second tiles)
+Two resolutions: `30` (~30 m) or `90` (~90 m).
 
 - **Coverage**: Global
 - **Format**: Cloud Optimized GeoTIFF (COG)
 - **API Key**: None required
-- **Rate Limit**: None (AWS S3)
 - **Temporal**: Static (snapshot)
-
-Tiles are identified by their southwest corner coordinates.  For a given spatial extent,
-all overlapping 1°×1° tiles are downloaded.
 
 ### Examples
 
 ```julia
 using GeoInterface.Extents: Extent
 
-# 30 m resolution (default)
-plan = DataAccessPlan(CopernicusDEM(), (-105.0, 40.0))
+plan = DataAccessPlan(CopernicusDEM.Source(), (-105.0, 40.0))
 files = fetch(plan)
 
-# 90 m resolution
-plan = DataAccessPlan(CopernicusDEM(resolution=90),
+plan = DataAccessPlan(CopernicusDEM.Source(resolution=90),
     Extent(X=(-106.0, -104.0), Y=(39.0, 41.0)))
 files = fetch(plan)
 ```
 """
-struct CopernicusDEM <: AbstractDataSource
+struct Source <: AbstractDataSource
     resolution::Int
-    function CopernicusDEM(; resolution::Int=30)
+    function Source(; resolution::Int=30)
         resolution in (30, 90) || error("resolution must be 30 or 90 (got $resolution)")
         new(resolution)
     end
 end
 
-_register_source!(CopernicusDEM())
+GeoDataAccess.name(::Type{Source}) = "copernicusdem"
 
-const COPERNICUS_DEM_VARIABLES = Dict{Symbol, String}(
-    :elevation => "Elevation above sea level (m)",
+const variables = (;
+    elevation = "Elevation above sea level (m)",
 )
 
-#--------------------------------------------------------------------------------# MetaData
-
-function MetaData(source::CopernicusDEM)
+function GeoDataAccess.MetaData(source::Source)
     MetaData(
         "", "None (AWS S3)",
-        Terrain, COPERNICUS_DEM_VARIABLES,
-        Raster, "$(source.resolution) m", "Global",
-        :snapshot, nothing, "Static",
-        CopernicusLicense,
+        TERRAIN, variables,
+        RASTER, "$(source.resolution) m", "Global",
+        TemporalType.snapshot, nothing, "Static",
+        "Copernicus License",
         "https://copernicus-dem-$(source.resolution)m.s3.amazonaws.com/readme.html";
         load_packages = Dict("Rasters" => "a3a2b9e3-a471-40c9-b274-f788e487c689"),
     )
@@ -64,25 +61,26 @@ end
 
 #--------------------------------------------------------------------------------# DataAccessPlan
 
-function DataAccessPlan(source::CopernicusDEM, extent;
-                        variables::Vector{Symbol} = [:elevation])
-    lons, lats = _copernicus_tile_range(extent)
+function GeoDataAccess.DataAccessPlan(source::Source, extent;
+                                       variables::Vector{Symbol} = [:elevation],
+                                       retention::Union{Nothing, Dates.Period} = GeoDataAccess.MetaData(source).default_retention)
+    lons, lats = _tile_range(extent)
     requests = RequestInfo[]
     for lat in lats, lon in lons
-        url = _copernicus_tile_url(source.resolution, lat, lon)
+        url = _tile_url(source.resolution, lat, lon)
         desc = "DEM tile $(lat >= 0 ? "N" : "S")$(lpad(abs(lat), 2, '0'))_$(lon >= 0 ? "E" : "W")$(lpad(abs(lon), 3, '0'))"
-        push!(requests, RequestInfo(source, url, :GET, desc; ext=".tif"))
+        push!(requests, RequestInfo(source, url, HTTPMethod.GET, desc; ext=".tif"))
     end
     extent_desc = _describe_extent(extent)
     est_bytes = source.resolution == 30 ? 25_000_000 : 3_000_000
     DataAccessPlan(source, requests, extent_desc,
         nothing, variables, Dict{Symbol, Any}(:resolution => source.resolution),
-        length(requests) * est_bytes)
+        length(requests) * est_bytes, retention)
 end
 
 #--------------------------------------------------------------------------------# Helpers
 
-function _copernicus_tile_url(resolution::Int, lat::Int, lon::Int)
+function _tile_url(resolution::Int, lat::Int, lon::Int)
     ns = lat >= 0 ? "N" : "S"
     ew = lon >= 0 ? "E" : "W"
     lat_str = "$(ns)$(lpad(abs(lat), 2, '0'))_00"
@@ -93,22 +91,22 @@ function _copernicus_tile_url(resolution::Int, lat::Int, lon::Int)
     return "https://$(bucket).s3.eu-central-1.amazonaws.com/$tile/$tile.tif"
 end
 
-function _copernicus_tile_range(extent)
+function _tile_range(extent)
     trait = GI.geomtrait(extent)
-    _copernicus_tile_range(trait, extent)
+    _tile_range(trait, extent)
 end
 
-function _copernicus_tile_range(::GI.PointTrait, geom)
+function _tile_range(::GI.PointTrait, geom)
     lon = floor(Int, GI.x(geom))
     lat = floor(Int, GI.y(geom))
     [lon], [lat]
 end
 
-function _copernicus_tile_range(::GI.AbstractPolygonTrait, geom)
-    _copernicus_tile_range(nothing, GI.extent(geom))
+function _tile_range(::GI.AbstractPolygonTrait, geom)
+    _tile_range(nothing, GI.extent(geom))
 end
 
-function _copernicus_tile_range(::Nothing, geom)
+function _tile_range(::Nothing, geom)
     if hasproperty(geom, :X) && hasproperty(geom, :Y)
         xmin, xmax = geom.X
         ymin, ymax = geom.Y
@@ -119,7 +117,7 @@ function _copernicus_tile_range(::Nothing, geom)
     error("Cannot extract bounding box from $(typeof(geom)) for Copernicus DEM.")
 end
 
-function _copernicus_tile_range(::Union{GI.MultiPointTrait, GI.AbstractCurveTrait}, geom)
+function _tile_range(::Union{GI.MultiPointTrait, GI.AbstractCurveTrait}, geom)
     points = collect(GI.getpoint(geom))
     lon_vals = [GI.x(p) for p in points]
     lat_vals = [GI.y(p) for p in points]
@@ -127,3 +125,7 @@ function _copernicus_tile_range(::Union{GI.MultiPointTrait, GI.AbstractCurveTrai
     lats = floor(Int, minimum(lat_vals)):floor(Int, maximum(lat_vals))
     collect(lons), collect(lats)
 end
+
+_register_source!(Source())
+
+end # module CopernicusDEM

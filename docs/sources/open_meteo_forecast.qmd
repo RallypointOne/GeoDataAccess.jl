@@ -7,7 +7,7 @@ engine: julia
 #| echo: false
 #| output: false
 using GeoDataAccess
-using GeoDataAccess: DataAccessPlan, fetch, MetaData, OpenMeteoForecast
+using GeoDataAccess: DataAccessPlan, fetch, MetaData, OpenMeteoForecast, Frequency
 using Dates
 ```
 
@@ -25,7 +25,7 @@ MetaData(OpenMeteoForecast())
 plan = DataAccessPlan(OpenMeteoForecast(), (-74.0, 40.7),
     today(), today() + Day(2);
     variables = [:temperature_2m, :precipitation],
-    frequency = :hourly)
+    frequency = Frequency.hourly)
 plan
 ```
 

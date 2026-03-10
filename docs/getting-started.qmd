@@ -8,7 +8,7 @@ engine: julia
 #| output: false
 using GeoDataAccess
 using GeoDataAccess: Cache, MetaData, DataAccessPlan, fetch, name,
-    all_sources, available_sources,
+    all_sources, available_sources, Frequency,
     OpenMeteoArchive, OpenMeteoForecast, NOAANCEI, NASAPower, TomorrowIO, VisualCrossing
 using Dates
 import GeoInterface as GI
@@ -114,7 +114,7 @@ and variable names change:
 plan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:temperature_2m, :precipitation],
-    frequency = :hourly)
+    frequency = Frequency.hourly)
 ```
 
 ```{julia}
@@ -146,7 +146,7 @@ power_dates = Date.(collect(keys(power["properties"]["parameter"]["T2M"])), "yyy
 # Open-Meteo Archive
 files_meteo = fetch(OpenMeteoArchive(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
-    variables = [:temperature_2m_mean], frequency = :daily)
+    variables = [:temperature_2m_mean], frequency = Frequency.daily)
 meteo = JSON.parsefile(files_meteo[1])
 meteo_temps = meteo["daily"]["temperature_2m_mean"]
 meteo_dates = Date.(meteo["daily"]["time"])

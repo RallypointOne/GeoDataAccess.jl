@@ -1,20 +1,25 @@
 #--------------------------------------------------------------------------------# ERA5
 
+module ERA5
+
+import ..GeoDataAccess
+using ..GeoDataAccess: AbstractDataSource, MetaData, DataAccessPlan, RequestInfo,
+    _register_source!, _describe_extent, _get_api_key, Cache,
+    TemporalType, HTTPMethod
+using GeoDataAccess: JSON3, Downloads
+using Dates
+import GeoInterface as GI
+
 """
-    ERA5()
+    ERA5.Source()
 
 ERA5 global climate reanalysis data from ECMWF's
-[Climate Data Store (CDS)](https://cds.climate.copernicus.eu/).  Provides hourly estimates of
-atmospheric, land-surface, and oceanic variables at 0.25° resolution from 1940 to present.
+[Climate Data Store (CDS)](https://cds.climate.copernicus.eu/).
 
 - **Coverage**: Global, 0.25° (~25 km) resolution
 - **Temporal**: Hourly, 1940–present
 - **API Key**: Required (`CDSAPI_KEY` environment variable)
 - **Workflow**: Async job (submit → poll → download)
-- **Response Format**: NetCDF or GRIB
-
-Requires a free CDS account.  Obtain a Personal Access Token from
-<https://cds.climate.copernicus.eu/profile> and set `CDSAPI_KEY`.
 
 ### Examples
 
@@ -23,42 +28,41 @@ using GeoInterface.Extents: Extent
 using Dates
 
 ext = Extent(X=(-10.0, 30.0), Y=(35.0, 60.0))
-plan = DataAccessPlan(ERA5(), ext, Date(2024, 1, 1), Date(2024, 1, 3);
+plan = DataAccessPlan(ERA5.Source(), ext, Date(2024, 1, 1), Date(2024, 1, 3);
     variables = [:temperature_2m, :total_precipitation])
 files = fetch(plan)
 ```
 """
-struct ERA5 <: AbstractDataSource end
+struct Source <: AbstractDataSource end
 
-_register_source!(ERA5())
+GeoDataAccess.name(::Type{Source}) = "era5"
 
-const CDS_API_URL = "https://cds.climate.copernicus.eu/api/retrieve/v1"
+const API_URL = "https://cds.climate.copernicus.eu/api/retrieve/v1"
 
-const ERA5_VARIABLES = Dict{Symbol, String}(
-    :temperature_2m             => "2m temperature (K)",
-    :dewpoint_temperature_2m    => "2m dewpoint temperature (K)",
-    :u_wind_10m                 => "10m u-component of wind (m/s)",
-    :v_wind_10m                 => "10m v-component of wind (m/s)",
-    :total_precipitation        => "Total precipitation (m)",
-    :surface_pressure           => "Surface pressure (Pa)",
-    :mean_sea_level_pressure    => "Mean sea level pressure (Pa)",
-    :skin_temperature           => "Skin temperature (K)",
-    :sea_surface_temperature    => "Sea surface temperature (K)",
-    :total_cloud_cover          => "Total cloud cover (0–1)",
-    :low_cloud_cover            => "Low cloud cover (0–1)",
-    :high_cloud_cover           => "High cloud cover (0–1)",
-    :surface_solar_radiation    => "Surface solar radiation downwards (J/m²)",
-    :surface_thermal_radiation  => "Surface thermal radiation downwards (J/m²)",
-    :snowfall                   => "Snowfall (m of water equivalent)",
-    :snow_depth                 => "Snow depth (m of water equivalent)",
-    :soil_temperature_level_1   => "Soil temperature level 1 (K)",
-    :volumetric_soil_water_1    => "Volumetric soil water layer 1 (m³/m³)",
-    :boundary_layer_height      => "Boundary layer height (m)",
-    :evaporation                => "Total evaporation (m of water equivalent)",
+const variables = (;
+    temperature_2m             = "2m temperature (K)",
+    dewpoint_temperature_2m    = "2m dewpoint temperature (K)",
+    u_wind_10m                 = "10m u-component of wind (m/s)",
+    v_wind_10m                 = "10m v-component of wind (m/s)",
+    total_precipitation        = "Total precipitation (m)",
+    surface_pressure           = "Surface pressure (Pa)",
+    mean_sea_level_pressure    = "Mean sea level pressure (Pa)",
+    skin_temperature           = "Skin temperature (K)",
+    sea_surface_temperature    = "Sea surface temperature (K)",
+    total_cloud_cover          = "Total cloud cover (0–1)",
+    low_cloud_cover            = "Low cloud cover (0–1)",
+    high_cloud_cover           = "High cloud cover (0–1)",
+    surface_solar_radiation    = "Surface solar radiation downwards (J/m²)",
+    surface_thermal_radiation  = "Surface thermal radiation downwards (J/m²)",
+    snowfall                   = "Snowfall (m of water equivalent)",
+    snow_depth                 = "Snow depth (m of water equivalent)",
+    soil_temperature_level_1   = "Soil temperature level 1 (K)",
+    volumetric_soil_water_1    = "Volumetric soil water layer 1 (m³/m³)",
+    boundary_layer_height      = "Boundary layer height (m)",
+    evaporation                = "Total evaporation (m of water equivalent)",
 )
 
-# CDS API variable names (mapped from Julia symbols)
-const ERA5_CDS_NAMES = Dict{Symbol, String}(
+const CDS_NAMES = Dict{Symbol, String}(
     :temperature_2m             => "2m_temperature",
     :dewpoint_temperature_2m    => "2m_dewpoint_temperature",
     :u_wind_10m                 => "10m_u_component_of_wind",
@@ -81,38 +85,38 @@ const ERA5_CDS_NAMES = Dict{Symbol, String}(
     :evaporation                => "total_evaporation",
 )
 
-#--------------------------------------------------------------------------------# MetaData
-
-MetaData(::ERA5) = MetaData(
+const metadata = MetaData(
     "CDSAPI_KEY", "1 concurrent job",
-    Weather, ERA5_VARIABLES,
-    Raster, "0.25° (~25 km)", "Global",
-    :timeseries, Dates.Hour(1), "1940–present",
-    CC_BY_4_0,
+    GeoDataAccess.WEATHER, variables,
+    GeoDataAccess.RASTER, "0.25° (~25 km)", "Global",
+    TemporalType.timeseries, Dates.Hour(1), "1940–present",
+    "CC BY 4.0",
     "https://cds.climate.copernicus.eu/";
     load_packages = Dict("Rasters" => "a3a2b9e3-a471-40c9-b274-f788e487c689"),
 )
 
-_request_headers(::ERA5) = ["PRIVATE-TOKEN" => _get_api_key(ERA5())]
+GeoDataAccess.MetaData(::Source) = metadata
+
+GeoDataAccess._request_headers(::Source) = ["PRIVATE-TOKEN" => _get_api_key(Source())]
 
 #--------------------------------------------------------------------------------# DataAccessPlan
 
-function DataAccessPlan(source::ERA5, extent, start_date::Date, stop_date::Date;
-                        variables::Vector{Symbol} = [:temperature_2m],
-                        dataset::String = "reanalysis-era5-single-levels",
-                        product_type::String = "reanalysis",
-                        times::Vector{String} = ["00:00", "06:00", "12:00", "18:00"],
-                        data_format::String = "netcdf")
+function GeoDataAccess.DataAccessPlan(source::Source, extent, start_date::Date, stop_date::Date;
+                                       variables::Vector{Symbol} = [:temperature_2m],
+                                       dataset::String = "reanalysis-era5-single-levels",
+                                       product_type::String = "reanalysis",
+                                       times::Vector{String} = ["00:00", "06:00", "12:00", "18:00"],
+                                       data_format::String = "netcdf",
+                                       retention::Union{Nothing, Dates.Period} = metadata.default_retention)
     start_date <= stop_date || error("start_date must be <= stop_date")
     for v in variables
-        haskey(ERA5_CDS_NAMES, v) || error("Unknown ERA5 variable: $v. " *
-            "Use one of: $(join(sort(collect(keys(ERA5_CDS_NAMES))), ", "))")
+        haskey(CDS_NAMES, v) || error("Unknown ERA5 variable: $v. " *
+            "Use one of: $(join(sort(collect(keys(CDS_NAMES))), ", "))")
     end
 
-    north, west, south, east = _era5_bbox(extent)
-    cds_vars = [ERA5_CDS_NAMES[v] for v in variables]
+    north, west, south, east = _bbox(extent)
+    cds_vars = [CDS_NAMES[v] for v in variables]
 
-    # Split into monthly chunks
     requests = RequestInfo[]
     request_bodies = Dict{String, Any}[]
     cursor = start_date
@@ -135,9 +139,9 @@ function DataAccessPlan(source::ERA5, extent, start_date::Date, stop_date::Date;
 
         ext = data_format == "netcdf" ? ".nc" : ".grib"
         body_json = JSON3.write(body)
-        synthetic_url = "$CDS_API_URL/processes/$dataset/execution#$(body_json)"
+        synthetic_url = "$API_URL/processes/$dataset/execution#$(body_json)"
         desc = "ERA5 $(Dates.year(cursor))-$(lpad(Dates.month(cursor), 2, '0'))"
-        push!(requests, RequestInfo(source, synthetic_url, :POST, desc; ext))
+        push!(requests, RequestInfo(source, synthetic_url, HTTPMethod.POST, desc; ext))
         push!(request_bodies, body)
 
         cursor = month_end + Day(1)
@@ -153,44 +157,43 @@ function DataAccessPlan(source::ERA5, extent, start_date::Date, stop_date::Date;
     )
 
     n_timesteps = Dates.value(stop_date - start_date + Day(1)) * length(times)
-    estimated = n_timesteps * length(variables) * 1_000_000  # ~1 MB per variable per timestep
+    estimated = n_timesteps * length(variables) * 1_000_000
 
     DataAccessPlan(source, requests, extent_desc,
-        (start_date, stop_date), variables, kwargs, estimated)
+        (start_date, stop_date), variables, kwargs, estimated, retention)
 end
 
 #--------------------------------------------------------------------------------# fetch
 
-function fetch(plan::DataAccessPlan{ERA5})
-    headers = _request_headers(plan.source)
+function GeoDataAccess.fetch(plan::DataAccessPlan{Source})
+    headers = GeoDataAccess._request_headers(plan.source)
     dataset = plan.kwargs[:dataset]::String
     bodies = plan.kwargs[:request_bodies]::Vector{Dict{String, Any}}
 
     paths = String[]
     for (req, body) in zip(plan.requests, bodies)
         cache_path = req.cache_path
-        if Cache.ENABLED[] && isfile(cache_path)
+        if isfile(cache_path)
             push!(paths, cache_path)
             continue
         end
 
-        # Submit job
-        exec_url = "$CDS_API_URL/processes/$dataset/execution"
+        exec_url = "$API_URL/processes/$dataset/execution"
         job = _cds_post(exec_url, body, headers)
         job_id = string(job["jobID"])
 
-        # Poll until complete
-        status_url = "$CDS_API_URL/jobs/$job_id"
+        status_url = "$API_URL/jobs/$job_id"
         _cds_poll(status_url, headers)
 
-        # Get download URL
-        results_url = "$CDS_API_URL/jobs/$job_id/results"
+        results_url = "$API_URL/jobs/$job_id/results"
         results = _cds_get_json(results_url, headers)
         download_url = results["asset"]["value"]["href"]
 
-        # Download to cache
         mkpath(dirname(cache_path))
         Downloads.download(download_url, cache_path; headers)
+        if !isnothing(plan.retention)
+            Cache._write_retention(cache_path, plan.retention)
+        end
         push!(paths, cache_path)
     end
     return paths
@@ -236,21 +239,21 @@ end
 
 #--------------------------------------------------------------------------------# Extent Helpers
 
-function _era5_bbox(extent)
+function _bbox(extent)
     trait = GI.geomtrait(extent)
-    _era5_bbox(trait, extent)
+    _bbox(trait, extent)
 end
 
-function _era5_bbox(::GI.PointTrait, geom)
+function _bbox(::GI.PointTrait, geom)
     lon, lat = GI.x(geom), GI.y(geom)
     (lat + 0.5, lon - 0.5, lat - 0.5, lon + 0.5)  # N, W, S, E
 end
 
-function _era5_bbox(::GI.AbstractPolygonTrait, geom)
-    _era5_bbox(nothing, GI.extent(geom))
+function _bbox(::GI.AbstractPolygonTrait, geom)
+    _bbox(nothing, GI.extent(geom))
 end
 
-function _era5_bbox(::Nothing, geom)
+function _bbox(::Nothing, geom)
     if hasproperty(geom, :X) && hasproperty(geom, :Y)
         xmin, xmax = geom.X
         ymin, ymax = geom.Y
@@ -259,9 +262,13 @@ function _era5_bbox(::Nothing, geom)
     error("Cannot extract bounding box from $(typeof(geom)) for ERA5.")
 end
 
-function _era5_bbox(::Union{GI.MultiPointTrait, GI.AbstractCurveTrait}, geom)
+function _bbox(::Union{GI.MultiPointTrait, GI.AbstractCurveTrait}, geom)
     points = collect(GI.getpoint(geom))
     lons = [GI.x(p) for p in points]
     lats = [GI.y(p) for p in points]
     (maximum(lats), minimum(lons), minimum(lats), maximum(lons))  # N, W, S, E
 end
+
+_register_source!(Source())
+
+end # module ERA5

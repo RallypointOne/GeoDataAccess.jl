@@ -65,7 +65,7 @@ Date ranges spanning multiple calendar years are automatically split into per-ye
 
 | Keyword | Type | Default | Description |
 |---------|------|---------|-------------|
-| `service` | `Symbol` | `:dailyData` | `:sampleData`, `:dailyData`, or `:annualData` |
+| `service` | `EPAService.T` | `EPAService.dailyData` | `EPAService.sampleData`, `EPAService.dailyData`, or `EPAService.annualData` |
 | `parameters` | `Vector{Symbol}` | `[Symbol("88101")]` | Up to 5 EPA parameter codes |
 | `state` | `String` | `""` | 2-digit state FIPS code |
 | `county` | `String` | `""` | 3-digit county FIPS code |

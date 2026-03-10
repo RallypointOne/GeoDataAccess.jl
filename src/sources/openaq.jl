@@ -1,81 +1,79 @@
 #--------------------------------------------------------------------------------# OpenAQ
 
-"""
-    OpenAQ()
+module OpenAQ
 
-Global air quality data from the [OpenAQ](https://openaq.org/) platform, aggregating
-measurements from government agencies, research organizations, and low-cost sensor networks.
+import ..GeoDataAccess
+using ..GeoDataAccess: AbstractDataSource, MetaData, DataAccessPlan, RequestInfo,
+    _register_source!, _build_url, _get_api_key, _estimate_bytes,
+    AIR_QUALITY, POINT, TemporalType, HTTPMethod, Frequency
+using Dates
+
+"""
+    OpenAQ.Source()
+
+Global air quality data from the [OpenAQ](https://openaq.org/) platform.
 
 - **Coverage**: Global, 11,000+ stations
 - **Resolution**: Station-based, hourly or daily aggregations
 - **API Key**: Required (`OPENAQ_API_KEY` environment variable)
 - **Rate Limit**: 60 requests/minute (free tier)
 
-Requires sensor IDs via the `sensors` keyword argument.  Use the OpenAQ Explorer at
-[explore.openaq.org](https://explore.openaq.org/) to find sensor IDs, or query the
-`/v3/locations` endpoint with a bounding box.
-
 ### Examples
 
 ```julia
 ENV["OPENAQ_API_KEY"] = "your-api-key"
 
-# Daily PM2.5 aggregations for a sensor
-plan = DataAccessPlan(OpenAQ(), (-87.6, 41.9),
+plan = DataAccessPlan(OpenAQ.Source(), (-87.6, 41.9),
     Date(2024, 1, 1), Date(2024, 1, 31);
     sensors = [1234],
     frequency = :daily)
 files = fetch(plan)
 ```
 """
-struct OpenAQ <: AbstractDataSource end
+struct Source <: AbstractDataSource end
 
-_register_source!(OpenAQ())
+GeoDataAccess.name(::Type{Source}) = "openaq"
 
-const OPENAQ_BASE_URL = "https://api.openaq.org/v3"
+const URL = "https://api.openaq.org/v3"
 
-const OPENAQ_VARIABLES = Dict{Symbol, String}(
-    :pm25  => "PM2.5 (µg/m³)",
-    :pm10  => "PM10 (µg/m³)",
-    :o3    => "Ozone (µg/m³)",
-    :no2   => "Nitrogen dioxide (µg/m³)",
-    :so2   => "Sulfur dioxide (µg/m³)",
-    :co    => "Carbon monoxide (ppm)",
-    :bc    => "Black carbon (µg/m³)",
-    :pm1   => "PM1 (µg/m³)",
+const variables = (;
+    pm25  = "PM2.5 (µg/m³)",
+    pm10  = "PM10 (µg/m³)",
+    o3    = "Ozone (µg/m³)",
+    no2   = "Nitrogen dioxide (µg/m³)",
+    so2   = "Sulfur dioxide (µg/m³)",
+    co    = "Carbon monoxide (ppm)",
+    bc    = "Black carbon (µg/m³)",
+    pm1   = "PM1 (µg/m³)",
 )
 
-#--------------------------------------------------------------------------------# MetaData
-
-MetaData(::OpenAQ) = MetaData(
+const metadata = MetaData(
     "OPENAQ_API_KEY", "60 req/min (free tier)",
-    AirQuality, OPENAQ_VARIABLES,
-    Point, "Station-based", "Global",
-    :timeseries, Hour(1), "Varies by station",
-    CC_BY_4_0,
+    AIR_QUALITY, variables,
+    POINT, "Station-based", "Global",
+    TemporalType.timeseries, Hour(1), "Varies by station",
+    "CC BY 4.0",
     "https://docs.openaq.org/";
     load_packages = Dict("DataFrames" => "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"),
 )
 
-#--------------------------------------------------------------------------------# Request Headers
+GeoDataAccess.MetaData(::Source) = metadata
 
-function _request_headers(source::OpenAQ)
+function GeoDataAccess._request_headers(source::Source)
     api_key = _get_api_key(source)
     ["X-API-Key" => api_key]
 end
 
-#--------------------------------------------------------------------------------# DataAccessPlan
-
-function DataAccessPlan(source::OpenAQ, extent, start_date::Date, stop_date::Date;
-                        sensors::Vector{Int} = Int[],
-                        frequency::Symbol = :daily)
+function GeoDataAccess.DataAccessPlan(source::Source, extent, start_date::Date, stop_date::Date;
+                                       sensors::Vector{Int} = Int[],
+                                       frequency::Frequency.T = Frequency.daily,
+                                       retention::Union{Nothing, Dates.Period} = metadata.default_retention)
     isempty(sensors) && error("OpenAQ requires sensor IDs via `sensors` keyword. " *
                               "Find sensors at https://explore.openaq.org/")
-    frequency in (:hourly, :daily) || error("frequency must be :hourly or :daily, got :$frequency")
 
-    endpoint = frequency == :daily ? "days" : "hours"
-    date_from_key = frequency == :daily ? "date_from" : "datetime_from"
-    date_to_key = frequency == :daily ? "date_to" : "datetime_to"
+    endpoint = frequency == Frequency.daily ? "days" : "hours"
+    date_from_key = frequency == Frequency.daily ? "date_from" : "datetime_from"
+    date_to_key = frequency == Frequency.daily ? "date_to" : "datetime_to"
 
     requests = RequestInfo[]
     for sensor_id in sensors
@@ -84,17 +82,21 @@ function DataAccessPlan(source::OpenAQ, extent, start_date::Date, stop_date::Dat
             date_to_key   => Dates.format(stop_date, dateformat"yyyy-mm-dd"),
             "limit"       => "1000",
         )
-        url = _build_url("$OPENAQ_BASE_URL/sensors/$sensor_id/$endpoint", params)
-        push!(requests, RequestInfo(source, url, :GET, "Sensor $sensor_id, $endpoint"))
+        url = _build_url("$URL/sensors/$sensor_id/$endpoint", params)
+        push!(requests, RequestInfo(source, url, HTTPMethod.GET, "Sensor $sensor_id, $endpoint"))
     end
 
     n_days = Dates.value(stop_date - start_date) + 1
-    rows = frequency == :daily ? n_days : n_days * 24
+    rows = frequency == Frequency.daily ? n_days : n_days * 24
     total_rows = rows * length(sensors)
 
     kwargs = Dict{Symbol, Any}(:sensors => sensors, :frequency => frequency)
 
     DataAccessPlan(source, requests, "$(length(sensors)) sensor(s)",
-        (start_date, stop_date), collect(keys(OPENAQ_VARIABLES)), kwargs,
-        _estimate_bytes(total_rows, 1))
+        (start_date, stop_date), collect(keys(variables)), kwargs,
+        _estimate_bytes(total_rows, 1), retention)
 end
+
+_register_source!(Source())
+
+end # module OpenAQ

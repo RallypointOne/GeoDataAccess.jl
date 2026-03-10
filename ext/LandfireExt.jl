@@ -5,7 +5,8 @@ using Landfire
 using Rasters
 
 import GeoDataAccess: AbstractDataSource, DataAccessPlan, MetaData, RequestInfo,
-    _register_source!, name, _describe_extent, _estimate_bytes, load
+    _register_source!, name, _describe_extent, _estimate_bytes, load,
+    TemporalType
 
 import Dates: Day
 import GeoInterface as GI
@@ -70,7 +71,7 @@ MetaData(::LandfireSource) = MetaData(
     "", "Async job queue",
     :terrain, LANDFIRE_VARIABLES,
     :raster, "30 m", "CONUS, AK, HI",
-    :snapshot, nothing, "Multi-year (2001–2024)",
+    TemporalType.snapshot, nothing, "Multi-year (2001–2024)",
     "Public Domain",
     "https://landfire.gov/";
     load_packages = Dict("Landfire" => "16f38fd6-0379-4569-89bb-2d3d56e50de8",

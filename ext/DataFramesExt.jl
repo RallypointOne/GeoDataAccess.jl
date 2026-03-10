@@ -3,8 +3,9 @@ module DataFramesExt
 using GeoDataAccess
 using DataFrames
 
-import GeoDataAccess: DataAccessPlan, load, fetch,
-    OpenMeteoArchive, OpenMeteoForecast, NOAANCEI, NASAPower, TomorrowIO,
+import GeoDataAccess: DataAccessPlan, load, fetch
+
+using GeoDataAccess: OpenMeteoArchive, OpenMeteoForecast, NOAANCEI, NASAPower, TomorrowIO,
     VisualCrossing, USGSEarthquake, USGSWaterServices, OpenAQ, EPAAQS,
     OpenStreetMap
 
@@ -35,13 +36,13 @@ end
 
 #--------------------------------------------------------------------------------# OpenMeteo (Archive + Forecast)
 
-function GeoDataAccess.load(plan::DataAccessPlan{<:Union{OpenMeteoArchive, OpenMeteoForecast}})
+function GeoDataAccess.load(plan::DataAccessPlan{<:Union{OpenMeteoArchive.Source, OpenMeteoForecast.Source}})
     files = fetch(plan)
     frequency = plan.kwargs[:frequency]
     dfs = DataFrame[]
     for file in files
         json = JSON3.read(read(file, String))
-        data = json[frequency]
+        data = json[Symbol(frequency)]
         cols = Dict{Symbol, Any}(Symbol(k) => collect(v) for (k, v) in pairs(data))
         push!(dfs, DataFrame(cols))
     end
@@ -50,7 +51,7 @@ end
 
 #--------------------------------------------------------------------------------# NOAA NCEI
 
-function GeoDataAccess.load(plan::DataAccessPlan{NOAANCEI})
+function GeoDataAccess.load(plan::DataAccessPlan{NOAANCEI.Source})
     files = fetch(plan)
     dfs = [DataFrame(JSON3.read(read(f, String))) for f in files]
     _merge_dfs(dfs)
@@ -75,7 +76,7 @@ function _nasa_power_parse(json)
     df
 end
 
-function GeoDataAccess.load(plan::DataAccessPlan{NASAPower})
+function GeoDataAccess.load(plan::DataAccessPlan{NASAPower.Source})
     files = fetch(plan)
     dfs = DataFrame[]
     for (i, file) in enumerate(files)
@@ -91,7 +92,7 @@ end
 
 #--------------------------------------------------------------------------------# Tomorrow.io
 
-function GeoDataAccess.load(plan::DataAccessPlan{TomorrowIO})
+function GeoDataAccess.load(plan::DataAccessPlan{TomorrowIO.Source})
     files = fetch(plan)
     all_dfs = DataFrame[]
     for (i, file) in enumerate(files)
@@ -117,7 +118,7 @@ end
 
 #--------------------------------------------------------------------------------# Visual Crossing
 
-function GeoDataAccess.load(plan::DataAccessPlan{VisualCrossing})
+function GeoDataAccess.load(plan::DataAccessPlan{VisualCrossing.Source})
     files = fetch(plan)
     include_type = get(plan.kwargs, :include, "days")
     all_dfs = DataFrame[]
@@ -141,7 +142,7 @@ end
 
 #--------------------------------------------------------------------------------# USGS Earthquake
 
-function GeoDataAccess.load(plan::DataAccessPlan{USGSEarthquake})
+function GeoDataAccess.load(plan::DataAccessPlan{USGSEarthquake.Source})
     files = fetch(plan)
     all_dfs = DataFrame[]
     for file in files
@@ -165,7 +166,7 @@ end
 
 #--------------------------------------------------------------------------------# USGS Water Services
 
-function GeoDataAccess.load(plan::DataAccessPlan{USGSWaterServices})
+function GeoDataAccess.load(plan::DataAccessPlan{USGSWaterServices.Source})
     files = fetch(plan)
     all_rows = NamedTuple[]
     for file in files
@@ -193,7 +194,7 @@ end
 
 #--------------------------------------------------------------------------------# OpenAQ
 
-function GeoDataAccess.load(plan::DataAccessPlan{OpenAQ})
+function GeoDataAccess.load(plan::DataAccessPlan{OpenAQ.Source})
     files = fetch(plan)
     all_rows = NamedTuple[]
     for file in files
@@ -216,7 +217,7 @@ end
 
 #--------------------------------------------------------------------------------# EPA AQS
 
-function GeoDataAccess.load(plan::DataAccessPlan{EPAAQS})
+function GeoDataAccess.load(plan::DataAccessPlan{EPAAQS.Source})
     files = fetch(plan)
     all_dfs = DataFrame[]
     for file in files
@@ -230,7 +231,7 @@ end
 
 #--------------------------------------------------------------------------------# OpenStreetMap
 
-function GeoDataAccess.load(plan::DataAccessPlan{OpenStreetMap})
+function GeoDataAccess.load(plan::DataAccessPlan{OpenStreetMap.Source})
     files = fetch(plan)
     all_rows = NamedTuple[]
     for (file, var) in zip(files, plan.variables)

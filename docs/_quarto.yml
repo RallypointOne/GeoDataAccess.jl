@@ -50,6 +50,9 @@ book:
         - sources/noaa_gfs.qmd
         - sources/era5.qmd
         - sources/copernicus_dem.qmd
+        - sources/openstreetmap.qmd
+        - sources/noaa_oisst.qmd
+        - sources/zarr.qmd
     - part: "API"
       chapters:
         - api.qmd

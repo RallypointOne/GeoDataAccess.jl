@@ -7,7 +7,7 @@ engine: julia
 #| echo: false
 #| output: false
 using GeoDataAccess
-using GeoDataAccess: DataAccessPlan, MetaData, OpenAQ
+using GeoDataAccess: DataAccessPlan, MetaData, OpenAQ, Frequency
 using Dates
 ```
 
@@ -38,7 +38,7 @@ OpenAQ requires sensor IDs via the `sensors` keyword.  Find sensor IDs at
 plan = DataAccessPlan(OpenAQ(), (-87.6, 41.9),
     Date(2024, 1, 1), Date(2024, 1, 31);
     sensors = [1234],
-    frequency = :daily)
+    frequency = Frequency.daily)
 files = fetch(plan)
 ```
 
@@ -47,7 +47,7 @@ files = fetch(plan)
 | Keyword | Type | Default | Description |
 |---------|------|---------|-------------|
 | `sensors` | `Vector{Int}` | (required) | Sensor IDs from OpenAQ Explorer |
-| `frequency` | `Symbol` | `:daily` | `:daily` or `:hourly` |
+| `frequency` | `Frequency.T` | `Frequency.daily` | `Frequency.daily` or `Frequency.hourly` |
 
 ## Variables
 

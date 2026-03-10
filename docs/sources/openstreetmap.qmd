@@ -1,0 +1,126 @@
+---
+title: "OpenStreetMap"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, fetch, MetaData, OpenStreetMap
+using Dates, JSON
+using GeoInterface.Extents: Extent
+```
+
+[OpenStreetMap](https://www.openstreetmap.org/) is a collaborative, open-source map of the
+world.  GeoDataAccess queries OSM data via the
+[Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API), which supports bounding box
+queries filtered by feature type (tag key).  No API key is required.
+
+```{julia}
+MetaData(OpenStreetMap())
+```
+
+## Basic Usage
+
+Each "variable" corresponds to an OSM tag key.  One API request is made per variable.
+
+```{julia}
+# Buildings near Times Square
+plan = DataAccessPlan(OpenStreetMap(), (-73.9857, 40.7580);
+    variables = [:building])
+```
+
+```{julia}
+files = fetch(plan)
+data = JSON.parsefile(files[1])
+println("Elements returned: ", length(data["elements"]))
+```
+
+## Extent Query
+
+Use an `Extent` to query a bounding box.  Keep areas small to avoid timeouts.
+
+```{julia}
+ext = Extent(X=(-73.99, -73.98), Y=(40.74, 40.75))
+
+plan = DataAccessPlan(OpenStreetMap(), ext;
+    variables = [:highway, :amenity],
+    timeout = 60)
+```
+
+```{julia}
+files = fetch(plan)
+for (var, file) in zip([:highway, :amenity], files)
+    n = length(JSON.parsefile(file)["elements"])
+    println("$var: $n elements")
+end
+```
+
+## Options
+
+| Keyword | Type | Default | Description |
+|---------|------|---------|-------------|
+| `variables` | `Vector{Symbol}` | `[:building]` | OSM tag keys to query |
+| `timeout` | `Int` | `90` | Overpass query timeout (seconds) |
+
+## Variables
+
+Each variable is an [OSM tag key](https://wiki.openstreetmap.org/wiki/Map_features).
+The API returns all elements that have the specified tag, regardless of its value.
+
+| Variable | Description |
+|----------|-------------|
+| `building` | Buildings (residential, commercial, etc.) |
+| `highway` | Roads, paths, and streets |
+| `natural` | Natural features (water, wood, etc.) |
+| `amenity` | Amenities (restaurants, schools, hospitals, etc.) |
+| `shop` | Shops and retail |
+| `leisure` | Leisure areas (parks, playgrounds, etc.) |
+| `landuse` | Land use zones (residential, industrial, etc.) |
+| `waterway` | Waterways (rivers, streams, canals) |
+| `railway` | Railway infrastructure |
+| `boundary` | Administrative boundaries |
+| `tourism` | Tourism features (hotels, attractions, etc.) |
+| `power` | Power infrastructure (lines, substations, etc.) |
+
+::: {.callout-tip}
+These are the most common tag keys, but any valid OSM tag key can be used as a variable.
+:::
+
+## Loading as a DataFrame
+
+Install `DataFrames` to enable the `load` function, which parses Overpass JSON into a
+tabular format:
+
+```julia
+using Pkg
+Pkg.add("DataFrames")
+
+using DataFrames
+df = load(plan)
+```
+
+The resulting DataFrame has columns:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `osm_type` | `String` | Element type: `"node"`, `"way"`, or `"relation"` |
+| `osm_id` | `Int` | OpenStreetMap element ID |
+| `latitude` | `Float64` | Center latitude |
+| `longitude` | `Float64` | Center longitude |
+| `tag_key` | `String` | The queried tag key |
+| `tag_value` | `String` | Value of the queried tag (e.g., `"yes"`, `"residential"`) |
+| `name` | `String` | Element name (if available, otherwise `missing`) |
+| `tags` | `String` | All tags as a JSON string |
+
+## Tips
+
+- **Keep bounding boxes small.** Dense urban areas can return hundreds of thousands of
+  elements.  Start with a small area and expand as needed.
+- **Point queries** use a ~1 km buffer (0.005° in each direction).
+- **Rate limits** are informal.  Avoid hammering the Overpass API with rapid sequential
+  requests.
+- **Caching** works as with all other sources — repeated queries hit the local cache.
+- **License**: OSM data is licensed under the
+  [Open Data Commons Open Database License](https://opendatacommons.org/licenses/odbl/) (ODbL 1.0).

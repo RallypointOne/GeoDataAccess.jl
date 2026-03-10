@@ -1,0 +1,83 @@
+---
+title: "NOAA OISST"
+engine: julia
+---
+
+```{julia}
+#| echo: false
+#| output: false
+using GeoDataAccess
+using GeoDataAccess: DataAccessPlan, MetaData, NOAAOISST
+using Dates
+```
+
+The [NOAA OISST](https://www.ncei.noaa.gov/products/optimum-interpolation-sst) (Optimum
+Interpolation Sea Surface Temperature) is a global daily SST analysis on a 0.25° grid.  It
+blends observations from satellites (AVHRR), ships, buoys, and Argo floats into a consistent
+climate data record from 1981 to present.
+
+Each daily file contains four variables:
+
+| Variable | Description |
+|----------|-------------|
+| `sst`  | Sea surface temperature (°C) |
+| `anom` | SST anomaly from 30-year climatological mean (°C) |
+| `ice`  | Sea ice concentration (%) |
+| `err`  | Estimated SST error (°C) |
+
+```{julia}
+MetaData(NOAAOISST())
+```
+
+## Basic Usage
+
+```julia
+using GeoInterface.Extents: Extent
+using Dates
+
+# Download a week of daily SST files
+plan = DataAccessPlan(NOAAOISST(),
+    Extent(X=(-80.0, -60.0), Y=(30.0, 45.0)),
+    Date(2024, 1, 1), Date(2024, 1, 7))
+files = fetch(plan)
+
+# SST and anomalies near a point
+plan = DataAccessPlan(NOAAOISST(), (-74.0, 40.7),
+    Date(2024, 6, 1), Date(2024, 6, 3);
+    variables = [:sst, :anom])
+files = fetch(plan)
+```
+
+## Options
+
+| Keyword | Type | Default | Description |
+|---------|------|---------|-------------|
+| `variables` | `Vector{Symbol}` | `[:sst]` | Variables of interest (all four are in every file) |
+| `retention` | `Period` or `nothing` | `nothing` | Cache retention period |
+
+::: {.callout-note}
+Each daily file (~1.6 MB) contains the full global grid for all four variables.  The
+`variables` keyword documents your intent but does not affect which data is downloaded.
+Spatial subsetting happens at load time via `Rasters.jl`.
+:::
+
+## Loading Raster Data
+
+`fetch` returns file paths to NetCDF files.  To load them as raster data, install the
+`Rasters` package:
+
+```julia
+using Pkg
+Pkg.add("Rasters")
+
+using Rasters
+files = fetch(plan)
+r = Raster(files[1])
+```
+
+## Tips
+
+- **File size**: Each daily file is ~1.6 MB.  A full year is ~580 MB.
+- **Temporal range**: Data is available from September 1981 to present.
+- **Version**: Downloads use OISST v2.1 (AVHRR-only), the current production version.
+- **Citation**: Huang et al. (2020), NOAA 0.25° Daily OISST v2.1. DOI: [10.25921/RE9P-PT57](https://doi.org/10.25921/RE9P-PT57)

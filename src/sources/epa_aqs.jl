@@ -1,22 +1,23 @@
 #--------------------------------------------------------------------------------# EPA AQS
 
+module EPAAQS
+
+import ..GeoDataAccess
+using ..GeoDataAccess: AbstractDataSource, MetaData, DataAccessPlan, RequestInfo,
+    _register_source!, _build_url, _describe_extent, _estimate_bytes,
+    AIR_QUALITY, POINT, TemporalType, HTTPMethod, EPAService
+using Dates
+import GeoInterface as GI
+
 """
-    EPAAQS()
+    EPAAQS.Source()
 
 US air quality monitoring data from the [EPA Air Quality System](https://aqs.epa.gov/).
-Provides measurements from thousands of monitoring stations across the United States.
 
 - **Coverage**: US, thousands of stations
 - **Resolution**: Station-based, hourly or daily
 - **API Key**: Required (`EPA_AQS_EMAIL` and `EPA_AQS_KEY` environment variables)
 - **Rate Limit**: 10 requests/minute
-
-Register at `https://aqs.epa.gov/data/api/signup?email=your@email.com` — a key will be
-emailed to you.
-
-Supports queries by bounding box (from geometries), or by state/county/site FIPS codes via
-keyword arguments.  Date ranges spanning multiple years are automatically split into per-year
-requests (API constraint).
 
 ### Examples
 
@@ -26,52 +27,45 @@ ENV["EPA_AQS_KEY"]   = "your-api-key"
 
 using GeoInterface.Extents: Extent
 
-# Daily PM2.5 in a bounding box
-plan = DataAccessPlan(EPAAQS(),
+plan = DataAccessPlan(EPAAQS.Source(),
     Extent(X=(-87.0, -86.7), Y=(33.3, 33.6)),
     Date(2023, 6, 1), Date(2023, 6, 30);
     parameters = [Symbol("88101")])
 files = fetch(plan)
-
-# By state and county FIPS codes
-plan = DataAccessPlan(EPAAQS(), (0.0, 0.0),  # extent ignored for FIPS queries
-    Date(2023, 6, 1), Date(2023, 6, 30);
-    parameters = [Symbol("44201")],  # Ozone
-    state = "37", county = "183")
 ```
 """
-struct EPAAQS <: AbstractDataSource end
+struct Source <: AbstractDataSource end
 
-_register_source!(EPAAQS())
+GeoDataAccess.name(::Type{Source}) = "epaaqs"
 
-const EPA_AQS_BASE_URL = "https://aqs.epa.gov/data/api"
+const URL = "https://aqs.epa.gov/data/api"
 
-const EPA_AQS_VARIABLES = Dict{Symbol, String}(
-    Symbol("88101") => "PM2.5 - Local Conditions (µg/m³)",
-    Symbol("88502") => "PM2.5 - Non-FRM (µg/m³)",
-    Symbol("81102") => "PM10 (µg/m³)",
-    Symbol("44201") => "Ozone (ppm)",
-    Symbol("42101") => "Carbon Monoxide (ppm)",
-    Symbol("42401") => "Sulfur Dioxide (ppb)",
-    Symbol("42602") => "Nitrogen Dioxide (ppb)",
-    Symbol("14129") => "Lead TSP (µg/m³)",
+const variables = (;
+    var"88101" = "PM2.5 - Local Conditions (µg/m³)",
+    var"88502" = "PM2.5 - Non-FRM (µg/m³)",
+    var"81102" = "PM10 (µg/m³)",
+    var"44201" = "Ozone (ppm)",
+    var"42101" = "Carbon Monoxide (ppm)",
+    var"42401" = "Sulfur Dioxide (ppb)",
+    var"42602" = "Nitrogen Dioxide (ppb)",
+    var"14129" = "Lead TSP (µg/m³)",
 )
 
-#--------------------------------------------------------------------------------# MetaData
-
-MetaData(::EPAAQS) = MetaData(
+const metadata = MetaData(
     "EPA_AQS_KEY", "10 req/min",
-    AirQuality, EPA_AQS_VARIABLES,
-    Point, "Station-based", "US",
-    :timeseries, Day(1), "Varies by station (decades)",
-    PublicDomain,
+    AIR_QUALITY, variables,
+    POINT, "Station-based", "US",
+    TemporalType.timeseries, Day(1), "Varies by station (decades)",
+    "Public Domain",
     "https://aqs.epa.gov/aqsweb/documents/data_api.html";
     load_packages = Dict("DataFrames" => "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"),
 )
 
-#--------------------------------------------------------------------------------# Request Headers / Auth
+GeoDataAccess.MetaData(::Source) = metadata
 
-function _epa_aqs_credentials()
+#--------------------------------------------------------------------------------# Auth
+
+function _credentials()
     email = get(ENV, "EPA_AQS_EMAIL", "")
     key = get(ENV, "EPA_AQS_KEY", "")
     (isempty(email) || isempty(key)) &&
@@ -82,26 +76,23 @@ end
 
 #--------------------------------------------------------------------------------# DataAccessPlan
 
-function DataAccessPlan(source::EPAAQS, extent, start_date::Date, stop_date::Date;
-                        service::Symbol = :dailyData,
-                        parameters::Vector{Symbol} = [Symbol("88101")],
-                        state::String = "",
-                        county::String = "",
-                        site::String = "")
-    service in (:sampleData, :dailyData, :annualData) ||
-        error("service must be :sampleData, :dailyData, or :annualData, got :$service")
+function GeoDataAccess.DataAccessPlan(source::Source, extent, start_date::Date, stop_date::Date;
+                                       service::EPAService.T = EPAService.dailyData,
+                                       parameters::Vector{Symbol} = [Symbol("88101")],
+                                       state::String = "",
+                                       county::String = "",
+                                       site::String = "",
+                                       retention::Union{Nothing, Dates.Period} = metadata.default_retention)
     length(parameters) > 5 &&
         error("EPA AQS allows at most 5 parameter codes per request (got $(length(parameters)))")
 
-    email, key = _epa_aqs_credentials()
+    email, key = _credentials()
 
-    # Determine endpoint filter and spatial params
-    filter_path, spatial_params, extent_desc = _epa_aqs_filter(extent, state, county, site)
+    filter_path, spatial_params, extent_desc = _filter(extent, state, county, site)
 
     param_str = join(string.(parameters), ",")
 
-    # Split by calendar year (API constraint)
-    year_ranges = _epa_aqs_split_years(start_date, stop_date)
+    year_ranges = _split_years(start_date, stop_date)
 
     requests = RequestInfo[]
     for (bd, ed) in year_ranges
@@ -113,9 +104,9 @@ function DataAccessPlan(source::EPAAQS, extent, start_date::Date, stop_date::Dat
             "edate" => Dates.format(ed, dateformat"yyyymmdd"),
         )
         merge!(params, spatial_params)
-        url = _build_url("$EPA_AQS_BASE_URL/$service/$filter_path", params)
+        url = _build_url("$URL/$service/$filter_path", params)
         n_days = Dates.value(ed - bd) + 1
-        push!(requests, RequestInfo(source, url, :GET,
+        push!(requests, RequestInfo(source, url, HTTPMethod.GET,
             "$extent_desc, $n_days days ($(Dates.year(bd)))"))
     end
 
@@ -127,12 +118,12 @@ function DataAccessPlan(source::EPAAQS, extent, start_date::Date, stop_date::Dat
 
     DataAccessPlan(source, requests, extent_desc,
         (start_date, stop_date), parameters, kwargs,
-        _estimate_bytes(total_days, length(parameters)))
+        _estimate_bytes(total_days, length(parameters)), retention)
 end
 
 #--------------------------------------------------------------------------------# Helpers
 
-function _epa_aqs_filter(extent, state, county, site)
+function _filter(extent, state, county, site)
     if !isempty(state) && !isempty(county) && !isempty(site)
         params = Dict("state" => state, "county" => county, "site" => site)
         return "bySite", params, "Site $state-$county-$site"
@@ -143,8 +134,7 @@ function _epa_aqs_filter(extent, state, county, site)
         params = Dict("state" => state)
         return "byState", params, "State $state"
     else
-        # Use bounding box from extent
-        west, south, east, north = _epa_aqs_bbox(extent)
+        west, south, east, north = _bbox(extent)
         params = Dict(
             "minlat" => string(south),
             "maxlat" => string(north),
@@ -155,21 +145,21 @@ function _epa_aqs_filter(extent, state, county, site)
     end
 end
 
-function _epa_aqs_bbox(extent)
+function _bbox(extent)
     trait = GI.geomtrait(extent)
-    _epa_aqs_bbox(trait, extent)
+    _bbox(trait, extent)
 end
 
-function _epa_aqs_bbox(::GI.PointTrait, geom)
+function _bbox(::GI.PointTrait, geom)
     lon, lat = GI.x(geom), GI.y(geom)
     (lon - 0.1, lat - 0.1, lon + 0.1, lat + 0.1)
 end
 
-function _epa_aqs_bbox(::GI.AbstractPolygonTrait, geom)
-    _epa_aqs_bbox(nothing, GI.extent(geom))
+function _bbox(::GI.AbstractPolygonTrait, geom)
+    _bbox(nothing, GI.extent(geom))
 end
 
-function _epa_aqs_bbox(::Nothing, geom)
+function _bbox(::Nothing, geom)
     if hasproperty(geom, :X) && hasproperty(geom, :Y)
         xmin, xmax = geom.X
         ymin, ymax = geom.Y
@@ -178,14 +168,14 @@ function _epa_aqs_bbox(::Nothing, geom)
     error("Cannot extract bounding box from $(typeof(geom)) for EPA AQS.")
 end
 
-function _epa_aqs_bbox(::Union{GI.MultiPointTrait, GI.AbstractCurveTrait}, geom)
+function _bbox(::Union{GI.MultiPointTrait, GI.AbstractCurveTrait}, geom)
     points = collect(GI.getpoint(geom))
     lons = [GI.x(p) for p in points]
     lats = [GI.y(p) for p in points]
     (minimum(lons), minimum(lats), maximum(lons), maximum(lats))
 end
 
-function _epa_aqs_split_years(start_date::Date, stop_date::Date)
+function _split_years(start_date::Date, stop_date::Date)
     ranges = Tuple{Date, Date}[]
     current = start_date
     while current <= stop_date
@@ -195,3 +185,7 @@ function _epa_aqs_split_years(start_date::Date, stop_date::Date)
     end
     ranges
 end
+
+_register_source!(Source())
+
+end # module EPAAQS
