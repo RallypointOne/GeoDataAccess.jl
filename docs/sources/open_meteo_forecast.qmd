@@ -16,13 +16,13 @@ resolution.  No API key is required.  Shares the same variable set as
 [Open-Meteo Archive](open_meteo_archive.qmd).
 
 ```{julia}
-MetaData(OpenMeteoForecast())
+MetaData(OpenMeteoForecast.Source())
 ```
 
 ## Example
 
 ```{julia}
-plan = DataAccessPlan(OpenMeteoForecast(), (-74.0, 40.7),
+plan = DataAccessPlan(OpenMeteoForecast.Source(), (-74.0, 40.7),
     today(), today() + Day(2);
     variables = [:temperature_2m, :precipitation],
     frequency = Frequency.hourly)

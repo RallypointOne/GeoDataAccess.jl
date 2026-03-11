@@ -18,7 +18,7 @@ world.  GeoDataAccess queries OSM data via the
 queries filtered by feature type (tag key).  No API key is required.
 
 ```{julia}
-MetaData(OpenStreetMap())
+MetaData(OpenStreetMap.Source())
 ```
 
 ## Basic Usage
@@ -27,7 +27,7 @@ Each "variable" corresponds to an OSM tag key.  One API request is made per vari
 
 ```{julia}
 # Buildings near Times Square
-plan = DataAccessPlan(OpenStreetMap(), (-73.9857, 40.7580);
+plan = DataAccessPlan(OpenStreetMap.Source(), (-73.9857, 40.7580);
     variables = [:building])
 ```
 
@@ -44,7 +44,7 @@ Use an `Extent` to query a bounding box.  Keep areas small to avoid timeouts.
 ```{julia}
 ext = Extent(X=(-73.99, -73.98), Y=(40.74, 40.75))
 
-plan = DataAccessPlan(OpenStreetMap(), ext;
+plan = DataAccessPlan(OpenStreetMap.Source(), ext;
     variables = [:highway, :amenity],
     timeout = 60)
 ```

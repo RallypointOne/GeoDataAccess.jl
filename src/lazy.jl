@@ -7,7 +7,7 @@
 # files upfront with `fetch(plan)`, a `LazyData` object defers downloads until the data
 # is actually indexed.
 #
-#   plan = DataAccessPlan(NOAAOISST(), extent, d1, d2)
+#   plan = DataAccessPlan(NOAAOISST.Source(), extent, d1, d2)
 #   data = LazyData(plan)        # no downloads yet
 #   data[3]                      # fetches & reads only request 3
 #   data[1:5]                    # fetches requests 1–5 (skips already-cached ones)
@@ -35,7 +35,7 @@ Already-cached files are not re-downloaded.
 ### Examples
 
 ```julia
-plan = DataAccessPlan(NOAAOISST(), (-74.0, 40.7),
+plan = DataAccessPlan(NOAAOISST.Source(), (-74.0, 40.7),
     Date(2024, 1, 1), Date(2024, 1, 7))
 
 # Raw bytes (default)

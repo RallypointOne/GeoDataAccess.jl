@@ -65,7 +65,7 @@ using GeoDataAccess: DataAccessPlan, fetch, OpenMeteoArchive, Frequency
 using Dates
 
 # Create a plan: hourly temperature and precipitation for NYC
-plan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),
+plan = DataAccessPlan(OpenMeteoArchive.Source(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 3);
     variables = [:temperature_2m, :precipitation],
     frequency = Frequency.hourly)
@@ -88,7 +88,7 @@ Or skip the plan and call `fetch` directly on a source:
 ```{julia}
 using GeoDataAccess: fetch, OpenMeteoArchive, Frequency
 
-files = fetch(OpenMeteoArchive(), (-74.0, 40.7),
+files = fetch(OpenMeteoArchive.Source(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 3);
     variables = [:temperature_2m, :precipitation],
     frequency = Frequency.hourly)

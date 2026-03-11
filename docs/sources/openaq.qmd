@@ -16,7 +16,7 @@ organizations, and low-cost sensor networks (11,000+ stations).  An API key is *
 the `OPENAQ_API_KEY` environment variable.
 
 ```{julia}
-MetaData(OpenAQ())
+MetaData(OpenAQ.Source())
 ```
 
 ## Setup
@@ -35,7 +35,7 @@ OpenAQ requires sensor IDs via the `sensors` keyword.  Find sensor IDs at
 
 ```julia
 # Daily PM2.5 aggregations for a sensor
-plan = DataAccessPlan(OpenAQ(), (-87.6, 41.9),
+plan = DataAccessPlan(OpenAQ.Source(), (-87.6, 41.9),
     Date(2024, 1, 1), Date(2024, 1, 31);
     sensors = [1234],
     frequency = Frequency.daily)

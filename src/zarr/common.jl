@@ -20,7 +20,7 @@ Use `store_url(source)` to get the Zarr store URL, then open it with `Zarr.zopen
 
 ```julia
 using Zarr
-url = store_url(ARCOERA5())
+url = store_url(ARCOERA5.Source())
 store = zopen(url, consolidated=true)
 store["2m_temperature"]  # lazy ZArray
 ```

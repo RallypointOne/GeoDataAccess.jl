@@ -282,7 +282,7 @@ or `load(plan)` to get parsed data.
 ### Examples
 
 ```julia
-plan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7), Date(2023,1,1), Date(2023,1,3))
+plan = DataAccessPlan(OpenMeteoArchive.Source(), (-74.0, 40.7), Date(2023,1,1), Date(2023,1,3))
 plan          # inspect
 fetch(plan)   # download → file paths
 load(plan)    # download → parsed data

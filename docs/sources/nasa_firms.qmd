@@ -19,7 +19,7 @@ An API key is **required** — register for free at
 The response format is **CSV** (not JSON).
 
 ```{julia}
-MetaData(NASAFIRMS())
+MetaData(NASAFIRMS.Source())
 ```
 
 ## Setup
@@ -35,7 +35,7 @@ ENV["FIRMS_MAP_KEY"] = "your-map-key"
 ```julia
 using GeoInterface.Extents: Extent
 
-plan = DataAccessPlan(NASAFIRMS(),
+plan = DataAccessPlan(NASAFIRMS.Source(),
     Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),
     Date(2024, 7, 1), Date(2024, 7, 5))
 files = fetch(plan)
@@ -48,7 +48,7 @@ Requests longer than 10 days are automatically split into 10-day chunks.
 Query by ISO 3-letter country code (the `extent` argument is ignored):
 
 ```julia
-plan = DataAccessPlan(NASAFIRMS(), (0.0, 0.0),
+plan = DataAccessPlan(NASAFIRMS.Source(), (0.0, 0.0),
     Date(2024, 7, 1), Date(2024, 7, 3);
     country = "AUS")
 ```

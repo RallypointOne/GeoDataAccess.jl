@@ -18,13 +18,13 @@ Data is fetched by station ID rather than spatial coordinates.  Station IDs can 
 [NOAA's Station Search](https://www.ncdc.noaa.gov/cdo-web/datatools/findstation).
 
 ```{julia}
-MetaData(NOAANCEI())
+MetaData(NOAANCEI.Source())
 ```
 
 ## Example
 
 ```{julia}
-plan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),
+plan = DataAccessPlan(NOAANCEI.Source(), (-74.0, 40.7),
     Date(2024, 1, 1), Date(2024, 1, 7);
     stations = ["USW00094728"],  # Central Park, NYC
     variables = [:TMAX, :TMIN, :PRCP])

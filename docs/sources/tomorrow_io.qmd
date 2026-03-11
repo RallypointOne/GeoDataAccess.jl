@@ -14,7 +14,7 @@ using GeoDataAccess: MetaData, TomorrowIO
 with hourly or daily granularity.  Requires a free API key.
 
 ```{julia}
-MetaData(TomorrowIO())
+MetaData(TomorrowIO.Source())
 ```
 
 ## Setup
@@ -31,7 +31,7 @@ ENV["TOMORROW_IO_API_KEY"] = "your-api-key"
 using GeoDataAccess: DataAccessPlan, fetch, TomorrowIO
 using Dates
 
-plan = DataAccessPlan(TomorrowIO(), (-74.0, 40.7),
+plan = DataAccessPlan(TomorrowIO.Source(), (-74.0, 40.7),
     Date(2024, 1, 1), Date(2024, 1, 7);
     variables = [:temperature, :humidity, :precipitationIntensity],
     timestep = "1d")

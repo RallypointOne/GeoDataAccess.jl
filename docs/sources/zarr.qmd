@@ -18,7 +18,7 @@ you actually index are transferred over the network.
 
 ```julia
 using Zarr
-url = store_url(ARCOERA5())
+url = store_url(ARCOERA5.Source())
 store = zopen(url, consolidated=true)
 store["2m_temperature"]  # lazy — no data transferred yet
 store["2m_temperature"][1, :, :]  # fetches one timestep
@@ -43,12 +43,12 @@ Analysis-Ready, Cloud-Optimized ERA5 reanalysis on Google Cloud Storage.  277 va
 | **Requires** | `Zarr.jl` |
 
 ```{julia}
-MetaData(ARCOERA5())
+MetaData(ARCOERA5.Source())
 ```
 
 ```julia
 using Zarr
-store = zopen(store_url(ARCOERA5()), consolidated=true)
+store = zopen(store_url(ARCOERA5.Source()), consolidated=true)
 t2m = store["2m_temperature"]
 ```
 
@@ -66,12 +66,12 @@ configurable chunking orientation.
 | **Requires** | `Zarr.jl`, `AWS.jl` |
 
 ```{julia}
-MetaData(NASAPowerZarr())
+MetaData(NASAPowerZarr.Source())
 ```
 
 ```{julia}
 # Default: MERRA-2 daily, temporal chunking
-store_url(NASAPowerZarr())
+store_url(NASAPowerZarr.Source())
 ```
 
 ```{julia}
@@ -103,7 +103,7 @@ forecasts initialized every 6 hours from 2021 to present.
 | **Requires** | `Zarr.jl` with v3 support |
 
 ```{julia}
-MetaData(GFSZarr())
+MetaData(GFSZarr.Source())
 ```
 
 ::: {.callout-warning}
@@ -113,6 +113,6 @@ supports v3 before opening.
 
 ```julia
 using Zarr
-store = zopen(store_url(GFSZarr()))
+store = zopen(store_url(GFSZarr.Source()))
 t2m = store["temperature_2m"]  # [init_time, lead_time, lat, lon]
 ```

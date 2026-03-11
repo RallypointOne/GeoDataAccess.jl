@@ -19,7 +19,7 @@ region, variables, and levels — returning smaller GRIB2 files over HTTP.
 No API key is required.  A ~10 second delay between requests is recommended.
 
 ```{julia}
-MetaData(NOAAGFS())
+MetaData(NOAAGFS.Source())
 ```
 
 ## Basic Usage
@@ -32,7 +32,7 @@ using GeoInterface.Extents: Extent
 using Dates
 
 # Temperature and wind for the central US, today's 00z run, analysis + 3h + 6h
-plan = DataAccessPlan(NOAAGFS(),
+plan = DataAccessPlan(NOAAGFS.Source(),
     Extent(X=(-100.0, -90.0), Y=(35.0, 45.0));
     variables = [:TMP, :UGRD, :VGRD],
     levels = ["2_m_above_ground"],
@@ -45,7 +45,7 @@ Each forecast hour produces a separate GRIB2 file.
 ## Specific Model Run
 
 ```julia
-plan = DataAccessPlan(NOAAGFS(),
+plan = DataAccessPlan(NOAAGFS.Source(),
     Extent(X=(-120.0, -80.0), Y=(30.0, 50.0));
     run_date = Date(2025, 6, 15),
     cycle = 12,

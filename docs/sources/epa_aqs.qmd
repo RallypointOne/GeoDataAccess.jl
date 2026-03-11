@@ -16,7 +16,7 @@ monitoring stations across the United States.  Both an email and API key are **r
 register at `https://aqs.epa.gov/data/api/signup?email=your@email.com`.
 
 ```{julia}
-MetaData(EPAAQS())
+MetaData(EPAAQS.Source())
 ```
 
 ## Setup
@@ -33,7 +33,7 @@ ENV["EPA_AQS_KEY"]   = "your-api-key"
 ```julia
 using GeoInterface.Extents: Extent
 
-plan = DataAccessPlan(EPAAQS(),
+plan = DataAccessPlan(EPAAQS.Source(),
     Extent(X=(-87.0, -86.7), Y=(33.3, 33.6)),
     Date(2023, 6, 1), Date(2023, 6, 30);
     parameters = [Symbol("88101")])  # PM2.5
@@ -46,13 +46,13 @@ Query using FIPS codes (the `extent` argument is ignored):
 
 ```julia
 # All ozone monitors in Wake County, NC
-plan = DataAccessPlan(EPAAQS(), (0.0, 0.0),
+plan = DataAccessPlan(EPAAQS.Source(), (0.0, 0.0),
     Date(2023, 1, 1), Date(2023, 12, 31);
     parameters = [Symbol("44201")],
     state = "37", county = "183")
 
 # Specific site
-plan = DataAccessPlan(EPAAQS(), (0.0, 0.0),
+plan = DataAccessPlan(EPAAQS.Source(), (0.0, 0.0),
     Date(2023, 1, 1), Date(2023, 12, 31);
     parameters = [Symbol("88101")],
     state = "37", county = "183", site = "0014")

@@ -14,7 +14,7 @@ using GeoDataAccess: MetaData, VisualCrossing
 data at ~1 km resolution.  Requires a free API key.
 
 ```{julia}
-MetaData(VisualCrossing())
+MetaData(VisualCrossing.Source())
 ```
 
 ## Setup
@@ -31,7 +31,7 @@ ENV["VISUAL_CROSSING_API_KEY"] = "your-api-key"
 using GeoDataAccess: DataAccessPlan, fetch, VisualCrossing
 using Dates
 
-plan = DataAccessPlan(VisualCrossing(), (-74.0, 40.7),
+plan = DataAccessPlan(VisualCrossing.Source(), (-74.0, 40.7),
     Date(2024, 1, 1), Date(2024, 1, 7);
     variables = [:tempmax, :tempmin, :precip, :humidity],
     include = "days")

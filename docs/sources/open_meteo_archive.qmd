@@ -16,13 +16,13 @@ import GeoInterface as GI
 ERA5 reanalysis dataset (1940–present) at ~25 km resolution.  No API key is required.
 
 ```{julia}
-MetaData(OpenMeteoArchive())
+MetaData(OpenMeteoArchive.Source())
 ```
 
 ## Hourly Data
 
 ```{julia}
-plan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),
+plan = DataAccessPlan(OpenMeteoArchive.Source(), (-74.0, 40.7),
     Date(2024, 1, 1), Date(2024, 1, 3);
     variables = [:temperature_2m, :precipitation],
     frequency = Frequency.hourly)
@@ -39,7 +39,7 @@ keys(data)
 Daily aggregates use different variable names (e.g. `temperature_2m_max` instead of `temperature_2m`):
 
 ```{julia}
-files = fetch(OpenMeteoArchive(), (-74.0, 40.7),
+files = fetch(OpenMeteoArchive.Source(), (-74.0, 40.7),
     Date(2024, 1, 1), Date(2024, 1, 7);
     variables = [:temperature_2m_max, :temperature_2m_min, :precipitation_sum],
     frequency = Frequency.daily)

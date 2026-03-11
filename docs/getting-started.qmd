@@ -45,11 +45,11 @@ Every source carries a `MetaData` record describing its coverage, resolution, va
 access requirements:
 
 ```{julia}
-MetaData(NASAPower())
+MetaData(NASAPower.Source())
 ```
 
 ```{julia}
-MetaData(OpenMeteoArchive())
+MetaData(OpenMeteoArchive.Source())
 ```
 
 ## Plan / Fetch Workflow
@@ -70,7 +70,7 @@ Each source has its own variable names — check its `MetaData` or documentation
 
 ```{julia}
 # NASA POWER — daily temperature and precipitation
-plan = DataAccessPlan(NASAPower(), (-74.0, 40.7),
+plan = DataAccessPlan(NASAPower.Source(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:T2M, :PRECTOTCORR])
 ```
@@ -99,7 +99,7 @@ collect(keys(data))
 You can also skip the plan and call `fetch` directly on a source:
 
 ```{julia}
-files = fetch(NASAPower(), (-74.0, 40.7),
+files = fetch(NASAPower.Source(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:T2M, :PRECTOTCORR])
 ```
@@ -111,7 +111,7 @@ and variable names change:
 
 ```{julia}
 # Open-Meteo Archive — hourly data with different variable names
-plan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),
+plan = DataAccessPlan(OpenMeteoArchive.Source(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:temperature_2m, :precipitation],
     frequency = Frequency.hourly)
@@ -119,7 +119,7 @@ plan = DataAccessPlan(OpenMeteoArchive(), (-74.0, 40.7),
 
 ```{julia}
 # NOAA NCEI — station-based, requires station IDs
-plan = DataAccessPlan(NOAANCEI(), (-74.0, 40.7),
+plan = DataAccessPlan(NOAANCEI.Source(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     stations = ["USW00094728"],
     variables = [:TMAX, :TMIN, :PRCP])
@@ -136,7 +136,7 @@ Fetch daily temperature from two independent sources for the same location and o
 using CairoMakie
 
 # NASA POWER
-files_power = fetch(NASAPower(), (-74.0, 40.7),
+files_power = fetch(NASAPower.Source(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:T2M])
 power = JSON.parsefile(files_power[1])
@@ -144,7 +144,7 @@ power_temps = collect(values(power["properties"]["parameter"]["T2M"]))
 power_dates = Date.(collect(keys(power["properties"]["parameter"]["T2M"])), "yyyymmdd")
 
 # Open-Meteo Archive
-files_meteo = fetch(OpenMeteoArchive(), (-74.0, 40.7),
+files_meteo = fetch(OpenMeteoArchive.Source(), (-74.0, 40.7),
     Date(2024, 7, 1), Date(2024, 7, 14);
     variables = [:temperature_2m_mean], frequency = Frequency.daily)
 meteo = JSON.parsefile(files_meteo[1])
@@ -183,7 +183,7 @@ import GeoInterface as GI
 
 mp = GI.MultiPoint([(-74.0, 40.7), (-87.6, 41.9)])
 
-plan = DataAccessPlan(NASAPower(), mp,
+plan = DataAccessPlan(NASAPower.Source(), mp,
     Date(2024, 1, 1), Date(2024, 1, 7);
     variables = [:T2M])
 plan
@@ -196,7 +196,7 @@ using GeoInterface.Extents: Extent
 
 ext = Extent(X=(-76.0, -72.0), Y=(39.0, 42.0))
 
-plan = DataAccessPlan(NASAPower(), ext,
+plan = DataAccessPlan(NASAPower.Source(), ext,
     Date(2024, 1, 1), Date(2024, 1, 7);
     variables = [:T2M])
 plan

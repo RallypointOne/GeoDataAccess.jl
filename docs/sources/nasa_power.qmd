@@ -16,13 +16,13 @@ using GeoInterface.Extents: Extent
 data (1981–present) at ~55 km resolution.  No API key is required.
 
 ```{julia}
-MetaData(NASAPower())
+MetaData(NASAPower.Source())
 ```
 
 ## Point Query
 
 ```{julia}
-plan = DataAccessPlan(NASAPower(), (-74.0, 40.7),
+plan = DataAccessPlan(NASAPower.Source(), (-74.0, 40.7),
     Date(2024, 1, 1), Date(2024, 1, 7);
     variables = [:T2M, :PRECTOTCORR])
 plan
@@ -41,7 +41,7 @@ NASA POWER supports regional bounding box queries (requires at least 2° in each
 ```{julia}
 ext = Extent(X=(-76.0, -72.0), Y=(39.0, 42.0))
 
-plan = DataAccessPlan(NASAPower(), ext,
+plan = DataAccessPlan(NASAPower.Source(), ext,
     Date(2024, 1, 1), Date(2024, 1, 7);
     variables = [:T2M])
 plan

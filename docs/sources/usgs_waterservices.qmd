@@ -16,7 +16,7 @@ water quality, and related hydrological data from 1.5 million+ sites across the 
 is required.
 
 ```{julia}
-MetaData(USGSWaterServices())
+MetaData(USGSWaterServices.Source())
 ```
 
 ## Daily Values
@@ -24,7 +24,7 @@ MetaData(USGSWaterServices())
 Retrieve daily mean discharge for the Potomac River near Washington, DC (site 01646500):
 
 ```{julia}
-plan = DataAccessPlan(USGSWaterServices(), (-77.1, 38.9),
+plan = DataAccessPlan(USGSWaterServices.Source(), (-77.1, 38.9),
     Date(2024, 1, 1), Date(2024, 1, 31);
     sites = ["01646500"],
     variables = [Symbol("00060")])

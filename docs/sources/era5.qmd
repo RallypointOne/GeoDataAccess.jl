@@ -18,7 +18,7 @@ climate from 1940 to present.  Data is accessed via the
 [Copernicus Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) API.
 
 ```{julia}
-MetaData(ERA5())
+MetaData(ERA5.Source())
 ```
 
 ## Setup
@@ -42,7 +42,7 @@ using Dates
 
 # Temperature and precipitation over Europe for 3 days
 ext = Extent(X=(-10.0, 30.0), Y=(35.0, 60.0))
-plan = DataAccessPlan(ERA5(), ext, Date(2024, 1, 1), Date(2024, 1, 3);
+plan = DataAccessPlan(ERA5.Source(), ext, Date(2024, 1, 1), Date(2024, 1, 3);
     variables = [:temperature_2m, :total_precipitation])
 files = fetch(plan)
 ```
@@ -54,12 +54,12 @@ Request all 24 hours or specific times:
 
 ```julia
 # All hours
-plan = DataAccessPlan(ERA5(), ext, Date(2024, 7, 1), Date(2024, 7, 1);
+plan = DataAccessPlan(ERA5.Source(), ext, Date(2024, 7, 1), Date(2024, 7, 1);
     variables = [:temperature_2m],
     times = [lpad(h, 2, '0') * ":00" for h in 0:23])
 
 # Only noon
-plan = DataAccessPlan(ERA5(), ext, Date(2024, 7, 1), Date(2024, 7, 31);
+plan = DataAccessPlan(ERA5.Source(), ext, Date(2024, 7, 1), Date(2024, 7, 31);
     variables = [:temperature_2m],
     times = ["12:00"])
 ```

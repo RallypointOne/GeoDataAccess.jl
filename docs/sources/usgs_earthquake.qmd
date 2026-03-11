@@ -16,7 +16,7 @@ The [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/) provides a c
 catalog of earthquake events.  No API key is required.
 
 ```{julia}
-MetaData(USGSEarthquake())
+MetaData(USGSEarthquake.Source())
 ```
 
 ## Bounding Box Query
@@ -26,7 +26,7 @@ FeatureCollections.
 
 ```{julia}
 # M4+ earthquakes in California, January 2024
-plan = DataAccessPlan(USGSEarthquake(),
+plan = DataAccessPlan(USGSEarthquake.Source(),
     Extent(X=(-125.0, -114.0), Y=(32.0, 42.0)),
     Date(2024, 1, 1), Date(2024, 1, 31);
     minmagnitude = 4.0)
@@ -45,7 +45,7 @@ println("$n earthquakes found")
 Query earthquakes within a radius (default 100 km) of a point:
 
 ```{julia}
-plan = DataAccessPlan(USGSEarthquake(), (-122.4, 37.8),
+plan = DataAccessPlan(USGSEarthquake.Source(), (-122.4, 37.8),
     Date(2024, 1, 1), Date(2024, 12, 31);
     minmagnitude = 2.0)
 plan

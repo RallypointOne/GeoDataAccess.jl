@@ -26,7 +26,7 @@ Each daily file contains four variables:
 | `err`  | Estimated SST error (°C) |
 
 ```{julia}
-MetaData(NOAAOISST())
+MetaData(NOAAOISST.Source())
 ```
 
 ## Basic Usage
@@ -36,13 +36,13 @@ using GeoInterface.Extents: Extent
 using Dates
 
 # Download a week of daily SST files
-plan = DataAccessPlan(NOAAOISST(),
+plan = DataAccessPlan(NOAAOISST.Source(),
     Extent(X=(-80.0, -60.0), Y=(30.0, 45.0)),
     Date(2024, 1, 1), Date(2024, 1, 7))
 files = fetch(plan)
 
 # SST and anomalies near a point
-plan = DataAccessPlan(NOAAOISST(), (-74.0, 40.7),
+plan = DataAccessPlan(NOAAOISST.Source(), (-74.0, 40.7),
     Date(2024, 6, 1), Date(2024, 6, 3);
     variables = [:sst, :anom])
 files = fetch(plan)
